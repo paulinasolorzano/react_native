@@ -1,0 +1,833 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Práctica 3 — Props y useState</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { font-family: 'Segoe UI', Arial, sans-serif; background: #fff; color: #1a1a1a; font-size: 15px; }
+
+  .cover { background: linear-gradient(135deg, #0d2c6e 0%, #1565c0 60%, #1e88e5 100%); color: #fff; padding: 60px 50px 40px; min-height: 220px; position: relative; }
+  .cover-logo { font-size: 11px; letter-spacing: 3px; text-transform: uppercase; color: rgba(255,255,255,0.6); margin-bottom: 30px; }
+  .cover h1 { font-size: 28px; font-weight: 700; margin-bottom: 8px; }
+  .cover h2 { font-size: 16px; font-weight: 400; color: rgba(255,255,255,0.8); margin-bottom: 30px; }
+  .cover-meta { display: flex; gap: 40px; margin-top: 20px; flex-wrap: wrap; }
+  .cover-meta div { font-size: 12px; }
+  .cover-meta label { color: rgba(255,255,255,0.55); display: block; margin-bottom: 2px; text-transform: uppercase; letter-spacing: 1px; font-size: 10px; }
+  .cover-bar { height: 5px; background: linear-gradient(90deg, #42a5f5, #80d8ff); margin-top: 30px; border-radius: 3px; }
+  .badge-new { display: inline-block; background: rgba(255,255,255,0.2); border: 1px solid rgba(255,255,255,0.4); color: #fff; font-size: 10px; letter-spacing: 1.5px; text-transform: uppercase; padding: 3px 10px; border-radius: 20px; margin-left: 12px; vertical-align: middle; }
+
+  .page { padding: 36px 50px; }
+  .section-title { font-size: 13px; font-weight: 700; color: #1565c0; text-transform: uppercase; letter-spacing: 1.5px; border-bottom: 2px solid #1565c0; padding-bottom: 5px; margin: 32px 0 16px; }
+  p { font-size: 15px; line-height: 1.7; color: #333; margin-bottom: 8px; }
+
+  .warn   { background: #fff8e1; border-left: 4px solid #f9a825; padding: 10px 14px; border-radius: 0 6px 6px 0; font-size: 13px; margin: 10px 0 14px; color: #5d4037; line-height: 1.6; }
+  .info   { background: #e3f2fd; border-left: 4px solid #1565c0; padding: 10px 14px; border-radius: 0 6px 6px 0; font-size: 13px; margin: 10px 0 14px; color: #0d2c6e; line-height: 1.6; }
+  .tip    { background: #e8f5e9; border-left: 4px solid #388e3c; padding: 10px 14px; border-radius: 0 6px 6px 0; font-size: 13px; margin: 10px 0 14px; color: #1b5e20; line-height: 1.6; }
+
+  pre { background: #f5f7fa; color: #1a1a1a; border: 1px solid #dce3f0; border-left: 4px solid #1565c0; border-radius: 0 8px 8px 0; padding: 14px 18px; font-size: 11.5px; line-height: 1.9; overflow-x: auto; margin: 8px 0 16px; white-space: pre-wrap; font-family: 'Courier New', monospace; }
+  .kw  { color: #7c3aed; font-weight: 700; }
+  .fn  { color: #1565c0; }
+  .str { color: #b91c1c; }
+  .cm  { color: #6b7280; font-style: italic; }
+  .tag { color: #0369a1; }
+  .prop{ color: #0f766e; }
+  .hl  { background: #fff9c4; border-radius: 2px; padding: 0 2px; }
+
+  .file-tag     { display: inline-block; background: #e3f2fd; color: #0d47a1; font-size: 11px; font-weight: 700; padding: 3px 10px; border-radius: 20px; margin-bottom: 6px; }
+  .file-tag.new { background: #e8f5e9; color: #1b5e20; }
+  .file-tag.mod { background: #fff3e0; color: #bf360c; }
+
+  table { width: 100%; border-collapse: collapse; font-size: 12px; margin: 10px 0 16px; }
+  th { background: #1565c0; color: #fff; padding: 9px 14px; text-align: left; font-weight: 600; }
+  td { padding: 8px 14px; border-bottom: 1px solid #e8edf5; vertical-align: top; }
+  tr:nth-child(even) td { background: #f5f7fc; }
+
+  .result-list { list-style: none; padding: 0; }
+  .result-list li { padding: 7px 0 7px 22px; position: relative; font-size: 13px; color: #333; border-bottom: 1px dashed #e0e7f0; }
+  .result-list li::before { content: '✓'; position: absolute; left: 0; color: #1565c0; font-weight: 700; }
+
+  .qa-block { margin-bottom: 18px; }
+  .qa-q { background: #e3f2fd; border-left: 4px solid #1565c0; padding: 10px 14px; border-radius: 0 8px 8px 0; font-weight: 600; color: #0d2c6e; font-size: 13px; }
+  .qa-a-blank { background: #f9fbff; border-left: 4px solid #90caf9; border-radius: 0 8px 8px 0; }
+
+  .reto { background: #f3e5f5; border-left: 4px solid #7b1fa2; border-radius: 0 8px 8px 0; padding: 12px 16px; margin: 10px 0 16px; }
+  .reto strong { color: #4a148c; font-size: 13px; display: block; margin-bottom: 4px; }
+  .reto p { font-size: 12px; color: #4a148c; margin: 0; line-height: 1.6; }
+
+  .conclusion-box { border: 1.5px solid #1565c0; border-radius: 10px; padding: 16px 18px; margin-bottom: 14px; }
+  .conclusion-box h4 { color: #1565c0; font-size: 13px; font-weight: 700; margin-bottom: 6px; }
+
+  textarea { width: 100%; border: none; background: transparent; font-family: 'Segoe UI', Arial, sans-serif; font-size: 13px; color: #1a1a1a; resize: none; outline: none; padding: 10px 14px; line-height: 1.7; min-height: 70px; }
+  textarea::placeholder { color: #aab4c8; font-style: italic; }
+  .input-name { border: none; border-bottom: 1.5px solid #90caf9; font-family: 'Segoe UI', Arial, sans-serif; font-size: 15px; color: #fff; background: transparent; outline: none; width: 220px; padding: 2px 4px; }
+  .input-name::placeholder { color: rgba(255,255,255,0.5); }
+  .input-date { border: none; border-bottom: 1.5px solid #90caf9; font-family: 'Segoe UI', Arial, sans-serif; font-size: 15px; color: #fff; background: transparent; outline: none; width: 120px; padding: 2px 4px; }
+  .input-date::placeholder { color: rgba(255,255,255,0.5); }
+
+  /* ── Analogía boxes ── */
+  .analogy { border: 1.5px solid #dce3f0; border-radius: 10px; overflow: hidden; margin: 14px 0 20px; }
+  .analogy-header { background: #1565c0; color: #fff; padding: 8px 16px; font-size: 12px; font-weight: 700; letter-spacing: 1px; text-transform: uppercase; }
+  .analogy-body { padding: 14px 16px; background: #f9fbff; }
+  .analogy-body p { font-size: 13px; color: #333; margin-bottom: 6px; line-height: 1.7; }
+  .analogy-body p:last-child { margin-bottom: 0; }
+
+  /* ── Componente tree ── */
+  .diagram-box { border: 1.5px solid #dce3f0; border-radius: 10px; padding: 20px; background: #f9fbff; margin: 14px 0 20px; }
+  .comp-row { display: inline-flex; align-items: center; gap: 10px; padding: 7px 14px; border-radius: 8px; margin: 3px 0; font-family: 'Courier New', monospace; font-size: 13px; }
+  .comp-row.parent { background: #e3f2fd; border: 1.5px solid #1565c0; color: #0d2c6e; font-weight: 700; }
+  .comp-row.child  { background: #e8f5e9; border: 1.5px solid #388e3c; color: #1b5e20; font-weight: 700; }
+  .comp-row.child2 { background: #fff3e0; border: 1.5px solid #ef6c00; color: #bf360c; font-weight: 700; }
+  .comp-arrow { color: #90a4ae; font-size: 11px; font-family: 'Segoe UI', sans-serif; font-weight: normal; }
+  .tree-indent { margin-left: 28px; display: flex; flex-direction: column; }
+  .tree-line-wrap { display: flex; align-items: flex-start; gap: 6px; }
+  .tree-vl { color: #b0bec5; font-family: monospace; font-size: 18px; line-height: 1.6; }
+
+  /* ── Versus ── */
+  .versus { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin: 12px 0 18px; }
+  .versus-card { border-radius: 8px; padding: 12px 14px; }
+  .versus-card.bad  { background: #fce4ec; border: 1.5px solid #c62828; }
+  .versus-card.good { background: #e8f5e9; border: 1.5px solid #388e3c; }
+  .versus-card h5 { font-size: 11px; font-weight: 700; margin-bottom: 6px; text-transform: uppercase; letter-spacing: 1px; }
+  .versus-card.bad  h5 { color: #880e4f; }
+  .versus-card.good h5 { color: #1b5e20; }
+  .versus-card pre { margin: 0; border: none; background: rgba(255,255,255,0.6); border-radius: 6px; font-size: 11px; line-height: 1.7; padding: 8px 10px; }
+
+  /* ── Flow arrows ── */
+  .flow { display: flex; align-items: stretch; margin: 14px 0 20px; flex-wrap: wrap; gap: 0; }
+  .flow-step { flex: 1; min-width: 100px; background: #e3f2fd; border: 1.5px solid #1565c0; padding: 10px 12px; text-align: center; }
+  .flow-step:first-child { border-radius: 8px 0 0 8px; }
+  .flow-step:last-child  { border-radius: 0 8px 8px 0; }
+  .flow-step h5 { font-size: 10px; color: #0d2c6e; font-weight: 700; margin-bottom: 3px; text-transform: uppercase; letter-spacing: 0.5px; }
+  .flow-step p  { font-size: 11px; color: #1565c0; margin: 0; line-height: 1.5; }
+  .flow-arrow { display: flex; align-items: center; color: #1565c0; font-size: 18px; padding: 0 1px; }
+
+  .struct { background: #f5f7fa; border: 1px solid #dce3f0; border-radius: 8px; padding: 14px 18px; font-family: 'Courier New', monospace; font-size: 12px; line-height: 1.8; color: #263238; margin-bottom: 16px; }
+
+  .footer { background: #0d2c6e; color: rgba(255,255,255,0.6); font-size: 11px; padding: 14px 50px; display: flex; justify-content: space-between; margin-top: 40px; }
+
+  @media print {
+    textarea { min-height: unset; }
+    .no-print { display: none; }
+    body { font-size: 12px; }
+    .cover, pre, th, .qa-q, .footer,
+    .analogy-header, .comp-row, .flow-step, .versus-card { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+  }
+</style>
+</head>
+<body>
+
+<!-- ══ COVER ══ -->
+<div class="cover">
+  <div class="cover-logo">Ingeniería en Desarrollo y Gestión de Software · Desarrollo de Aplicaciones para Dispositivos Inteligentes</div>
+  <h1>Práctica 3 <span class="badge-new">nuevo</span></h1>
+  <h2>Props · useState · Comunicación entre componentes · Tercera pantalla</h2>
+  <div class="cover-meta">
+    <div><label>Proyecto</label>Explore Mich — Catálogo turístico de Michoacán</div>
+    <div><label>Alumno(a)</label><input class="input-name" type="text" placeholder="Escribe tu nombre aquí" /></div>
+    <div><label>Fecha</label><input class="input-date" type="text" placeholder="dd/mm/aaaa" /></div>
+  </div>
+  <div class="cover-bar"></div>
+</div>
+
+<div class="page">
+
+  <!-- OBJETIVO -->
+  <div class="section-title">🎯 Objetivo</div>
+  <p>Extender la app <strong>Explore Mich</strong> con dos mejoras: un buscador en tiempo real en el catálogo y una tercera pantalla de <strong>Favoritos</strong>. Para lograrlo aprenderás tres conceptos clave: <strong>qué es useState</strong>, <strong>qué son las props</strong> y <strong>qué es un callback</strong>.</p>
+  <div class="info">💡 Esta práctica se construye <strong>sobre la Práctica 2</strong>. Asegúrate de tener funcionando la navegación con React Navigation antes de continuar.</div>
+
+
+  <!-- ══ CONCEPTO 1: useState ══ -->
+  <div class="section-title">📦 Concepto 1 — ¿Qué es useState?</div>
+
+  <p>Cuando quieres que tu pantalla <em>recuerde un valor</em> y se actualice sola cuando ese valor cambia, usas <strong>useState</strong>. Es la forma que tiene React de decir: <em>"guarda esto, y cada vez que cambie, redibuja la pantalla automáticamente"</em>.</p>
+
+  <div class="analogy">
+    <div class="analogy-header">🌡️ Analogía — El termostato</div>
+    <div class="analogy-body">
+      <p>Imagina el display de un termostato. Muestra 20°. Si lo cambias a 25° presionando el botón, el display se actualiza solo.</p>
+      <p><strong>El display</strong> es tu variable de estado — lo que ves en pantalla.<br>
+         <strong>El botón</strong> es la función <code>set</code> — la única manera válida de cambiar el valor.<br>
+         <strong>La actualización automática</strong> es lo que hace React: cuando llamas al botón, redibuja el componente.</p>
+      <p>Si intentaras cambiar el display con un marcador (modificando la variable directo), el termostato no funcionaría. En React es lo mismo: <em>nunca cambies el valor directo, usa siempre la función set</em>.</p>
+    </div>
+  </div>
+
+  <p>La sintaxis siempre devuelve dos cosas en un arreglo:</p>
+  <pre><span class="kw">const</span> [valor, setValor] = <span class="fn">useState</span>(valorInicial);</pre>
+
+  <table>
+    <tr><th>Parte</th><th>¿Qué es?</th><th>Ejemplo concreto</th></tr>
+    <tr><td><code>valor</code></td><td>La variable que lees y muestras en pantalla. React la recuerda entre renders.</td><td><code>query</code> — el texto del buscador</td></tr>
+    <tr><td><code>setValor</code></td><td>La función para cambiar el valor. Al llamarla, React redibuja el componente.</td><td><code>setQuery('morelia')</code></td></tr>
+    <tr><td><code>valorInicial</code></td><td>El valor con el que empieza cuando aparece el componente por primera vez.</td><td><code>''</code> — cadena vacía</td></tr>
+  </table>
+
+  <p>La diferencia crítica entre una variable normal y una de estado:</p>
+
+  <div class="versus">
+    <div class="versus-card bad">
+      <h5>❌ Variable normal — No funciona</h5>
+      <pre><span class="kw">let</span> texto = <span class="str">''</span>;
+
+<span class="cm">// El usuario escribe "morelia"</span>
+texto = <span class="str">'morelia'</span>;
+
+<span class="cm">// React NO sabe que cambió.
+// La lista NO se actualiza.
+// La pantalla queda congelada.</span></pre>
+    </div>
+    <div class="versus-card good">
+      <h5>✅ useState — Sí funciona</h5>
+      <pre><span class="kw">const</span> [texto, setTexto] = <span class="fn">useState</span>(<span class="str">''</span>);
+
+<span class="cm">// El usuario escribe "morelia"</span>
+<span class="fn">setTexto</span>(<span class="str">'morelia'</span>);
+
+<span class="cm">// React SÍ sabe que cambió.
+// La lista se filtra sola.
+// La pantalla se redibuja.</span></pre>
+    </div>
+  </div>
+
+
+  <!-- ══ CONCEPTO 2: PADRE E HIJO ══ -->
+  <div class="section-title">👨‍👧 Concepto 2 — Componentes padre e hijo</div>
+
+  <p>Cuando un componente <strong>usa a otro componente adentro</strong>, el que contiene es el <strong>padre</strong> y el que está adentro es el <strong>hijo</strong>. En esta app ya tienes esta relación desde la Práctica 1: <code>CatalogScreen</code> renderiza varias <code>PlaceCard</code>.</p>
+
+  <div class="analogy">
+    <div class="analogy-header">🏠 Analogía — La casa y sus habitaciones</div>
+    <div class="analogy-body">
+      <p><strong>CatalogScreen</strong> es la casa completa. Dentro hay varias <strong>PlaceCard</strong>, como habitaciones — una por cada lugar turístico.</p>
+      <p>La <strong>casa (padre)</strong> sabe cuántas habitaciones tiene, cuáles son favoritas y qué texto escribió el usuario. <em>Ella es la que guarda la información importante.</em></p>
+      <p>Cada <strong>habitación (hijo)</strong> solo muestra lo que la casa le dijo. No puede ver las otras habitaciones ni cambiar la lista de favoritos por su cuenta.</p>
+      <p>Para que una habitación avise algo a la casa ("¡el usuario tocó favorito aquí!"), necesita un <strong>timbre</strong> que la casa le instaló. Ese timbre es el <strong>callback</strong>.</p>
+    </div>
+  </div>
+
+  <p>Así se ve el árbol de componentes en esta práctica:</p>
+
+  <div class="diagram-box">
+
+    <table style="width:100%; border-collapse:collapse; margin:0 0 14px;">
+      <tr><th colspan="3" style="background:#1565c0; color:#fff; padding:7px 12px; font-size:11px; letter-spacing:1px; text-transform:uppercase; text-align:left;">Relación padre → hijo dentro de CatalogScreen</th></tr>
+      <tr>
+        <td style="width:16px; padding:6px 4px; border-bottom:1px solid #e8edf5;"></td>
+        <td style="padding:6px 10px; border-bottom:1px solid #e8edf5;">
+          <span class="comp-row parent" style="display:inline-flex;">📱 CatalogScreen</span>
+        </td>
+        <td style="padding:6px 10px; border-bottom:1px solid #e8edf5; font-size:12px; color:#546e7a;">
+          PADRE — aquí vive el estado: <code>favorites[]</code> y <code>query</code>
+        </td>
+      </tr>
+      <tr>
+        <td style="padding:6px 4px; border-bottom:1px solid #e8edf5; text-align:center; color:#90a4ae; font-size:18px;">&#x2514;</td>
+        <td style="padding:6px 10px; padding-left:24px; border-bottom:1px solid #e8edf5;">
+          <span class="comp-row child" style="display:inline-flex;">🃏 PlaceCard (lugar 1)</span>
+        </td>
+        <td style="padding:6px 10px; border-bottom:1px solid #e8edf5; font-size:12px; color:#546e7a;">
+          HIJO — recibe datos, no guarda estado propio
+        </td>
+      </tr>
+      <tr>
+        <td style="padding:6px 4px; border-bottom:1px solid #e8edf5; text-align:center; color:#90a4ae; font-size:18px;">&#x2514;</td>
+        <td style="padding:6px 10px; padding-left:24px; border-bottom:1px solid #e8edf5;">
+          <span class="comp-row child" style="display:inline-flex;">🃏 PlaceCard (lugar 2)</span>
+        </td>
+        <td style="padding:6px 10px; border-bottom:1px solid #e8edf5; font-size:12px; color:#546e7a;">
+          HIJO — igual, solo muestra lo que recibe
+        </td>
+      </tr>
+      <tr>
+        <td style="padding:6px 4px; text-align:center; color:#90a4ae; font-size:18px;">&#x2514;</td>
+        <td style="padding:6px 10px; padding-left:24px;">
+          <span class="comp-row child" style="display:inline-flex;">🃏 PlaceCard (lugar 3)</span>
+        </td>
+        <td style="padding:6px 10px; font-size:12px; color:#546e7a;">
+          HIJO — y así para cada item de la lista
+        </td>
+      </tr>
+    </table>
+
+    <table style="width:100%; border-collapse:collapse; margin:0;">
+      <tr><th colspan="3" style="background:#1565c0; color:#fff; padding:7px 12px; font-size:11px; letter-spacing:1px; text-transform:uppercase; text-align:left;">Pantallas registradas en App.js (Stack Navigator)</th></tr>
+      <tr>
+        <td style="width:16px; padding:6px 4px; border-bottom:1px solid #e8edf5;"></td>
+        <td style="padding:6px 10px; border-bottom:1px solid #e8edf5;">
+          <span class="comp-row parent" style="display:inline-flex;">📱 App.js</span>
+        </td>
+        <td style="padding:6px 10px; border-bottom:1px solid #e8edf5; font-size:12px; color:#546e7a;">
+          Raíz — contiene el Stack Navigator con las 3 pantallas
+        </td>
+      </tr>
+      <tr>
+        <td style="padding:6px 4px; border-bottom:1px solid #e8edf5; text-align:center; color:#90a4ae; font-size:18px;">&#x2514;</td>
+        <td style="padding:6px 10px; padding-left:24px; border-bottom:1px solid #e8edf5;">
+          <span class="comp-row child" style="display:inline-flex;">🗂 CatalogScreen</span>
+        </td>
+        <td style="padding:6px 10px; border-bottom:1px solid #e8edf5; font-size:12px; color:#546e7a;">
+          Pantalla inicial — sin cambios en su registro
+        </td>
+      </tr>
+      <tr>
+        <td style="padding:6px 4px; border-bottom:1px solid #e8edf5; text-align:center; color:#90a4ae; font-size:18px;">&#x2514;</td>
+        <td style="padding:6px 10px; padding-left:24px; border-bottom:1px solid #e8edf5;">
+          <span class="comp-row child" style="display:inline-flex;">📄 DetailScreen</span>
+        </td>
+        <td style="padding:6px 10px; border-bottom:1px solid #e8edf5; font-size:12px; color:#546e7a;">
+          Pantalla de detalle — sin cambios
+        </td>
+      </tr>
+      <tr>
+        <td style="padding:6px 4px; text-align:center; color:#90a4ae; font-size:18px;">&#x2514;</td>
+        <td style="padding:6px 10px; padding-left:24px;">
+          <span class="comp-row child2" style="display:inline-flex;">❤️ FavoritesScreen</span>
+        </td>
+        <td style="padding:6px 10px; font-size:12px; color:#bf360c; font-weight:600;">
+          NUEVA en esta práctica
+        </td>
+      </tr>
+    </table>
+
+  </div>
+
+
+  <!-- ══ CONCEPTO 3: PROPS ══ -->
+  <div class="section-title">📬 Concepto 3 — ¿Qué son las Props?</div>
+
+  <p><strong>Props</strong> son los datos que el padre le entrega al hijo. Viajan en una sola dirección: del padre hacia el hijo. El hijo las recibe, las usa para mostrarse, pero no puede cambiarlas.</p>
+
+  <div class="analogy">
+    <div class="analogy-header">👨‍🍳 Analogía — El chef y el mesero</div>
+    <div class="analogy-body">
+      <p>El <strong>padre (CatalogScreen)</strong> es el chef que prepara los ingredientes: sabe qué lugares hay, cuáles son favoritos y qué escribió el usuario.</p>
+      <p>El <strong>hijo (PlaceCard)</strong> es el mesero que recibe el plato ya preparado y solo lo lleva a la mesa. El mesero no decide los ingredientes — solo presenta lo que recibió.</p>
+      <p>En la Práctica 2 ya pasabas la prop <code>place</code>: <code>&lt;PlaceCard place={item} /&gt;</code>. En esta práctica agregarás dos props nuevas: <code>isFavorite</code> y <code>onToggleFav</code>.</p>
+    </div>
+  </div>
+
+  <pre><span class="cm">// El padre pasa datos al hijo mediante props:</span>
+<span class="tag">&lt;PlaceCard</span>
+  <span class="prop">place</span>={item}              <span class="cm">// prop de datos: el objeto del lugar</span>
+  <span class="prop">isFavorite</span>={<span class="kw">true</span>}        <span class="cm">// prop booleana: ¿está en favoritos?</span>
+  <span class="prop">onToggleFav</span>={miFuncion}   <span class="cm">// prop función: el "timbre" (callback)</span>
+<span class="tag">/&gt;</span>
+
+<span class="cm">// El hijo las recibe desestructuradas en sus parámetros:</span>
+<span class="kw">export default function</span> <span class="fn">PlaceCard</span>({ place, isFavorite, onToggleFav }) {
+  <span class="cm">// Aquí puede usar place.name, isFavorite, onToggleFav...</span>
+}</pre>
+
+
+  <!-- ══ CONCEPTO 4: CALLBACK ══ -->
+  <div class="section-title">🔔 Concepto 4 — ¿Qué es un Callback?</div>
+
+  <p>Un <strong>callback</strong> es una función que el padre le pasa al hijo como prop, para que el hijo la llame cuando ocurra un evento. Es la única forma que tiene el hijo de <em>comunicarle algo al padre</em>, ya que las props solo van de padre a hijo.</p>
+
+  <div class="analogy">
+    <div class="analogy-header">🔔 Analogía — El timbre de la habitación</div>
+    <div class="analogy-body">
+      <p>La casa (padre) instala un timbre en cada habitación (hijo). Cuando el usuario toca ❤️ en una PlaceCard, la tarjeta presiona ese timbre.</p>
+      <p>La casa escucha el timbre y decide: <em>"¡Ah, marcaron favorito el lugar con id '2'! Voy a actualizar mi lista."</em></p>
+      <p>La habitación <strong>no sabe qué hace la casa cuando suena el timbre</strong>. Solo sabe que debe presionarlo y pasarle el ID del lugar. Eso es un callback.</p>
+    </div>
+  </div>
+
+  <pre><span class="cm">// PADRE — Define la función y se la da al hijo</span>
+<span class="kw">const</span> <span class="fn">toggleFavorite</span> = (id) => {
+  <span class="cm">// Cuando el hijo llame a esta función, recibirá el id del lugar</span>
+  <span class="fn">setFavorites</span>(prev =>
+    prev.<span class="fn">includes</span>(id) ? prev.<span class="fn">filter</span>(x => x !== id) : [...prev, id]
+  );
+};
+
+<span class="cm">// El padre le instala el timbre al hijo:</span>
+<span class="tag">&lt;PlaceCard</span> <span class="prop">onToggleFav</span>={<span class="hl">toggleFavorite</span>} ... <span class="tag">/&gt;</span>
+
+
+<span class="cm">// HIJO — Recibe el timbre y lo presiona cuando el usuario toca ❤️</span>
+<span class="kw">export default function</span> <span class="fn">PlaceCard</span>({ place, isFavorite, <span class="hl">onToggleFav</span> }) {
+  <span class="kw">return</span> (
+    <span class="tag">&lt;TouchableOpacity</span> <span class="prop">onPress</span>={() => <span class="fn hl">onToggleFav</span>(place.id)}<span class="tag">&gt;</span>
+      <span class="cm">{/* El hijo NO sabe qué pasa después — solo llama la función */}</span>
+      <span class="tag">&lt;Text&gt;</span>{isFavorite ? <span class="str">'❤️'</span> : <span class="str">'🤍'</span>}<span class="tag">&lt;/Text&gt;</span>
+    <span class="tag">&lt;/TouchableOpacity&gt;</span>
+  );
+}</pre>
+
+  <div class="tip">💡 <strong>Resumen del flujo de información:</strong> Los <em>datos</em> bajan del padre al hijo via props. Los <em>eventos</em> suben del hijo al padre via callbacks. Nunca al revés.</div>
+
+  <!-- FLUJO VISUAL -->
+  <div class="flow">
+    <div class="flow-step"><h5>1. Usuario</h5><p>Toca ❤️ en PlaceCard</p></div>
+    <div class="flow-arrow">→</div>
+    <div class="flow-step"><h5>2. PlaceCard</h5><p>Llama a <code>onToggleFav('2')</code></p></div>
+    <div class="flow-arrow">→</div>
+    <div class="flow-step"><h5>3. CatalogScreen</h5><p>Actualiza el estado <code>favorites</code></p></div>
+    <div class="flow-arrow">→</div>
+    <div class="flow-step"><h5>4. React</h5><p>Redibuja la lista entera</p></div>
+    <div class="flow-arrow">→</div>
+    <div class="flow-step"><h5>5. PlaceCard</h5><p>Recibe <code>isFavorite=true</code> y muestra ❤️</p></div>
+  </div>
+
+
+  <!-- ══ ESTRUCTURA ══ -->
+  <div class="section-title">🗂️ Estructura actualizada del proyecto</div>
+  <table style="width:100%; border-collapse:collapse; font-size:12px; margin:10px 0 16px; font-family:'Courier New', monospace;">
+    <tr><th colspan="3" style="background:#263238; color:#fff; padding:8px 14px; text-align:left; font-size:11px; letter-spacing:1px; text-transform:uppercase; font-family:'Segoe UI',sans-serif;">ExploreMich/ — archivos del proyecto</th></tr>
+    <tr>
+      <td style="padding:7px 10px; border-bottom:1px solid #e8edf5; color:#546e7a; width:20px;">&#x2502;</td>
+      <td style="padding:7px 10px; border-bottom:1px solid #e8edf5; font-weight:700;">App.js</td>
+      <td style="padding:7px 14px; border-bottom:1px solid #e8edf5;"><span class="file-tag mod">MODIFICADO</span> &nbsp;registra FavoritesScreen en el Stack</td>
+    </tr>
+    <tr style="background:#f5f7fc;">
+      <td style="padding:7px 10px; border-bottom:1px solid #e8edf5; color:#546e7a;">&#x2502;</td>
+      <td style="padding:7px 10px; border-bottom:1px solid #e8edf5; color:#888;" colspan="2">data/</td>
+    </tr>
+    <tr>
+      <td style="padding:7px 10px; border-bottom:1px solid #e8edf5; color:#546e7a;">&#x2502;&nbsp;&nbsp;&#x2514;</td>
+      <td style="padding:7px 10px; border-bottom:1px solid #e8edf5; padding-left:24px;">places.js</td>
+      <td style="padding:7px 14px; border-bottom:1px solid #e8edf5;"><span class="file-tag">sin cambios</span></td>
+    </tr>
+    <tr style="background:#f5f7fc;">
+      <td style="padding:7px 10px; border-bottom:1px solid #e8edf5; color:#546e7a;">&#x2502;</td>
+      <td style="padding:7px 10px; border-bottom:1px solid #e8edf5; color:#888;" colspan="2">screens/</td>
+    </tr>
+    <tr>
+      <td style="padding:7px 10px; border-bottom:1px solid #e8edf5; color:#546e7a;">&#x2502;&nbsp;&nbsp;&#x251C;</td>
+      <td style="padding:7px 10px; border-bottom:1px solid #e8edf5; padding-left:24px;">CatalogScreen.js</td>
+      <td style="padding:7px 14px; border-bottom:1px solid #e8edf5;"><span class="file-tag mod">MODIFICADO</span> &nbsp;buscador + favoritos + botón ir a favoritos</td>
+    </tr>
+    <tr>
+      <td style="padding:7px 10px; border-bottom:1px solid #e8edf5; color:#546e7a;">&#x2502;&nbsp;&nbsp;&#x251C;</td>
+      <td style="padding:7px 10px; border-bottom:1px solid #e8edf5; padding-left:24px;">DetailScreen.js</td>
+      <td style="padding:7px 14px; border-bottom:1px solid #e8edf5;"><span class="file-tag">sin cambios</span></td>
+    </tr>
+    <tr style="background:#f5f7fc;">
+      <td style="padding:7px 10px; border-bottom:1px solid #e8edf5; color:#546e7a;">&#x2502;&nbsp;&nbsp;&#x2514;</td>
+      <td style="padding:7px 10px; border-bottom:1px solid #e8edf5; padding-left:24px; font-weight:700;">FavoritesScreen.js</td>
+      <td style="padding:7px 14px; border-bottom:1px solid #e8edf5;"><span class="file-tag new">NUEVO</span> &nbsp;tercera pantalla — lista de favoritos</td>
+    </tr>
+    <tr>
+      <td style="padding:7px 10px; border-bottom:1px solid #e8edf5; color:#546e7a;">&#x2502;</td>
+      <td style="padding:7px 10px; border-bottom:1px solid #e8edf5; color:#888;" colspan="2">components/</td>
+    </tr>
+    <tr style="background:#f5f7fc;">
+      <td style="padding:7px 10px; color:#546e7a;">&#x2514;&nbsp;&nbsp;&#x2514;</td>
+      <td style="padding:7px 10px; padding-left:24px;">PlaceCard.js</td>
+      <td style="padding:7px 14px;"><span class="file-tag mod">MODIFICADO</span> &nbsp;botón ❤️ + props isFavorite y onToggleFav</td>
+    </tr>
+  </table>
+
+
+  <!-- ══ CÓDIGO COMPLETO ══ -->
+  <div class="section-title">📝 Código completo — Archivos modificados y nuevos</div>
+
+
+  <!-- places.js sin cambios — aclaración -->
+  <div class="info">ℹ️ El archivo <code>data/places.js</code> y <code>DetailScreen.js</code> no cambian en esta práctica.</div>
+
+
+  <!-- ── App.js ── -->
+  <span class="file-tag mod">App.js — modificado</span>
+  <p>Se registra la nueva pantalla <code>FavoritesScreen</code> en el Stack Navigator:</p>
+  <pre><span class="kw">import</span> React <span class="kw">from</span> <span class="str">'react'</span>;
+<span class="kw">import</span> { <span class="fn">NavigationContainer</span> } <span class="kw">from</span> <span class="str">'@react-navigation/native'</span>;
+<span class="kw">import</span> { <span class="fn">createNativeStackNavigator</span> } <span class="kw">from</span> <span class="str">'@react-navigation/native-stack'</span>;
+<span class="kw">import</span> CatalogScreen    <span class="kw">from</span> <span class="str">'./screens/CatalogScreen'</span>;
+<span class="kw">import</span> DetailScreen     <span class="kw">from</span> <span class="str">'./screens/DetailScreen'</span>;
+<span class="kw">import</span> <span class="hl">FavoritesScreen</span>  <span class="kw">from</span> <span class="str">'./screens/FavoritesScreen'</span>;  <span class="cm">// ← NUEVO</span>
+
+<span class="kw">const</span> Stack = <span class="fn">createNativeStackNavigator</span>();
+
+<span class="kw">export default function</span> <span class="fn">App</span>() {
+  <span class="kw">return</span> (
+    <span class="tag">&lt;NavigationContainer&gt;</span>
+      <span class="tag">&lt;Stack.Navigator</span>
+        <span class="prop">initialRouteName</span>=<span class="str">"Catalog"</span>
+        <span class="prop">screenOptions</span>={{
+          <span class="prop">headerStyle</span>: { <span class="prop">backgroundColor</span>: <span class="str">'#00796b'</span> },
+          <span class="prop">headerTintColor</span>: <span class="str">'#fff'</span>,
+          <span class="prop">headerTitleStyle</span>: { <span class="prop">fontWeight</span>: <span class="str">'bold'</span> },
+        }}
+      <span class="tag">&gt;</span>
+        <span class="tag">&lt;Stack.Screen</span> <span class="prop">name</span>=<span class="str">"Catalog"</span>    <span class="prop">component</span>={CatalogScreen}   <span class="prop">options</span>={{ <span class="prop">title</span>: <span class="str">'Explore Mich'</span> }} <span class="tag">/&gt;</span>
+        <span class="tag">&lt;Stack.Screen</span> <span class="prop">name</span>=<span class="str">"Detail"</span>     <span class="prop">component</span>={DetailScreen}    <span class="prop">options</span>={({ route }) => ({ <span class="prop">title</span>: route.params.place.name })} <span class="tag">/&gt;</span>
+        <span class="tag">&lt;Stack.Screen</span> <span class="prop">name</span>=<span class="str">"Favorites"</span>  <span class="prop">component</span>={<span class="hl">FavoritesScreen</span>} <span class="prop">options</span>={{ <span class="prop">title</span>: <span class="str">'Mis Favoritos ❤️'</span> }} <span class="tag">/&gt;</span>  <span class="cm">{/* ← NUEVO */}</span>
+      <span class="tag">&lt;/Stack.Navigator&gt;</span>
+    <span class="tag">&lt;/NavigationContainer&gt;</span>
+  );
+}</pre>
+
+
+  <!-- ── CatalogScreen.js ── -->
+  <span class="file-tag mod">screens/CatalogScreen.js — modificado</span>
+  <p>Se agregan: el estado <code>query</code> para el buscador, el estado <code>favorites</code> para los IDs favoritos, la función callback <code>toggleFavorite</code> y un botón para ir a la pantalla de favoritos.</p>
+  <pre><span class="kw">import</span> React, { <span class="fn hl">useState</span> } <span class="kw">from</span> <span class="str">'react'</span>;
+<span class="kw">import</span> { View, Text, FlatList, TextInput, TouchableOpacity, StyleSheet } <span class="kw">from</span> <span class="str">'react-native'</span>;
+<span class="kw">import</span> { <span class="fn">useNavigation</span> } <span class="kw">from</span> <span class="str">'@react-navigation/native'</span>;
+<span class="kw">import</span> { places } <span class="kw">from</span> <span class="str">'../data/places'</span>;
+<span class="kw">import</span> PlaceCard <span class="kw">from</span> <span class="str">'../components/PlaceCard'</span>;
+
+<span class="kw">export default function</span> <span class="fn">CatalogScreen</span>() {
+  <span class="kw">const</span> navigation = <span class="fn">useNavigation</span>();
+
+  <span class="cm">// ── Estado 1: texto del buscador</span>
+  <span class="cm">// Inicia como cadena vacía. Cuando el usuario escribe, se actualiza</span>
+  <span class="kw">const</span> [query, <span class="hl">setQuery</span>] = <span class="fn">useState</span>(<span class="str">''</span>);
+
+  <span class="cm">// ── Estado 2: arreglo con los IDs de los lugares favoritos</span>
+  <span class="cm">// Inicia como arreglo vacío. Se llena cuando el usuario toca ❤️</span>
+  <span class="kw">const</span> [favorites, <span class="hl">setFavorites</span>] = <span class="fn">useState</span>([]);
+
+  <span class="cm">// ── Lista filtrada: se recalcula en cada render según el valor de query</span>
+  <span class="cm">// NO necesita ser estado porque se deriva del array original + query</span>
+  <span class="kw">const</span> filtered = places.<span class="fn">filter</span>(p =>
+    p.name.<span class="fn">toLowerCase</span>().<span class="fn">includes</span>(query.<span class="fn">toLowerCase</span>())
+  );
+
+  <span class="cm">// ── Callback que PlaceCard llamará cuando el usuario toque ❤️</span>
+  <span class="cm">// Recibe el id del lugar y decide si agregarlo o quitarlo de favorites</span>
+  <span class="kw">const</span> <span class="fn">toggleFavorite</span> = (id) => {
+    <span class="fn">setFavorites</span>(prev =>
+      prev.<span class="fn">includes</span>(id)
+        ? prev.<span class="fn">filter</span>(fid => fid !== id)  <span class="cm">// ya estaba → quitar</span>
+        : [...prev, id]                       <span class="cm">// no estaba → agregar</span>
+    );
+  };
+
+  <span class="kw">return</span> (
+    <span class="tag">&lt;View</span> <span class="prop">style</span>={styles.container}<span class="tag">&gt;</span>
+
+      <span class="cm">{/* ── Encabezado con título y botón de favoritos */}</span>
+      <span class="tag">&lt;View</span> <span class="prop">style</span>={styles.headerRow}<span class="tag">&gt;</span>
+        <span class="tag">&lt;View&gt;</span>
+          <span class="tag">&lt;Text</span> <span class="prop">style</span>={styles.header}<span class="tag">&gt;</span>Explore Mich<span class="tag">&lt;/Text&gt;</span>
+          <span class="tag">&lt;Text</span> <span class="prop">style</span>={styles.subtitle}<span class="tag">&gt;</span>Catálogo turístico de Michoacán<span class="tag">&lt;/Text&gt;</span>
+        <span class="tag">&lt;/View&gt;</span>
+
+        <span class="cm">{/* Botón para navegar a FavoritesScreen, pasando los IDs y los datos */}</span>
+        <span class="tag">&lt;TouchableOpacity</span>
+          <span class="prop">style</span>={styles.favBadge}
+          <span class="prop">onPress</span>={() =>
+            navigation.<span class="fn">navigate</span>(<span class="str">'Favorites'</span>, { <span class="hl">favoriteIds</span>: favorites })
+          }
+        <span class="tag">&gt;</span>
+          <span class="tag">&lt;Text</span> <span class="prop">style</span>={styles.favBadgeText}<span class="tag">&gt;</span>❤️ {favorites.length}<span class="tag">&lt;/Text&gt;</span>
+        <span class="tag">&lt;/TouchableOpacity&gt;</span>
+      <span class="tag">&lt;/View&gt;</span>
+
+      <span class="cm">{/* ── Buscador controlado por el estado query */}</span>
+      <span class="tag">&lt;TextInput</span>
+        <span class="prop">style</span>={styles.search}
+        <span class="prop">placeholder</span>=<span class="str">"🔍 Buscar lugar..."</span>
+        <span class="prop">value</span>={<span class="hl">query</span>}
+        <span class="prop">onChangeText</span>={<span class="hl">setQuery</span>}
+      <span class="tag">/&gt;</span>
+
+      <span class="cm">{/* ── Lista: usa filtered (no el array completo) */}</span>
+      <span class="tag">&lt;FlatList</span>
+        <span class="prop">data</span>={<span class="hl">filtered</span>}
+        <span class="prop">keyExtractor</span>={(item) => item.id}
+        <span class="prop">renderItem</span>={({ item }) => (
+          <span class="tag">&lt;PlaceCard</span>
+            <span class="prop">place</span>={item}
+            <span class="prop hl">isFavorite</span>={favorites.<span class="fn">includes</span>(item.id)}
+            <span class="prop hl">onToggleFav</span>={toggleFavorite}
+          <span class="tag">/&gt;</span>
+        )}
+        <span class="prop">contentContainerStyle</span>={styles.list}
+      <span class="tag">/&gt;</span>
+    <span class="tag">&lt;/View&gt;</span>
+  );
+}
+
+<span class="kw">const</span> styles = StyleSheet.<span class="fn">create</span>({
+  container:     { flex: 1, paddingTop: 50, backgroundColor: <span class="str">'#f5f5f5'</span> },
+  headerRow:     { flexDirection: <span class="str">'row'</span>, justifyContent: <span class="str">'space-between'</span>, alignItems: <span class="str">'center'</span>, marginHorizontal: 16, marginBottom: 4 },
+  header:        { fontSize: 28, fontWeight: <span class="str">'bold'</span>, color: <span class="str">'#263238'</span> },
+  subtitle:      { fontSize: 14, color: <span class="str">'#666'</span> },
+  favBadge:      { backgroundColor: <span class="str">'#00796b'</span>, borderRadius: 20, paddingHorizontal: 14, paddingVertical: 8 },
+  favBadgeText:  { color: <span class="str">'#fff'</span>, fontWeight: <span class="str">'bold'</span>, fontSize: 14 },
+  search: {
+    marginHorizontal: 16, marginVertical: 12,
+    backgroundColor: <span class="str">'#fff'</span>, borderRadius: 10,
+    paddingHorizontal: 14, paddingVertical: 9,
+    fontSize: 14, borderWidth: 1, borderColor: <span class="str">'#ddd'</span>,
+  },
+  list: { paddingBottom: 20 },
+});</pre>
+
+
+  <!-- ── PlaceCard.js ── -->
+  <span class="file-tag mod">components/PlaceCard.js — modificado</span>
+  <p>Recibe dos props nuevas del padre: <code>isFavorite</code> (dato) y <code>onToggleFav</code> (callback). No guarda ningún estado propio.</p>
+  <pre><span class="kw">import</span> React <span class="kw">from</span> <span class="str">'react'</span>;
+<span class="kw">import</span> { Text, Image, TouchableOpacity, StyleSheet } <span class="kw">from</span> <span class="str">'react-native'</span>;
+<span class="kw">import</span> { Card, Button, Icon } <span class="kw">from</span> <span class="str">'@rneui/themed'</span>;
+<span class="kw">import</span> { <span class="fn">useNavigation</span> } <span class="kw">from</span> <span class="str">'@react-navigation/native'</span>;
+
+<span class="cm">// Nuevas props recibidas del padre:
+//   isFavorite  → booleano: true si el lugar está en favoritos
+//   onToggleFav → callback: función del padre que se llama al tocar ❤️</span>
+<span class="kw">export default function</span> <span class="fn">PlaceCard</span>({ place, <span class="hl">isFavorite</span>, <span class="hl">onToggleFav</span> }) {
+  <span class="kw">const</span> navigation = <span class="fn">useNavigation</span>();
+
+  <span class="kw">return</span> (
+    <span class="tag">&lt;Card</span> <span class="prop">containerStyle</span>={styles.card}<span class="tag">&gt;</span>
+      <span class="tag">&lt;Image</span> <span class="prop">source</span>={{ uri: place.image }} <span class="prop">style</span>={styles.image} <span class="tag">/&gt;</span>
+
+      <span class="cm">{/* Botón de favorito — al presionar llama al callback del padre con el id */}</span>
+      <span class="tag">&lt;TouchableOpacity</span>
+        <span class="prop">style</span>={styles.favBtn}
+        <span class="prop">onPress</span>={() => <span class="fn hl">onToggleFav</span>(place.id)}
+      <span class="tag">&gt;</span>
+        <span class="cm">{/* Muestra ❤️ si isFavorite es true, 🤍 si es false */}</span>
+        <span class="tag">&lt;Text</span> <span class="prop">style</span>={{ fontSize: 24 }}<span class="tag">&gt;</span>{<span class="hl">isFavorite</span> ? <span class="str">'❤️'</span> : <span class="str">'🤍'</span>}<span class="tag">&lt;/Text&gt;</span>
+      <span class="tag">&lt;/TouchableOpacity&gt;</span>
+
+      <span class="tag">&lt;Text</span> <span class="prop">style</span>={styles.title}<span class="tag">&gt;</span>{place.name}<span class="tag">&lt;/Text&gt;</span>
+      <span class="tag">&lt;Text</span> <span class="prop">style</span>={styles.category}<span class="tag">&gt;</span>{place.category}<span class="tag">&lt;/Text&gt;</span>
+      <span class="tag">&lt;Text</span> <span class="prop">style</span>={styles.description}<span class="tag">&gt;</span>{place.description}<span class="tag">&lt;/Text&gt;</span>
+
+      <span class="tag">&lt;Button</span>
+        <span class="prop">title</span>=<span class="str">"Ver más"</span>
+        <span class="prop">icon</span>={<span class="tag">&lt;Icon</span> <span class="prop">name</span>=<span class="str">"map"</span> <span class="prop">type</span>=<span class="str">"feather"</span> <span class="prop">color</span>=<span class="str">"white"</span> <span class="prop">size</span>={18} <span class="tag">/&gt;</span>}
+        <span class="prop">buttonStyle</span>={styles.button}
+        <span class="prop">onPress</span>={() => navigation.<span class="fn">navigate</span>(<span class="str">'Detail'</span>, { place })}
+      <span class="tag">/&gt;</span>
+    <span class="tag">&lt;/Card&gt;</span>
+  );
+}
+
+<span class="kw">const</span> styles = StyleSheet.<span class="fn">create</span>({
+  card:        { borderRadius: 16, padding: 12, marginBottom: 14 },
+  image:       { height: 180, borderRadius: 12 },
+  title:       { fontSize: 20, fontWeight: <span class="str">'bold'</span>, marginTop: 10 },
+  category:    { color: <span class="str">'#00695c'</span>, marginTop: 4, fontWeight: <span class="str">'600'</span> },
+  description: { marginTop: 8, color: <span class="str">'#444'</span>, lineHeight: 20 },
+  button:      { marginTop: 12, borderRadius: 10, backgroundColor: <span class="str">'#00796b'</span> },
+  favBtn:      { position: <span class="str">'absolute'</span>, top: 12, right: 12, zIndex: 10 },
+});</pre>
+
+
+  <!-- ── FavoritesScreen.js ── -->
+  <span class="file-tag new">screens/FavoritesScreen.js — NUEVO</span>
+  <p>Tercera pantalla. Recibe los IDs favoritos por <code>route.params</code> y usa <strong>useState</strong> localmente para el buscador interno. Filtra los lugares originales para mostrar solo los que están en la lista de favoritos.</p>
+  <pre><span class="kw">import</span> React, { <span class="fn hl">useState</span> } <span class="kw">from</span> <span class="str">'react'</span>;
+<span class="kw">import</span> {
+  View, Text, FlatList, Image,
+  TextInput, TouchableOpacity, StyleSheet
+} <span class="kw">from</span> <span class="str">'react-native'</span>;
+<span class="kw">import</span> { <span class="fn">useNavigation</span> } <span class="kw">from</span> <span class="str">'@react-navigation/native'</span>;
+<span class="kw">import</span> { places } <span class="kw">from</span> <span class="str">'../data/places'</span>;
+
+<span class="kw">export default function</span> <span class="fn">FavoritesScreen</span>({ route }) {
+  <span class="cm">// Recibe los IDs favoritos que CatalogScreen envió al navegar</span>
+  <span class="kw">const</span> { favoriteIds } = route.params;
+
+  <span class="cm">// ── Estado local: buscador dentro de favoritos</span>
+  <span class="kw">const</span> [query, <span class="hl">setQuery</span>] = <span class="fn">useState</span>(<span class="str">''</span>);
+
+  <span class="kw">const</span> navigation = <span class="fn">useNavigation</span>();
+
+  <span class="cm">// Paso 1: filtrar el array completo para quedarse solo con los favoritos</span>
+  <span class="kw">const</span> favoritePlaces = places.<span class="fn">filter</span>(p => favoriteIds.<span class="fn">includes</span>(p.id));
+
+  <span class="cm">// Paso 2: sobre esos favoritos, aplicar el buscador local</span>
+  <span class="kw">const</span> filtered = favoritePlaces.<span class="fn">filter</span>(p =>
+    p.name.<span class="fn">toLowerCase</span>().<span class="fn">includes</span>(query.<span class="fn">toLowerCase</span>())
+  );
+
+  <span class="cm">// Vista cuando no hay ningún favorito marcado aún</span>
+  <span class="kw">if</span> (favoriteIds.length === 0) {
+    <span class="kw">return</span> (
+      <span class="tag">&lt;View</span> <span class="prop">style</span>={styles.empty}<span class="tag">&gt;</span>
+        <span class="tag">&lt;Text</span> <span class="prop">style</span>={styles.emptyIcon}<span class="tag">&gt;</span>🤍<span class="tag">&lt;/Text&gt;</span>
+        <span class="tag">&lt;Text</span> <span class="prop">style</span>={styles.emptyTitle}<span class="tag">&gt;</span>Sin favoritos todavía<span class="tag">&lt;/Text&gt;</span>
+        <span class="tag">&lt;Text</span> <span class="prop">style</span>={styles.emptySubtitle}<span class="tag">&gt;</span>
+          Regresa al catálogo y toca ❤️ en los lugares que te interesen.
+        <span class="tag">&lt;/Text&gt;</span>
+        <span class="tag">&lt;TouchableOpacity</span>
+          <span class="prop">style</span>={styles.backBtn}
+          <span class="prop">onPress</span>={() => navigation.<span class="fn">goBack</span>()}
+        <span class="tag">&gt;</span>
+          <span class="tag">&lt;Text</span> <span class="prop">style</span>={styles.backBtnText}<span class="tag">&gt;</span>← Volver al catálogo<span class="tag">&lt;/Text&gt;</span>
+        <span class="tag">&lt;/TouchableOpacity&gt;</span>
+      <span class="tag">&lt;/View&gt;</span>
+    );
+  }
+
+  <span class="kw">return</span> (
+    <span class="tag">&lt;View</span> <span class="prop">style</span>={styles.container}<span class="tag">&gt;</span>
+
+      <span class="cm">{/* Contador de favoritos */}</span>
+      <span class="tag">&lt;Text</span> <span class="prop">style</span>={styles.count}<span class="tag">&gt;</span>
+        {favoriteIds.length} lugar{favoriteIds.length !== 1 ? <span class="str">'es'</span> : <span class="str">''</span>} guardado{favoriteIds.length !== 1 ? <span class="str">'s'</span> : <span class="str">''</span>}
+      <span class="tag">&lt;/Text&gt;</span>
+
+      <span class="cm">{/* Buscador local — useState propio de esta pantalla */}</span>
+      <span class="tag">&lt;TextInput</span>
+        <span class="prop">style</span>={styles.search}
+        <span class="prop">placeholder</span>=<span class="str">"🔍 Buscar en tus favoritos..."</span>
+        <span class="prop">value</span>={<span class="hl">query</span>}
+        <span class="prop">onChangeText</span>={<span class="hl">setQuery</span>}
+      <span class="tag">/&gt;</span>
+
+      <span class="tag">&lt;FlatList</span>
+        <span class="prop">data</span>={<span class="hl">filtered</span>}
+        <span class="prop">keyExtractor</span>={(item) => item.id}
+        <span class="prop">renderItem</span>={({ item }) => (
+          <span class="tag">&lt;TouchableOpacity</span>
+            <span class="prop">style</span>={styles.card}
+            <span class="prop">onPress</span>={() => navigation.<span class="fn">navigate</span>(<span class="str">'Detail'</span>, { place: item })}
+          <span class="tag">&gt;</span>
+            <span class="tag">&lt;Image</span> <span class="prop">source</span>={{ uri: item.image }} <span class="prop">style</span>={styles.cardImage} <span class="tag">/&gt;</span>
+            <span class="tag">&lt;View</span> <span class="prop">style</span>={styles.cardInfo}<span class="tag">&gt;</span>
+              <span class="tag">&lt;Text</span> <span class="prop">style</span>={styles.cardCategory}<span class="tag">&gt;</span>{item.category}<span class="tag">&lt;/Text&gt;</span>
+              <span class="tag">&lt;Text</span> <span class="prop">style</span>={styles.cardName}<span class="tag">&gt;</span>{item.name}<span class="tag">&lt;/Text&gt;</span>
+              <span class="tag">&lt;Text</span> <span class="prop">style</span>={styles.cardDesc}<span class="tag">&gt;</span>{item.description}<span class="tag">&lt;/Text&gt;</span>
+              <span class="tag">&lt;Text</span> <span class="prop">style</span>={styles.cardLink}<span class="tag">&gt;</span>Ver detalle →<span class="tag">&lt;/Text&gt;</span>
+            <span class="tag">&lt;/View&gt;</span>
+          <span class="tag">&lt;/TouchableOpacity&gt;</span>
+        )}
+        <span class="prop">contentContainerStyle</span>={{ paddingBottom: 30 }}
+        <span class="prop">ListEmptyComponent</span>={
+          <span class="tag">&lt;Text</span> <span class="prop">style</span>={styles.noResults}<span class="tag">&gt;</span>
+            Sin resultados para "{query}"
+          <span class="tag">&lt;/Text&gt;</span>
+        }
+      <span class="tag">/&gt;</span>
+    <span class="tag">&lt;/View&gt;</span>
+  );
+}
+
+<span class="kw">const</span> styles = StyleSheet.<span class="fn">create</span>({
+  <span class="cm">/* ── Pantalla vacía */</span>
+  empty:         { flex: 1, justifyContent: <span class="str">'center'</span>, alignItems: <span class="str">'center'</span>, padding: 40, backgroundColor: <span class="str">'#fff'</span> },
+  emptyIcon:     { fontSize: 60, marginBottom: 16 },
+  emptyTitle:    { fontSize: 20, fontWeight: <span class="str">'bold'</span>, color: <span class="str">'#263238'</span>, marginBottom: 8 },
+  emptySubtitle: { fontSize: 14, color: <span class="str">'#666'</span>, textAlign: <span class="str">'center'</span>, lineHeight: 22, marginBottom: 24 },
+  backBtn:       { backgroundColor: <span class="str">'#00796b'</span>, borderRadius: 10, paddingHorizontal: 20, paddingVertical: 10 },
+  backBtnText:   { color: <span class="str">'#fff'</span>, fontWeight: <span class="str">'bold'</span> },
+
+  <span class="cm">/* ── Pantalla con resultados */</span>
+  container: { flex: 1, backgroundColor: <span class="str">'#f5f5f5'</span>, paddingTop: 16 },
+  count:     { fontSize: 13, color: <span class="str">'#888'</span>, marginHorizontal: 16, marginBottom: 4 },
+  search: {
+    marginHorizontal: 16, marginBottom: 12,
+    backgroundColor: <span class="str">'#fff'</span>, borderRadius: 10,
+    paddingHorizontal: 14, paddingVertical: 9,
+    fontSize: 14, borderWidth: 1, borderColor: <span class="str">'#ddd'</span>,
+  },
+  noResults: { textAlign: <span class="str">'center'</span>, color: <span class="str">'#999'</span>, marginTop: 40, fontSize: 14 },
+
+  <span class="cm">/* ── Tarjeta horizontal */</span>
+  card:         { flexDirection: <span class="str">'row'</span>, backgroundColor: <span class="str">'#fff'</span>, borderRadius: 14, marginHorizontal: 16, marginBottom: 12, overflow: <span class="str">'hidden'</span>, elevation: 2 },
+  cardImage:    { width: 100, height: 100 },
+  cardInfo:     { flex: 1, padding: 12, justifyContent: <span class="str">'center'</span> },
+  cardCategory: { fontSize: 10, color: <span class="str">'#00796b'</span>, fontWeight: <span class="str">'700'</span>, textTransform: <span class="str">'uppercase'</span>, letterSpacing: 0.5, marginBottom: 2 },
+  cardName:     { fontSize: 15, fontWeight: <span class="str">'bold'</span>, color: <span class="str">'#1a1a1a'</span>, marginBottom: 4 },
+  cardDesc:     { fontSize: 12, color: <span class="str">'#666'</span>, lineHeight: 18, marginBottom: 6 },
+  cardLink:     { fontSize: 12, color: <span class="str">'#00796b'</span>, fontWeight: <span class="str">'600'</span> },
+});</pre>
+
+
+  <!-- RESUMEN DE CONCEPTOS -->
+  <div class="section-title">🔑 Resumen de conceptos</div>
+  <table>
+    <tr><th>Concepto</th><th>Definición en una línea</th><th>Dónde se usa en esta práctica</th></tr>
+    <tr><td><strong>useState</strong></td><td>Guarda un valor que puede cambiar. Al cambiar, React redibuja la pantalla.</td><td><code>query</code> en CatalogScreen y FavoritesScreen. <code>favorites</code> en CatalogScreen.</td></tr>
+    <tr><td><strong>Props (datos)</strong></td><td>Datos que el padre le pasa al hijo. Solo de lectura en el hijo.</td><td><code>place</code>, <code>isFavorite</code> pasan de CatalogScreen a PlaceCard.</td></tr>
+    <tr><td><strong>Props (callback)</strong></td><td>Función que el padre le pasa al hijo para que la llame cuando ocurra algo.</td><td><code>onToggleFav</code> pasa de CatalogScreen a PlaceCard.</td></tr>
+    <tr><td><strong>Padre / Hijo</strong></td><td>El componente que contiene a otro es el padre. El que está adentro es el hijo.</td><td>CatalogScreen (padre) contiene varias PlaceCard (hijos).</td></tr>
+    <tr><td><strong>route.params</strong></td><td>Objeto con los datos que una pantalla le envió a otra al navegar.</td><td>CatalogScreen envía <code>favoriteIds</code>; FavoritesScreen los recibe.</td></tr>
+  </table>
+
+
+  <!-- RETOS -->
+  <div class="section-title">🚀 Retos opcionales</div>
+  <div class="reto">
+    <strong>Reto 1 — Quitar favorito desde FavoritesScreen</strong>
+    <p>El problema: si el usuario desmarca un favorito en CatalogScreen, los cambios no se reflejan en FavoritesScreen porque los IDs se pasan como params fijos al navegar. Investiga <strong>React Context</strong> o pasa una función callback también a FavoritesScreen para que pueda actualizar el estado del padre.</p>
+  </div>
+  <div class="reto">
+    <strong>Reto 2 — Contador de favoritos en el header</strong>
+    <p>Muestra el número de favoritos directamente en el título del header de CatalogScreen. Pista: usa <code>options</code> dinámico en el Stack.Screen o el hook <code>useLayoutEffect</code>.</p>
+  </div>
+  <div class="reto">
+    <strong>Reto 3 — Filtro por categoría</strong>
+    <p>Agrega un segundo estado <code>categoria</code> con botones tipo chip para filtrar por "Todos", "Zona arqueológica", "Pueblo artesanal", etc. Combínalo con el estado <code>query</code> para que ambos filtros funcionen al mismo tiempo.</p>
+  </div>
+
+
+  <!-- RESULTADO ESPERADO -->
+  <div class="section-title">✅ Resultado esperado</div>
+  <ul class="result-list">
+    <li>Al escribir en el buscador, la lista se filtra en tiempo real sin recargar nada</li>
+    <li>El botón 🤍 / ❤️ cambia al tocarlo y se mantiene al hacer scroll</li>
+    <li>El badge verde en el header muestra cuántos favoritos hay en tiempo real</li>
+    <li>Al presionar el badge se navega a FavoritesScreen con la lista de favoritos</li>
+    <li>FavoritesScreen muestra los lugares favoritos con un diseño de tarjeta horizontal</li>
+    <li>FavoritesScreen tiene su propio buscador que filtra solo dentro de los favoritos</li>
+    <li>Si no hay favoritos, FavoritesScreen muestra una pantalla vacía amigable</li>
+    <li>Desde FavoritesScreen se puede navegar al detalle de cada lugar</li>
+  </ul>
+
+
+  <!-- PREGUNTAS -->
+  <div class="section-title">❓ Preguntas de reflexión</div>
+
+  <div class="qa-block">
+    <div class="qa-q">1. Explica con tus propias palabras qué es useState. ¿Por qué no funciona usar <code>let</code> en su lugar?</div>
+    <div class="qa-a-blank"><textarea placeholder="Escribe tu respuesta aquí..."></textarea></div>
+  </div>
+  <div class="qa-block">
+    <div class="qa-q">2. En el código de CatalogScreen, <code>filtered</code> no usa useState — es una variable normal. ¿Por qué funciona así? ¿Cuándo se recalcula?</div>
+    <div class="qa-a-blank"><textarea placeholder="Escribe tu respuesta aquí..."></textarea></div>
+  </div>
+  <div class="qa-block">
+    <div class="qa-q">3. Usando la analogía de la casa: ¿quién es la casa, quiénes son las habitaciones y qué es el timbre? Relaciona cada uno con el nombre real del componente o función en el código.</div>
+    <div class="qa-a-blank"><textarea placeholder="Escribe tu respuesta aquí..."></textarea></div>
+  </div>
+  <div class="qa-block">
+    <div class="qa-q">4. ¿Por qué el estado <code>favorites</code> vive en CatalogScreen y no en cada PlaceCard? ¿Qué problema causaría tenerlo en PlaceCard?</div>
+    <div class="qa-a-blank"><textarea placeholder="Escribe tu respuesta aquí..."></textarea></div>
+  </div>
+  <div class="qa-block">
+    <div class="qa-q">5. FavoritesScreen tiene su propio estado <code>query</code> independiente al de CatalogScreen. ¿Por qué no interfieren entre sí aunque se llamen igual?</div>
+    <div class="qa-a-blank"><textarea placeholder="Escribe tu respuesta aquí..."></textarea></div>
+  </div>
+  <div class="qa-block">
+    <div class="qa-q">6. ¿Qué diferencia hay entre la prop <code>isFavorite={true}</code> y la prop <code>onToggleFav={toggleFavorite}</code>? ¿Qué tipo de dato es cada una?</div>
+    <div class="qa-a-blank"><textarea placeholder="Escribe tu respuesta aquí..."></textarea></div>
+  </div>
+
+
+  <!-- CONCLUSIONES -->
+  <div class="section-title">📝 Conclusiones</div>
+  <div class="conclusion-box">
+    <h4>¿Qué aprendiste sobre el manejo de estado y props en React Native?</h4>
+    <textarea placeholder="Escribe tu conclusión aquí..."></textarea>
+  </div>
+  <div class="conclusion-box">
+    <h4>¿Qué fue lo más difícil de entender y cómo lo resolviste?</h4>
+    <textarea placeholder="Escribe tu conclusión aquí..."></textarea>
+  </div>
+  <div class="conclusion-box">
+    <h4>¿En qué otra pantalla o app aplicarías estos mismos conceptos?</h4>
+    <textarea placeholder="Escribe tu conclusión aquí..."></textarea>
+  </div>
+
+</div><!-- /page -->
+
+<div class="footer">
+  <span>Explore Mich · Práctica 3 · Desarrollo de Aplicaciones para Dispositivos Inteligentes</span>
+  <span>Ingeniería en Desarrollo y Gestión de Software</span>
+</div>
+
+</body>
+</html>
