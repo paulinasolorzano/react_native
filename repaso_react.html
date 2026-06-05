@@ -1,0 +1,411 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Preguntas React Native | Actividad guiada</title>
+  <style>
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: Arial, Helvetica, sans-serif;
+      background: #eef2f7;
+      color: #182230;
+      overflow: hidden;
+    }
+    .app {
+      height: 100vh;
+      display: grid;
+      grid-template-rows: auto 1fr;
+    }
+    header {
+      background: #0f766e;
+      color: white;
+      padding: 12px 20px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 16px;
+    }
+    header h1 { margin: 0; font-size: 20px; }
+    header p { margin: 3px 0 0; font-size: 13px; opacity: .95; }
+    .counter { font-weight: 700; white-space: nowrap; }
+    main {
+      display: grid;
+      grid-template-columns: 230px 1fr;
+      gap: 16px;
+      padding: 16px;
+      min-height: 0;
+    }
+    aside {
+      background: white;
+      border: 1px solid #d6dee8;
+      border-radius: 16px;
+      padding: 14px;
+      overflow-y: auto;
+      box-shadow: 0 8px 20px rgba(15, 23, 42, .06);
+    }
+    aside h2 { font-size: 16px; margin: 0 0 10px; }
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      gap: 7px;
+    }
+    button {
+      border: 0;
+      border-radius: 10px;
+      background: #0f766e;
+      color: white;
+      font-weight: 700;
+      padding: 10px 14px;
+      cursor: pointer;
+    }
+    button:hover { background: #115e59; }
+    button:disabled { background: #94a3b8; cursor: not-allowed; }
+    .grid button {
+      padding: 8px 0;
+      background: #f8fafc;
+      color: #334155;
+      border: 1px solid #cbd5e1;
+    }
+    .grid button.current { background: #0f766e; color: white; border-color: #0f766e; }
+    .stage {
+      min-height: 0;
+      display: grid;
+      grid-template-rows: auto 1fr auto;
+      gap: 12px;
+    }
+    .topbar, .bottombar {
+      background: white;
+      border: 1px solid #d6dee8;
+      border-radius: 16px;
+      padding: 12px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 12px;
+      box-shadow: 0 8px 20px rgba(15, 23, 42, .06);
+    }
+    .topic {
+      display: inline-block;
+      background: #ccfbf1;
+      color: #115e59;
+      border-radius: 999px;
+      padding: 6px 10px;
+      font-size: 13px;
+      font-weight: 700;
+    }
+    .card {
+      background: white;
+      border: 1px solid #d6dee8;
+      border-radius: 18px;
+      padding: 20px;
+      min-height: 0;
+      overflow-y: auto;
+      box-shadow: 0 12px 28px rgba(15, 23, 42, .08);
+    }
+    h2.question-title { margin: 10px 0 8px; font-size: 24px; }
+    .question-text { font-size: 18px; line-height: 1.55; margin: 0 0 14px; }
+    pre {
+      margin: 0;
+      background: #ffffff;
+      color: #1f2937;
+      border: 1px solid #cbd5e1;
+      border-left: 6px solid #0f766e;
+      border-radius: 14px;
+      padding: 16px;
+      overflow-x: auto;
+      line-height: 1.55;
+      font-size: 14px;
+      box-shadow: 0 4px 14px rgba(15, 23, 42, .04);
+    }
+    code { font-family: Consolas, Monaco, 'Courier New', monospace; }
+    .kw { color: #1d4ed8; font-weight: 700; }
+    .str { color: #b45309; }
+    .com { color: #15803d; font-style: italic; }
+    .fn { color: #7c3aed; font-weight: 700; }
+    .jsx { color: #0f766e; font-weight: 700; }
+    .prop { color: #be123c; font-weight: 700; }
+    .answer {
+      display: none;
+      margin-top: 14px;
+      background: #ecfdf5;
+      border-left: 6px solid #0f766e;
+      border-radius: 12px;
+      padding: 16px;
+      line-height: 1.65;
+      font-size: 16px;
+    }
+    .answer.visible { display: block; }
+    .answer strong { color: #065f46; }
+    .secondary { background: #2563eb; }
+    .secondary:hover { background: #1d4ed8; }
+    .note { color: #64748b; font-size: 13px; }
+    @media (max-width: 850px) {
+      body { overflow: auto; }
+      .app { min-height: 100vh; height: auto; }
+      main { grid-template-columns: 1fr; }
+      aside { max-height: 160px; }
+      .stage { min-height: 720px; }
+    }
+  </style>
+</head>
+<body>
+<div class="app">
+  <header>
+    <div>
+      <h1>Actividad guiada: React Native</h1>
+      <p>Una pregunta por pantalla. Usa Siguiente, Anterior o las flechas del teclado. La respuesta se muestra solo cuando se solicita.</p>
+    </div>
+    <div class="counter" id="counter">Pregunta 1 de 30</div>
+  </header>
+
+  <main>
+    <aside>
+      <h2>Preguntas</h2>
+      <div class="grid" id="grid"></div>
+      <p class="note">Contenido centrado en navegación, route.params, props, componentes padre-hijo, callbacks, estado y listas.</p>
+    </aside>
+
+    <section class="stage">
+      <div class="topbar">
+        <button id="prevBtn">Anterior</button>
+        <span class="topic" id="topic">Tema</span>
+        <button id="nextBtn">Siguiente</button>
+      </div>
+
+      <article class="card" id="card">
+        <span class="topic" id="badge">Pregunta 1</span>
+        <h2 class="question-title" id="title"></h2>
+        <p class="question-text" id="question"></p>
+        <pre><code id="code"></code></pre>
+        <div class="answer" id="answer"></div>
+      </article>
+
+      <div class="bottombar">
+        <button class="secondary" id="answerBtn">Mostrar respuesta</button>
+        <span class="note">La pregunta permanece en la misma zona visual; solo cambia el contenido de la tarjeta.</span>
+      </div>
+    </section>
+  </main>
+</div>
+
+<script>
+const questions = [{
+    topic: 'Padre, hijo y props',
+    title: 'Componente padre e hijo',
+    question: '¿Quién es el padre directo de StudentCard en el árbol de componentes y qué componente le envía las props?',
+    code: `// ScreenA.js\n<FlatList\n  data={students}\n  keyExtractor={(item) => item.id}\n  renderItem={({ item }) => (\n    <StudentCard\n      student={item}\n      isSelected={selectedId === item.id}\n      onSelect={selectStudent}\n    />\n  )}\n/>\n\n// StudentCard.js\nexport default function StudentCard({ student, isSelected, onSelect }) {\n  return (\n    <Pressable onPress={() => onSelect(student.id)}>\n      <Text>{student.name}</Text>\n      <Text>{isSelected ? 'Seleccionado' : 'Sin seleccionar'}</Text>\n    </Pressable>\n  );\n}`,
+    answer: 'Árbol de componentes: ScreenA → FlatList → StudentCard. El padre directo de StudentCard es FlatList. Sin embargo, las props student, isSelected y onSelect son creadas y enviadas desde ScreenA. Por ello, estructuralmente el padre directo es FlatList, pero ScreenA es quien controla los datos, el estado y los callbacks.'
+  },
+{
+    topic: 'route.params',
+    title: 'Enviar un objeto por navegación',
+    question: '¿Qué recibe DetailScreen cuando se ejecuta navigation.navigate con un objeto student?',
+    code: `navigation.navigate('Detail', { student });\n\nexport default function DetailScreen({ route }) {\n  const { student } = route.params;\n\n  return (\n    <View>\n      <Text>{student.name}</Text>\n      <Text>{student.email}</Text>\n    </View>\n  );\n}`,
+    answer: 'DetailScreen recibe un parámetro llamado student dentro de route.params. Ese parámetro es un objeto completo, por eso se puede acceder a student.name y student.email.'
+  },
+{
+    topic: 'Stack.Screen options',
+    title: 'Título dinámico con route.params',
+    question: '¿Por qué options se escribe como función y no como un objeto fijo?',
+    code: `<Stack.Screen\n  name="Detail"\n  component={DetailScreen}\n  options={({ route }) => ({\n    title: route.params.student.name\n  })}\n/>`,
+    answer: 'Se usa una función porque el título depende de los parámetros recibidos por navegación. Un objeto fijo no tendría acceso dinámico a route.params.'
+  },
+{
+    topic: 'Callback',
+    title: 'Callback del hijo al padre',
+    question: '¿Qué sucede cuando el usuario presiona el botón dentro de StudentCard?',
+    code: `function StudentCard({ student, onDelete }) {\n  return (\n    <Button\n      title="Eliminar"\n      onPress={() => onDelete(student.id)}\n    />\n  );\n}\n\nfunction StudentsScreen() {\n  const deleteStudent = (id) => {\n    setStudents(prev => prev.filter(s => s.id !== id));\n  };\n\n  return <StudentCard student={item} onDelete={deleteStudent} />;\n}`,
+    answer: 'El hijo ejecuta onDelete con el id del alumno. La función real está en el padre, donde se actualiza el estado. Ese flujo se llama comunicación hijo a padre mediante callback.'
+  },
+{
+    topic: 'onPress',
+    title: 'Función diferida en onPress',
+    question: '¿Por qué la primera forma es correcta y la segunda no?',
+    code: `// Correcto\n<Button title="Guardar" onPress={() => saveStudent(student.id)} />\n\n// Incorrecto\n<Button title="Guardar" onPress={saveStudent(student.id)} />`,
+    answer: 'La primera pasa una función que se ejecutará cuando el usuario presione. La segunda ejecuta saveStudent durante el renderizado, antes de que el usuario toque el botón.'
+  },
+{
+    topic: 'Props',
+    title: 'Props desestructuradas',
+    question: '¿Qué significa recibir { student, onSelect } en la función del componente?',
+    code: `export default function StudentCard({ student, onSelect }) {\n  return (\n    <Pressable onPress={() => onSelect(student.id)}>\n      <Text>{student.name}</Text>\n    </Pressable>\n  );\n}`,
+    answer: 'Significa que el componente recibe un objeto props y extrae directamente student y onSelect. Es equivalente a usar props.student y props.onSelect.'
+  },
+{
+    topic: 'Inmutabilidad',
+    title: 'Agregar sin mutar el arreglo',
+    question: '¿Qué hace [...prev, id] y por qué es importante?',
+    code: `setSelectedIds(prev => [...prev, id]);`,
+    answer: 'Crea un nuevo arreglo con los elementos anteriores y agrega id al final. Es importante porque en React no se recomienda mutar directamente el estado.'
+  },
+{
+    topic: 'filter',
+    title: 'Eliminar un elemento con filter',
+    question: '¿Cómo elimina esta línea un id del arreglo?',
+    code: `setSelectedIds(prev => prev.filter(itemId => itemId !== id));`,
+    answer: 'filter crea un nuevo arreglo conservando solo los IDs diferentes al id seleccionado. Por eso el id indicado desaparece del estado.'
+  },
+{
+    topic: 'FlatList',
+    title: 'renderItem en FlatList',
+    question: '¿Qué hace renderItem y de dónde sale item?',
+    code: `<FlatList\n  data={students}\n  renderItem={({ item }) => (\n    <StudentCard student={item} />\n  )}\n/>`,
+    answer: 'FlatList recorre internamente data. En cada elemento entrega un objeto con la propiedad item, que representa un alumno individual.'
+  },
+{
+    topic: 'Búsqueda',
+    title: 'Filtro con includes',
+    question: '¿Qué hace este filtro?',
+    code: `const filteredStudents = students.filter(student =>\n  student.name.toLowerCase().includes(query.toLowerCase())\n);`,
+    answer: 'Crea un nuevo arreglo con los alumnos cuyo nombre contiene el texto de búsqueda. toLowerCase evita que la búsqueda dependa de mayúsculas o minúsculas.'
+  },
+{
+    topic: 'Navegación',
+    title: 'goBack',
+    question: '¿Qué diferencia hay entre navigate y goBack?',
+    code: `<Button\n  title="Ver detalle"\n  onPress={() => navigation.navigate('Detail', { student })}\n/>\n\n<Button\n  title="Regresar"\n  onPress={() => navigation.goBack()}\n/>`,
+    answer: 'navigate abre otra pantalla registrada en el navegador. goBack regresa a la pantalla anterior dentro de la pila de navegación.'
+  },
+{
+    topic: 'Stack Navigator',
+    title: 'initialRouteName',
+    question: '¿Qué define initialRouteName?',
+    code: `<Stack.Navigator initialRouteName="Home">\n  <Stack.Screen name="Home" component={HomeScreen} />\n  <Stack.Screen name="Detail" component={DetailScreen} />\n</Stack.Navigator>`,
+    answer: 'Define cuál pantalla se muestra primero cuando se carga ese navegador. En este caso la primera pantalla visible será Home.'
+  },
+{
+    topic: 'Props booleanas',
+    title: 'Prop calculada',
+    question: '¿Qué valor recibe isSelected?',
+    code: `<StudentCard\n  student={item}\n  isSelected={selectedIds.includes(item.id)}\n/>\n\n<Text>{isSelected ? 'Activo' : 'Inactivo'}</Text>`,
+    answer: 'Recibe true o false. El padre calcula si el id del alumno está dentro del arreglo selectedIds y manda ese resultado al hijo.'
+  },
+{
+    topic: 'Estilos',
+    title: 'StyleSheet.create',
+    question: '¿Por qué conviene usar StyleSheet.create?',
+    code: `const styles = StyleSheet.create({\n  card: {\n    padding: 16,\n    borderRadius: 12,\n    marginBottom: 10\n  }\n});\n\n<View style={styles.card}>\n  <Text>Contenido</Text>\n</View>`,
+    answer: 'Ayuda a organizar estilos, reutilizarlos y separar la presentación del JSX. Es más mantenible que llenar todos los componentes con estilos en línea.'
+  },
+{
+    topic: 'Imágenes',
+    title: 'Imagen local',
+    question: '¿Por qué una imagen local se usa con require?',
+    code: `const students = [\n  {\n    id: '1',\n    name: 'Ana',\n    photo: require('../images/ana.jpg')\n  }\n];\n\n<Image source={student.photo} style={styles.photo} />`,
+    answer: 'React Native necesita conocer las imágenes locales al empaquetar la app. Por eso se usa require y después se manda directamente al source.'
+  },
+{
+    topic: 'Imágenes',
+    title: 'Imagen remota',
+    question: '¿Cuándo se usa source={{ uri: ... }}?',
+    code: `<Image\n  source={{ uri: student.photoUrl }}\n  style={styles.photo}\n/>`,
+    answer: 'Se usa cuando la imagen viene de una URL o recurso remoto. En ese caso React Native necesita un objeto con la propiedad uri.'
+  },
+{
+    topic: 'Comunicación',
+    title: 'No modificar props',
+    question: '¿Por qué StudentCard no debería modificar student directamente?',
+    code: `function StudentCard({ student }) {\n  // Mala práctica:\n  student.name = 'Nuevo nombre';\n\n  return <Text>{student.name}</Text>;\n}`,
+    answer: 'Las props deben tratarse como datos de solo lectura. Si se necesita cambiar información, debe hacerse en el estado del componente dueño de esos datos.'
+  },
+{
+    topic: 'route.params',
+    title: 'Enviar solo el id',
+    question: '¿Qué ventaja tiene enviar studentId en vez del objeto completo?',
+    code: `navigation.navigate('Detail', { studentId: student.id });\n\nfunction DetailScreen({ route }) {\n  const { studentId } = route.params;\n  const student = students.find(s => s.id === studentId);\n\n  return <Text>{student.name}</Text>;\n}`,
+    answer: 'Enviar solo el id reduce el tamaño de los parámetros y evita pasar objetos grandes o desactualizados. La pantalla destino puede buscar el registro actualizado usando ese id.'
+  },
+{
+    topic: 'Composición',
+    title: 'Separar componentes',
+    question: '¿Por qué conviene separar StudentCard de StudentsScreen?',
+    code: `function StudentsScreen() {\n  return (\n    <FlatList\n      data={students}\n      renderItem={({ item }) => (\n        <StudentCard student={item} onSelect={selectStudent} />\n      )}\n    />\n  );\n}`, 
+    answer: 'Porque StudentsScreen queda responsable de la pantalla y StudentCard de mostrar cada registro. Esta separación mejora orden, reutilización y mantenimiento.'
+  },
+{
+    topic: 'Integración',
+    title: 'Estado + filtro + lista',
+    question: '¿Qué conceptos se integran en este fragmento?',
+    code: `const [query, setQuery] = useState('');\n\nconst filtered = students.filter(s =>\n  s.name.toLowerCase().includes(query.toLowerCase())\n);\n\nreturn (\n  <>\n    <TextInput value={query} onChangeText={setQuery} />\n    <FlatList\n      data={filtered}\n      keyExtractor={(item) => item.id}\n      renderItem={({ item }) => <StudentCard student={item} />}\n    />\n  </>\n);`,
+    answer: 'Integra estado local con useState, componente controlado con TextInput, filtrado con filter/includes, renderizado de listas con FlatList y reutilización de componentes mediante props.'
+  }];
+
+let current = 0;
+const els = {
+  counter: document.getElementById('counter'),
+  grid: document.getElementById('grid'),
+  topic: document.getElementById('topic'),
+  badge: document.getElementById('badge'),
+  title: document.getElementById('title'),
+  question: document.getElementById('question'),
+  code: document.getElementById('code'),
+  answer: document.getElementById('answer'),
+  answerBtn: document.getElementById('answerBtn'),
+  prevBtn: document.getElementById('prevBtn'),
+  nextBtn: document.getElementById('nextBtn'),
+  card: document.getElementById('card')
+};
+
+function escapeHtml(text) {
+  return text.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+}
+
+function highlight(code) {
+  let html = escapeHtml(code);
+  html = html.replace(/(\/\/.*)/g, '<span class="com">$1</span>');
+  html = html.replace(/('[^']*'|"[^"]*")/g, '<span class="str">$1</span>');
+  html = html.replace(/\b(const|let|function|return|export|default|if|else|import|from)\b/g, '<span class="kw">$1</span>');
+  html = html.replace(/\b(navigate|goBack|filter|includes|find|toLowerCase|useState|useEffect|setQuery|setStudents|setSelectedIds|console|log|require)\b/g, '<span class="fn">$1</span>');
+  html = html.replace(/(&lt;\/?)([A-Z][A-Za-z0-9.]*)/g, '$1<span class="jsx">$2</span>');
+  html = html.replace(/\b(data|renderItem|keyExtractor|component|name|options|title|onPress|value|onChangeText|placeholder|style|source|ListEmptyComponent|initialRouteName)\b=/g, '<span class="prop">$1</span>=');
+  return html;
+}
+
+function renderGrid() {
+  els.grid.innerHTML = '';
+  questions.forEach((_, index) => {
+    const btn = document.createElement('button');
+    btn.textContent = index + 1;
+    btn.className = index === current ? 'current' : '';
+    btn.addEventListener('click', () => showQuestion(index));
+    els.grid.appendChild(btn);
+  });
+}
+
+function showQuestion(index) {
+  current = index;
+  const q = questions[current];
+  els.counter.textContent = `Pregunta ${current + 1} de ${questions.length}`;
+  els.topic.textContent = q.topic;
+  els.badge.textContent = `Pregunta ${current + 1}`;
+  els.title.textContent = q.title;
+  els.question.textContent = q.question;
+  els.code.innerHTML = highlight(q.code);
+  els.answer.innerHTML = `<strong>Respuesta:</strong> ${q.answer}`;
+  els.answer.classList.remove('visible');
+  els.answerBtn.textContent = 'Mostrar respuesta';
+  els.prevBtn.disabled = current === 0;
+  els.nextBtn.disabled = current === questions.length - 1;
+  els.card.scrollTop = 0;
+  renderGrid();
+}
+
+els.prevBtn.addEventListener('click', () => { if (current > 0) showQuestion(current - 1); });
+els.nextBtn.addEventListener('click', () => { if (current < questions.length - 1) showQuestion(current + 1); });
+els.answerBtn.addEventListener('click', () => {
+  els.answer.classList.toggle('visible');
+  els.answerBtn.textContent = els.answer.classList.contains('visible') ? 'Ocultar respuesta' : 'Mostrar respuesta';
+});
+
+document.addEventListener('keydown', (event) => {
+  if (event.key === 'ArrowRight' && current < questions.length - 1) showQuestion(current + 1);
+  if (event.key === 'ArrowLeft' && current > 0) showQuestion(current - 1);
+  if (event.key === 'Enter') els.answerBtn.click();
+});
+
+showQuestion(0);
+</script>
+</body>
+</html>
