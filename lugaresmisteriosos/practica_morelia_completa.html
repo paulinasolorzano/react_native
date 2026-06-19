@@ -1,0 +1,982 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Práctica — Lugares Misteriosos de Morelia · SDK 54</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/tabler-icons.min.css">
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: #f4f4f2; color: #1a1a1a; padding: 2rem 1rem; }
+    .contenedor { max-width: 900px; margin: 0 auto; }
+
+    .hero { background: linear-gradient(135deg, #1e40af, #2563eb, #3b82f6); border-radius: 16px; padding: 2.5rem 2rem; margin-bottom: 2rem; color: #fff; }
+    .hero-badge { display: inline-block; font-size: 11px; font-weight: 700; padding: 4px 14px; border-radius: 20px; background: rgba(255,255,255,0.15); margin-bottom: 14px; letter-spacing: .1em; text-transform: uppercase; }
+    .hero h1 { font-size: 26px; font-weight: 700; margin-bottom: 8px; }
+    .hero p { font-size: 14px; color: rgba(255,255,255,.75); line-height: 1.7; max-width: 600px; }
+    .hero-tags { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 18px; }
+    .hero-tag { font-size: 12px; padding: 4px 12px; border-radius: 20px; background: rgba(255,255,255,.12); color: rgba(255,255,255,.9); }
+
+    hr { border: none; border-top: 1px solid #e5e5e5; margin: 2.5rem 0; }
+    .seccion-titulo { font-size: 17px; font-weight: 700; margin-bottom: 1.2rem; }
+
+    /* CONCEPTOS */
+    .conceptos-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(190px, 1fr)); gap: 12px; margin-bottom: 1.5rem; }
+    .concepto { background: #fff; border: 1px solid #e5e5e5; border-radius: 12px; padding: 16px; border-top: 3px solid #2563eb; }
+    .concepto.v { border-top-color: #059669; }
+    .concepto.m { border-top-color: #7c3aed; }
+    .concepto.n { border-top-color: #d97706; }
+    .concepto.r { border-top-color: #dc2626; }
+    .concepto h3 { font-size: 14px; font-weight: 700; margin-bottom: 6px; }
+    .concepto p { font-size: 12px; color: #666; line-height: 1.6; }
+
+    /* MOCKUPS */
+    .mockups-scroll { display: flex; gap: 20px; overflow-x: auto; padding: 10px 4px 20px; margin-bottom: 1rem; }
+    .mockups-scroll::-webkit-scrollbar { height: 6px; }
+    .mockups-scroll::-webkit-scrollbar-thumb { background: #ccc; border-radius: 3px; }
+    .telefono { flex-shrink: 0; width: 175px; }
+    .telefono-label { text-align: center; font-size: 12px; font-weight: 700; color: #555; margin-bottom: 8px; }
+    .telefono-frame { width: 175px; height: 340px; background: #222; border-radius: 28px; padding: 8px; border: 3px solid #444; box-shadow: 0 8px 24px rgba(0,0,0,.2); }
+    .telefono-screen { width: 100%; height: 100%; background: #f5f5f5; border-radius: 20px; overflow: hidden; display: flex; flex-direction: column; }
+    .t-navbar { background: #fff; padding: 8px 10px; border-bottom: 1px solid #eee; font-size: 10px; font-weight: 700; display: flex; align-items: center; gap: 6px; }
+    .t-content { flex: 1; overflow: hidden; padding: 8px; }
+    .t-titulo { font-size: 11px; font-weight: 700; margin-bottom: 2px; }
+    .t-subtitulo { font-size: 9px; color: #888; margin-bottom: 8px; }
+    .t-card { background: #fff; border-radius: 8px; margin-bottom: 8px; overflow: hidden; box-shadow: 0 1px 4px rgba(0,0,0,.08); }
+    .t-card-img { width: 100%; height: 52px; background: linear-gradient(135deg, #1e3a5f, #2563eb); }
+    .t-card-img.g { background: linear-gradient(135deg, #064e3b, #059669); }
+    .t-card-body { padding: 6px 8px; }
+    .t-card-nombre { font-size: 9px; font-weight: 700; text-align: center; margin-bottom: 3px; }
+    .t-card-desc { font-size: 7.5px; color: #666; line-height: 1.4; margin-bottom: 4px; }
+    .t-tabbar { background: #fff; border-top: 1px solid #eee; display: flex; padding: 6px 0; }
+    .t-tab { flex: 1; display: flex; flex-direction: column; align-items: center; gap: 2px; font-size: 7px; color: #aaa; }
+    .t-tab.active { color: #2563eb; }
+    .t-tab i { font-size: 14px; }
+    .t-detalle-img { width: 100%; height: 90px; background: linear-gradient(135deg, #1e3a5f, #2563eb); }
+    .t-detalle-body { padding: 8px; }
+    .t-detalle-nombre { font-size: 10px; font-weight: 700; margin-bottom: 3px; }
+    .t-detalle-ubi { font-size: 7.5px; color: #888; margin-bottom: 6px; }
+    .t-detalle-texto { font-size: 7.5px; color: #444; line-height: 1.5; }
+    .t-center { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 6px; padding: 10px; }
+    .t-center-ico { font-size: 32px; }
+    .t-center-titulo { font-size: 10px; font-weight: 700; }
+    .t-center-texto { font-size: 8px; color: #666; text-align: center; line-height: 1.5; }
+    .t-drawer { flex: 1; position: relative; overflow: hidden; }
+    .t-drawer-panel { position: absolute; left: 0; top: 0; bottom: 0; width: 60%; background: #fff; border-right: 1px solid #eee; padding: 12px 10px; }
+    .t-drawer-item { font-size: 9px; padding: 6px 0; border-bottom: 1px solid #f0f0f0; }
+    .t-drawer-overlay { position: absolute; right: 0; top: 0; bottom: 0; width: 40%; background: rgba(0,0,0,.3); }
+    .t-back { font-size: 9px; color: #2563eb; margin-right: 4px; }
+
+    /* ESTRUCTURA */
+    .arbol { background: #f8faff; border: 1px solid #dbeafe; border-left: 4px solid #2563eb; border-radius: 10px; padding: 20px 24px; font-family: monospace; font-size: 13px; line-height: 1; margin-bottom: 1rem; }
+    .arbol-fila { display: flex; align-items: baseline; padding: 5px 0; border-bottom: 1px solid #eef2ff; }
+    .arbol-fila:last-child { border-bottom: none; }
+    .arbol-indent { color: #c7d2fe; flex-shrink: 0; }
+    .arbol-nombre { font-weight: 700; }
+    .arbol-nombre.azul { color: #1d4ed8; }
+    .arbol-nombre.verde { color: #059669; }
+    .arbol-nombre.morado { color: #7c3aed; }
+    .arbol-nombre.rojo { color: #dc2626; }
+    .arbol-desc { font-size: 11px; color: #94a3b8; margin-left: 10px; font-family: sans-serif; font-weight: 400; }
+    .arbol-carpeta { background: #eff6ff; border-radius: 4px; padding: 4px 8px; font-size: 12px; font-weight: 700; color: #1d4ed8; margin: 6px 0 2px; font-family: monospace; }
+
+    /* NAVEGACIÓN */
+    .nav-tabla { width: 100%; border-collapse: collapse; margin: 14px 0; font-size: 13px; }
+    .nav-tabla th { padding: 10px 14px; text-align: left; background: #f0f0f0; font-weight: 700; border: 1px solid #e5e5e5; }
+    .nav-tabla td { padding: 9px 14px; border: 1px solid #e5e5e5; vertical-align: top; }
+    .nav-tabla tr:nth-child(even) td { background: #fafafa; }
+    .nav-badge { display: inline-block; font-size: 10px; padding: 2px 8px; border-radius: 6px; font-weight: 700; }
+    .nb-d { background: #fee2e2; color: #991b1b; }
+    .nb-t { background: #fef3c7; color: #92400e; }
+    .nb-s { background: #dbeafe; color: #1d4ed8; }
+    .nb-sc { background: #d1fae5; color: #065f46; }
+
+    /* PASOS */
+    .paso { background: #fff; border: 1px solid #e5e5e5; border-radius: 12px; margin-bottom: 10px; overflow: hidden; }
+    .paso-header { display: flex; align-items: center; gap: 14px; padding: 16px 18px; cursor: pointer; user-select: none; }
+    .paso-header:hover { background: #fafafa; }
+    .paso-num { width: 34px; height: 34px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 13px; font-weight: 700; flex-shrink: 0; }
+    .c1 { background: #dbeafe; color: #1d4ed8; }
+    .c2 { background: #d1fae5; color: #065f46; }
+    .c3 { background: #ede9fe; color: #5b21b6; }
+    .c4 { background: #fef3c7; color: #92400e; }
+    .paso-titulo { font-size: 15px; font-weight: 700; }
+    .paso-sub { font-size: 12px; color: #888; margin-top: 2px; }
+    .paso-icon { margin-left: auto; color: #ccc; font-size: 18px; transition: transform .2s; }
+    .paso-body { padding: 0 18px 18px 66px; display: none; }
+    .paso-body.abierto { display: block; }
+    .paso-body p { font-size: 14px; color: #555; margin-bottom: 10px; line-height: 1.7; }
+
+    /* CÓDIGO */
+    .bloque { margin: 12px 0; border-radius: 10px; overflow: hidden; border: 1px solid #e0e7ff; border-left: 4px solid #2563eb; }
+    .bloque.bash { border-left-color: #059669; border-color: #d1fae5; }
+    .bloque.cfg { border-left-color: #d97706; border-color: #fef3c7; }
+    .bloque-label { display: flex; align-items: center; gap: 6px; font-size: 11px; font-weight: 700; padding: 7px 14px; background: #eff6ff; color: #1d4ed8; text-transform: uppercase; letter-spacing: .06em; border-bottom: 1px solid #e0e7ff; }
+    .bloque.bash .bloque-label { background: #ecfdf5; color: #065f46; border-bottom-color: #d1fae5; }
+    .bloque.cfg .bloque-label { background: #fffbeb; color: #92400e; border-bottom-color: #fef3c7; }
+    .bloque pre { margin: 0; }
+    .bloque pre code { display: block; padding: 16px 18px; background: #fafbff; font-family: 'Menlo','Monaco','Courier New',monospace; font-size: 13px; line-height: 2; white-space: pre-wrap; color: #1e293b; }
+    .bloque.bash pre code { background: #f0fdf4; }
+    .bloque.cfg pre code { background: #fffdf0; }
+    .kw { color: #7c3aed; font-weight: 700; }
+    .fn { color: #0369a1; font-weight: 600; }
+    .str { color: #059669; }
+    .tg { color: #b45309; font-weight: 700; }
+    .nm { color: #dc2626; }
+    .cm { color: #94a3b8; font-style: italic; }
+    .pr { color: #be185d; }
+
+    .alerta { background: #fffbeb; border: 1px solid #fde68a; border-left: 4px solid #f59e0b; border-radius: 8px; padding: 12px 14px; font-size: 13px; color: #78350f; margin: 10px 0; line-height: 1.6; }
+    .tip { background: #eff6ff; border: 1px solid #bfdbfe; border-left: 4px solid #2563eb; border-radius: 8px; padding: 12px 14px; font-size: 13px; color: #1e3a5f; margin: 10px 0; line-height: 1.6; }
+    .exito { background: #f0fdf4; border: 1px solid #bbf7d0; border-left: 4px solid #059669; border-radius: 8px; padding: 12px 14px; font-size: 13px; color: #065f46; margin: 10px 0; line-height: 1.6; }
+
+    table { width: 100%; border-collapse: collapse; font-size: 13px; margin: 12px 0; }
+    th { padding: 10px 14px; text-align: left; background: #eff6ff; color: #1d4ed8; font-weight: 700; border: 1px solid #e0e7ff; }
+    td { padding: 9px 14px; border: 1px solid #e5e5e5; }
+    tr:nth-child(even) td { background: #fafbff; }
+    .chip { display: inline-block; font-size: 10px; padding: 2px 8px; border-radius: 6px; font-weight: 700; }
+    .chip.s { background: #dbeafe; color: #1d4ed8; }
+    .chip.c { background: #d1fae5; color: #065f46; }
+    .chip.r { background: #fee2e2; color: #991b1b; }
+    .chip.n { background: #fef3c7; color: #92400e; }
+    .hl { color: #2563eb; font-weight: 600; }
+
+    footer { text-align: center; font-size: 12px; color: #aaa; margin-top: 3rem; padding-top: 1rem; border-top: 1px solid #e5e5e5; }
+  </style>
+</head>
+<body>
+<div class="contenedor">
+
+  <div class="hero">
+    <span class="hero-badge">Práctica guiada · Expo Go SDK 54</span>
+    <h1>Lugares Misteriosos de Morelia</h1>
+    <p>App React Native con cards, imágenes, Stack Navigator, Bottom Tab y Drawer. Componentes reutilizables con React Native Elements.</p>
+    <div class="hero-tags">
+      <span class="hero-tag">React Native</span>
+      <span class="hero-tag">Expo Go SDK 54</span>
+      <span class="hero-tag">@rneui/themed</span>
+      <span class="hero-tag">Stack Navigator</span>
+      <span class="hero-tag">Bottom Tab</span>
+      <span class="hero-tag">Drawer</span>
+    </div>
+  </div>
+
+  <!-- CONCEPTOS -->
+  <div class="seccion-titulo">Conceptos que usaremos</div>
+  <div class="conceptos-grid">
+    <div class="concepto">
+      <h3>React Native</h3>
+      <p>Framework para crear apps móviles con JavaScript. El código se convierte en componentes nativos de iOS y Android.</p>
+    </div>
+    <div class="concepto v">
+      <h3>Expo Go SDK 54</h3>
+      <p>Con Expo Go en tu celular puedes ver la app en tiempo real escaneando un QR. Siempre crear proyectos con <code>--template blank@sdk-54</code>.</p>
+    </div>
+    <div class="concepto m">
+      <h3>Componente reutilizable</h3>
+      <p>Un componente que recibe props y se puede usar N veces con distintos datos. En esta app es <code>LugarCard</code>.</p>
+    </div>
+    <div class="concepto n">
+      <h3>React Navigation</h3>
+      <p>Librería para navegar entre pantallas. Usaremos Stack (apila pantallas), Tab (barra inferior) y Drawer (menú lateral).</p>
+    </div>
+    <div class="concepto r">
+      <h3>React Native Elements</h3>
+      <p>Librería de componentes visuales listos: Card, Button, Text con estilos incluidos.</p>
+    </div>
+    <div class="concepto">
+      <h3>route.params</h3>
+      <p>Cómo pasar datos de una pantalla a otra al navegar. Se envían con <code>navigate()</code> y se reciben con <code>route.params</code>.</p>
+    </div>
+  </div>
+
+  <!-- MOCKUPS -->
+  <hr>
+  <div class="seccion-titulo">Pantallas resultado de la app</div>
+  <p style="font-size:14px;color:#555;margin-bottom:16px">Así se verá la app terminada en el celular:</p>
+  <div class="mockups-scroll">
+
+    <div class="telefono">
+      <div class="telefono-label">HomeScreen</div>
+      <div class="telefono-frame">
+        <div class="telefono-screen">
+          <div class="t-navbar">Lugares Misteriosos</div>
+          <div class="t-content">
+            <div class="t-titulo">Lugares Misteriosos</div>
+            <div class="t-subtitulo">Morelia, Michoacán</div>
+            <div class="t-card">
+              <div class="t-card-img"></div>
+              <div class="t-card-body">
+                <div class="t-card-nombre">Acueducto de Morelia</div>
+                <div class="t-card-desc">Sus arcos guardan el espíritu de los obreros...</div>
+              </div>
+            </div>
+            <div class="t-card">
+              <div class="t-card-img g"></div>
+              <div class="t-card-body">
+                <div class="t-card-nombre">Catedral de Morelia</div>
+                <div class="t-card-desc">Apariciones recorren sus pasillos a medianoche...</div>
+              </div>
+            </div>
+          </div>
+          <div class="t-tabbar">
+            <div class="t-tab active"><i class="ti ti-home"></i>Inicio</div>
+            <div class="t-tab"><i class="ti ti-map"></i>Mapa</div>
+            <div class="t-tab"><i class="ti ti-star"></i>Favoritos</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="telefono">
+      <div class="telefono-label">DetalleScreen</div>
+      <div class="telefono-frame">
+        <div class="telefono-screen">
+          <div class="t-navbar"><span class="t-back">&#8592;</span> Acueducto de Morelia</div>
+          <div class="t-content" style="padding:0; overflow-y:auto;">
+            <div class="t-detalle-img"></div>
+            <div class="t-detalle-body">
+              <div class="t-detalle-nombre">Acueducto de Morelia</div>
+              <div class="t-detalle-ubi">📍 Calzada Fray Antonio de San Miguel</div>
+              <div class="t-detalle-texto">Con más de 250 años de antigüedad y 253 arcos, el Acueducto es uno de los más importantes de México...</div>
+            </div>
+          </div>
+          <div class="t-tabbar">
+            <div class="t-tab active"><i class="ti ti-home"></i>Inicio</div>
+            <div class="t-tab"><i class="ti ti-map"></i>Mapa</div>
+            <div class="t-tab"><i class="ti ti-star"></i>Favoritos</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="telefono">
+      <div class="telefono-label">MapaScreen</div>
+      <div class="telefono-frame">
+        <div class="telefono-screen">
+          <div class="t-navbar">Mapa</div>
+          <div class="t-center">
+            <div class="t-center-ico">🗺️</div>
+            <div class="t-center-titulo">Mapa de Lugares</div>
+            <div class="t-center-texto">Aquí puedes integrar un mapa con las ubicaciones de cada lugar misterioso.</div>
+          </div>
+          <div class="t-tabbar">
+            <div class="t-tab"><i class="ti ti-home"></i>Inicio</div>
+            <div class="t-tab active"><i class="ti ti-map"></i>Mapa</div>
+            <div class="t-tab"><i class="ti ti-star"></i>Favoritos</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="telefono">
+      <div class="telefono-label">FavoritosScreen</div>
+      <div class="telefono-frame">
+        <div class="telefono-screen">
+          <div class="t-navbar">Favoritos</div>
+          <div class="t-center">
+            <div class="t-center-ico">⭐</div>
+            <div class="t-center-titulo">Mis Favoritos</div>
+            <div class="t-center-texto">Aquí aparecerán los lugares que marques como favoritos.</div>
+          </div>
+          <div class="t-tabbar">
+            <div class="t-tab"><i class="ti ti-home"></i>Inicio</div>
+            <div class="t-tab"><i class="ti ti-map"></i>Mapa</div>
+            <div class="t-tab active"><i class="ti ti-star"></i>Favoritos</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="telefono">
+      <div class="telefono-label">Drawer (menú lateral)</div>
+      <div class="telefono-frame">
+        <div class="telefono-screen">
+          <div class="t-navbar">Lugares Misteriosos</div>
+          <div class="t-drawer">
+            <div class="t-drawer-panel">
+              <div style="font-size:10px;font-weight:700;margin-bottom:10px;color:#1d4ed8">MENÚ</div>
+              <div class="t-drawer-item">Inicio</div>
+              <div class="t-drawer-item">Acerca de</div>
+            </div>
+            <div class="t-drawer-overlay"></div>
+          </div>
+          <div class="t-tabbar">
+            <div class="t-tab active"><i class="ti ti-home"></i>Inicio</div>
+            <div class="t-tab"><i class="ti ti-map"></i>Mapa</div>
+            <div class="t-tab"><i class="ti ti-star"></i>Favoritos</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="telefono">
+      <div class="telefono-label">AcercaScreen</div>
+      <div class="telefono-frame">
+        <div class="telefono-screen">
+          <div class="t-navbar">Acerca de</div>
+          <div class="t-center">
+            <div class="t-center-ico">👻</div>
+            <div class="t-center-titulo">Acerca de</div>
+            <div class="t-center-texto">App de lugares misteriosos de Morelia, Michoacán.<br><br>React Native + Expo Go SDK 54</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- ESTRUCTURA DE NAVEGACIÓN -->
+  <hr>
+  <div class="seccion-titulo">Estructura de navegación</div>
+  <p style="font-size:14px;color:#555;margin-bottom:14px">La app tiene 3 niveles de navegación anidados:</p>
+  <table class="nav-tabla">
+    <thead>
+      <tr><th>Nivel</th><th>Navigator</th><th>Qué hace</th><th>Pantallas que contiene</th></tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>1 (externo)</td>
+        <td><span class="nav-badge nb-d">Drawer</span></td>
+        <td>Menú lateral que se abre deslizando desde la izquierda</td>
+        <td>Tab Navigator, AcercaScreen</td>
+      </tr>
+      <tr>
+        <td>2 (intermedio)</td>
+        <td><span class="nav-badge nb-t">Bottom Tab</span></td>
+        <td>Barra de pestañas en la parte inferior del celular</td>
+        <td>Stack Navigator, MapaScreen, FavoritosScreen</td>
+      </tr>
+      <tr>
+        <td>3 (interno)</td>
+        <td><span class="nav-badge nb-s">Stack</span></td>
+        <td>Apila pantallas. El botón ← te regresa a la anterior</td>
+        <td>HomeScreen, DetalleScreen</td>
+      </tr>
+    </tbody>
+  </table>
+  <div class="tip"><strong>En resumen:</strong> el Drawer envuelve al Tab, el Tab contiene al Stack, y el Stack maneja la navegación entre la lista de cards y el detalle de cada lugar.</div>
+
+  <!-- ESTRUCTURA DEL PROYECTO -->
+  <hr>
+  <div class="seccion-titulo">Estructura del proyecto</div>
+
+  <div style="display:flex;gap:10px;flex-wrap:wrap;margin-bottom:14px;font-size:12px;">
+    <span style="display:inline-flex;align-items:center;gap:5px;background:#dcfce7;color:#166534;padding:4px 10px;border-radius:6px;font-weight:700;">● CREAR NUEVO</span>
+    <span style="display:inline-flex;align-items:center;gap:5px;background:#fef9c3;color:#854d0e;padding:4px 10px;border-radius:6px;font-weight:700;">● MODIFICAR</span>
+    <span style="display:inline-flex;align-items:center;gap:5px;background:#f1f5f9;color:#475569;padding:4px 10px;border-radius:6px;font-weight:700;">● AUTO-GENERADO</span>
+  </div>
+
+  <table style="font-size:13px;">
+    <thead>
+      <tr>
+        <th>Archivo</th>
+        <th>Ubicación</th>
+        <th>Acción</th>
+        <th>Paso</th>
+        <th>Qué contiene</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><code>package.json</code></td>
+        <td>raíz</td>
+        <td><span style="background:#f1f5f9;color:#475569;padding:2px 8px;border-radius:5px;font-size:11px;font-weight:700;">AUTO</span></td>
+        <td>1</td>
+        <td>Se genera solo al crear el proyecto con <code>create-expo-app</code></td>
+      </tr>
+      <tr>
+        <td><code>.npmrc</code></td>
+        <td>raíz</td>
+        <td><span style="background:#dcfce7;color:#166534;padding:2px 8px;border-radius:5px;font-size:11px;font-weight:700;">CREAR</span></td>
+        <td>2</td>
+        <td>Escribe <code>legacy-peer-deps=true</code>. Evita errores al instalar librerías. Debe crearse antes de cualquier <code>npm install</code></td>
+      </tr>
+      <tr>
+        <td><code>App.js</code></td>
+        <td>raíz</td>
+        <td><span style="background:#fef9c3;color:#854d0e;padding:2px 8px;border-radius:5px;font-size:11px;font-weight:700;">MODIFICAR</span></td>
+        <td>10</td>
+        <td>Viene vacío del proyecto. Lo reemplazas con la configuración de Stack + Tab + Drawer</td>
+      </tr>
+      <tr>
+        <td><code>data.js</code></td>
+        <td>raíz</td>
+        <td><span style="background:#dcfce7;color:#166534;padding:2px 8px;border-radius:5px;font-size:11px;font-weight:700;">CREAR</span></td>
+        <td>4</td>
+        <td>Archivo nuevo. Contiene el array con los 5 lugares: nombre, descripción, historia, imagen y ubicación</td>
+      </tr>
+      <tr>
+        <td><code>assets/images/</code></td>
+        <td>raíz</td>
+        <td><span style="background:#dcfce7;color:#166534;padding:2px 8px;border-radius:5px;font-size:11px;font-weight:700;">CREAR</span></td>
+        <td>2</td>
+        <td>Carpeta nueva. Aquí puedes poner fotos reales de los lugares de Morelia</td>
+      </tr>
+      <tr>
+        <td><code>screens/HomeScreen.jsx</code></td>
+        <td>screens/</td>
+        <td><span style="background:#dcfce7;color:#166534;padding:2px 8px;border-radius:5px;font-size:11px;font-weight:700;">CREAR</span></td>
+        <td>6</td>
+        <td>Pantalla principal. Muestra la lista de lugares con <code>FlatList</code> y usa el componente <code>LugarCard</code></td>
+      </tr>
+      <tr>
+        <td><code>screens/DetalleScreen.jsx</code></td>
+        <td>screens/</td>
+        <td><span style="background:#dcfce7;color:#166534;padding:2px 8px;border-radius:5px;font-size:11px;font-weight:700;">CREAR</span></td>
+        <td>7</td>
+        <td>Recibe el lugar seleccionado por <code>route.params</code> y muestra imagen, nombre, ubicación e historia</td>
+      </tr>
+      <tr>
+        <td><code>screens/MapaScreen.jsx</code></td>
+        <td>screens/</td>
+        <td><span style="background:#dcfce7;color:#166534;padding:2px 8px;border-radius:5px;font-size:11px;font-weight:700;">CREAR</span></td>
+        <td>8</td>
+        <td>Pantalla del tab Mapa. Por ahora muestra un placeholder; aquí se integrará un mapa real después</td>
+      </tr>
+      <tr>
+        <td><code>screens/FavoritosScreen.jsx</code></td>
+        <td>screens/</td>
+        <td><span style="background:#dcfce7;color:#166534;padding:2px 8px;border-radius:5px;font-size:11px;font-weight:700;">CREAR</span></td>
+        <td>9</td>
+        <td>Pantalla del tab Favoritos. Placeholder por ahora</td>
+      </tr>
+      <tr>
+        <td><code>screens/AcercaScreen.jsx</code></td>
+        <td>screens/</td>
+        <td><span style="background:#dcfce7;color:#166534;padding:2px 8px;border-radius:5px;font-size:11px;font-weight:700;">CREAR</span></td>
+        <td>9</td>
+        <td>Pantalla del menú Drawer. Muestra información general de la app</td>
+      </tr>
+      <tr>
+        <td><code>components/LugarCard.jsx</code></td>
+        <td>components/</td>
+        <td><span style="background:#dcfce7;color:#166534;padding:2px 8px;border-radius:5px;font-size:11px;font-weight:700;">CREAR</span></td>
+        <td>5</td>
+        <td>Componente reutilizable. Recibe <code>lugar</code> y <code>onPress</code> como props. Se usa una vez por cada lugar en HomeScreen</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <div class="tip" style="margin-top:14px"><strong>Orden recomendado:</strong> .npmrc → instalar librerías → data.js → LugarCard → screens → App.js</div>
+
+  <hr>
+  <div class="seccion-titulo">Pasos</div>
+
+  <!-- PASO 1 -->
+  <div class="paso" id="p1">
+    <div class="paso-header" onclick="toggle('p1')">
+      <div class="paso-num c1">1</div>
+      <div><div class="paso-titulo">Crear el proyecto con SDK 54</div><div class="paso-sub">Siempre usar --template blank@sdk-54</div></div>
+      <i class="ti ti-chevron-down paso-icon" id="icon-p1"></i>
+    </div>
+    <div class="paso-body" id="body-p1">
+      <div class="alerta"><strong>Importante:</strong> siempre crear el proyecto con <code>--template blank@sdk-54</code>. Sin esto se instala SDK 56 y no será compatible con Expo Go.</div>
+      <div class="bloque bash"><div class="bloque-label"><i class="ti ti-terminal"></i> terminal</div><pre><code>npx create-expo-app@latest LugaresMorelia --template blank@sdk-54
+cd LugaresMorelia</code></pre></div>
+      <p>Verifica que se instaló SDK 54 correctamente:</p>
+      <div class="bloque bash"><div class="bloque-label"><i class="ti ti-terminal"></i> verificar versión</div><pre><code>cat package.json | grep '"expo"'
+<span class="cm"># debe mostrar: "expo": "~54.0.34"</span></code></pre></div>
+    </div>
+  </div>
+
+  <!-- PASO 2 -->
+  <div class="paso" id="p2">
+    <div class="paso-header" onclick="toggle('p2')">
+      <div class="paso-num c1">2</div>
+      <div><div class="paso-titulo">Crear .npmrc antes de instalar</div><div class="paso-sub">Evitar errores de compatibilidad</div></div>
+      <i class="ti ti-chevron-down paso-icon" id="icon-p2"></i>
+    </div>
+    <div class="paso-body" id="body-p2">
+      <p>Crea el archivo <span class="hl">.npmrc</span> en la raíz del proyecto con este contenido:</p>
+      <div class="bloque cfg"><div class="bloque-label"><i class="ti ti-file"></i> .npmrc</div><pre><code>legacy-peer-deps=true</code></pre></div>
+      <div class="alerta"><strong>Crea este archivo ANTES de instalar cualquier librería.</strong> Le dice a npm que ignore los conflictos de versiones entre librerías y React 19.</div>
+      <p>Crea también las carpetas:</p>
+      <div class="bloque bash"><div class="bloque-label"><i class="ti ti-terminal"></i> terminal</div><pre><code>mkdir screens components assets assets/images</code></pre></div>
+    </div>
+  </div>
+
+  <!-- PASO 3 -->
+  <div class="paso" id="p3">
+    <div class="paso-header" onclick="toggle('p3')">
+      <div class="paso-num c1">3</div>
+      <div><div class="paso-titulo">Instalar librerías</div><div class="paso-sub">React Native Elements + Stack + Tab + Drawer</div></div>
+      <i class="ti ti-chevron-down paso-icon" id="icon-p3"></i>
+    </div>
+    <div class="paso-body" id="body-p3">
+      <div class="tip"><strong>Siempre usa <code>npx expo install</code></strong> — resuelve automáticamente versiones compatibles con SDK 54.</div>
+      <div class="bloque bash"><div class="bloque-label"><i class="ti ti-terminal"></i> 1 — React Native Elements</div><pre><code>npx expo install @rneui/themed @rneui/base react-native-vector-icons
+npx expo install react-native-safe-area-context</code></pre></div>
+      <div class="bloque bash"><div class="bloque-label"><i class="ti ti-terminal"></i> 2 — React Navigation base</div><pre><code>npx expo install @react-navigation/native
+npx expo install react-native-screens react-native-safe-area-context</code></pre></div>
+      <div class="bloque bash"><div class="bloque-label"><i class="ti ti-terminal"></i> 3 — Stack Navigator</div><pre><code>npx expo install @react-navigation/native-stack</code></pre></div>
+      <div class="bloque bash"><div class="bloque-label"><i class="ti ti-terminal"></i> 4 — Bottom Tab Navigator</div><pre><code>npx expo install @react-navigation/bottom-tabs</code></pre></div>
+      <div class="bloque bash"><div class="bloque-label"><i class="ti ti-terminal"></i> 5 — Drawer Navigator</div><pre><code>npx expo install @react-navigation/drawer
+npx expo install react-native-gesture-handler react-native-reanimated</code></pre></div>
+    </div>
+  </div>
+
+  <!-- PASO 4 -->
+  <div class="paso" id="p4">
+    <div class="paso-header" onclick="toggle('p4')">
+      <div class="paso-num c2">4</div>
+      <div><div class="paso-titulo">Crear data.js</div><div class="paso-sub">Información de los 5 lugares</div></div>
+      <i class="ti ti-chevron-down paso-icon" id="icon-p4"></i>
+    </div>
+    <div class="paso-body" id="body-p4">
+      <div class="bloque" data-texto><div class="bloque-label"><i class="ti ti-file-code"></i> data.js — puedes copiar este código</div><pre><code><span class="kw">const</span> lugares = [
+  {
+    id: <span class="str">'1'</span>,
+    nombre: <span class="str">'Acueducto de Morelia'</span>,
+    descripcion: <span class="str">'Sus arcos guardan el espíritu de los obreros que murieron en su construcción.'</span>,
+    historia: <span class="str">'Con más de 250 años de antigüedad y 253 arcos, el Acueducto es uno de los más importantes de México. Los trabajadores que fallecieron supuestamente aún rondan sus arcos en las noches de niebla.'</span>,
+    imagen: { uri: <span class="str">'https://picsum.photos/seed/acueducto/600/400'</span> },
+    ubicacion: <span class="str">'Calzada Fray Antonio de San Miguel, Morelia'</span>,
+  },
+  {
+    id: <span class="str">'2'</span>,
+    nombre: <span class="str">'Catedral de Morelia'</span>,
+    descripcion: <span class="str">'Sus torres barrocas han sido testigos de apariciones a medianoche.'</span>,
+    historia: <span class="str">'La Catedral tardó más de 100 años en construirse. Se escuchan cantos gregorianos cuando la iglesia está cerrada.'</span>,
+    imagen: { uri: <span class="str">'https://picsum.photos/seed/catedral/600/400'</span> },
+    ubicacion: <span class="str">'Plaza de Armas, Centro Histórico, Morelia'</span>,
+  },
+  {
+    id: <span class="str">'3'</span>,
+    nombre: <span class="str">'Callejón del Romance'</span>,
+    descripcion: <span class="str">'Las almas de dos amantes aún se encuentran aquí en noches de luna.'</span>,
+    historia: <span class="str">'Dos jóvenes de familias rivales se reunían secretamente. Al ser descubiertos los separaron para siempre y sus espíritus aún se buscan.'</span>,
+    imagen: { uri: <span class="str">'https://picsum.photos/seed/callejon/600/400'</span> },
+    ubicacion: <span class="str">'Centro Histórico, Morelia'</span>,
+  },
+  {
+    id: <span class="str">'4'</span>,
+    nombre: <span class="str">'Ex Convento San Francisco'</span>,
+    descripcion: <span class="str">'Sus celdas vacías esconden historias de monjes y rituales olvidados.'</span>,
+    historia: <span class="str">'Fundado en el siglo XVI. Visitantes reportan sentir presencias en sus pasillos y escuchar pasos en las celdas deshabitadas.'</span>,
+    imagen: { uri: <span class="str">'https://picsum.photos/seed/convento/600/400'</span> },
+    ubicacion: <span class="str">'Calle Fray Juan de San Miguel, Morelia'</span>,
+  },
+  {
+    id: <span class="str">'5'</span>,
+    nombre: <span class="str">'Fuente Las Tarascas'</span>,
+    descripcion: <span class="str">'La leyenda dice que sus figuras cobran vida cuando la ciudad duerme.'</span>,
+    historia: <span class="str">'Según la leyenda urbana, a las 3 de la mañana las figuras bajan de su pedestal y caminan por las calles del centro histórico.'</span>,
+    imagen: { uri: <span class="str">'https://picsum.photos/seed/tarascas/600/400'</span> },
+    ubicacion: <span class="str">'Calzada Fray Antonio de San Miguel, Morelia'</span>,
+  },
+];
+
+<span class="kw">export default</span> lugares;</code></pre></div>
+    </div>
+  </div>
+
+  <!-- PASO 5 -->
+  <div class="paso" id="p5">
+    <div class="paso-header" onclick="toggle('p5')">
+      <div class="paso-num c2">5</div>
+      <div><div class="paso-titulo">Componente LugarCard.jsx</div><div class="paso-sub">components/LugarCard.jsx — card reutilizable</div></div>
+      <i class="ti ti-chevron-down paso-icon" id="icon-p5"></i>
+    </div>
+    <div class="paso-body" id="body-p5">
+      <p>Recibe un objeto <span class="hl">lugar</span> y una función <span class="hl">onPress</span>. Se usa 5 veces en HomeScreen, una por cada lugar.</p>
+      <div class="bloque"><div class="bloque-label"><i class="ti ti-file-code"></i> components/LugarCard.jsx</div><pre><code><span class="kw">import</span> { StyleSheet, TouchableOpacity, Image } <span class="kw">from</span> <span class="str">'react-native'</span>;
+<span class="kw">import</span> { Card, Text } <span class="kw">from</span> <span class="str">'@rneui/themed'</span>;
+
+<span class="kw">export default function</span> <span class="fn">LugarCard</span>({ lugar, onPress }) {
+  <span class="kw">return</span> (
+    <span class="tg">&lt;TouchableOpacity</span> <span class="pr">onPress</span>={onPress} <span class="pr">activeOpacity</span>={<span class="nm">0.85</span>}<span class="tg">&gt;</span>
+      <span class="tg">&lt;Card</span> <span class="pr">containerStyle</span>={styles.card}<span class="tg">&gt;</span>
+        <span class="tg">&lt;Image</span> <span class="pr">source</span>={lugar.imagen} <span class="pr">style</span>={styles.imagen} <span class="tg">/&gt;</span>
+        <span class="tg">&lt;Card.Title&gt;</span>{lugar.nombre}<span class="tg">&lt;/Card.Title&gt;</span>
+        <span class="tg">&lt;Card.Divider /&gt;</span>
+        <span class="tg">&lt;Text</span> <span class="pr">style</span>={styles.descripcion}<span class="tg">&gt;</span>{lugar.descripcion}<span class="tg">&lt;/Text&gt;</span>
+      <span class="tg">&lt;/Card&gt;</span>
+    <span class="tg">&lt;/TouchableOpacity&gt;</span>
+  );
+}
+
+<span class="kw">const</span> styles = <span class="fn">StyleSheet.create</span>({
+  card: { borderRadius: <span class="nm">12</span>, padding: <span class="nm">0</span>, overflow: <span class="str">'hidden'</span>, marginBottom: <span class="nm">16</span> },
+  imagen: { width: <span class="str">'100%'</span>, height: <span class="nm">180</span>, resizeMode: <span class="str">'cover'</span> },
+  descripcion: { fontSize: <span class="nm">13</span>, color: <span class="str">'#555'</span>, lineHeight: <span class="nm">20</span>, marginBottom: <span class="nm">8</span> },
+});</code></pre></div>
+    </div>
+  </div>
+
+  <!-- PASO 6 -->
+  <div class="paso" id="p6">
+    <div class="paso-header" onclick="toggle('p6')">
+      <div class="paso-num c2">6</div>
+      <div><div class="paso-titulo">screens/HomeScreen.jsx</div><div class="paso-sub">Lista de cards — pantalla inicial del Stack</div></div>
+      <i class="ti ti-chevron-down paso-icon" id="icon-p6"></i>
+    </div>
+    <div class="paso-body" id="body-p6">
+      <p>Muestra todos los lugares con <span class="hl">FlatList</span>. Al dar clic en una card llama a <span class="hl">navigation.navigate('Detalle', { lugar: item })</span> para ir a la pantalla de detalle.</p>
+      <div class="bloque"><div class="bloque-label"><i class="ti ti-file-code"></i> screens/HomeScreen.jsx</div><pre><code><span class="kw">import</span> { FlatList, StyleSheet, SafeAreaView, Text } <span class="kw">from</span> <span class="str">'react-native'</span>;
+<span class="kw">import</span> LugarCard <span class="kw">from</span> <span class="str">'../components/LugarCard'</span>;
+<span class="kw">import</span> lugares <span class="kw">from</span> <span class="str">'../data'</span>;
+
+<span class="kw">export default function</span> <span class="fn">HomeScreen</span>({ navigation }) {
+  <span class="kw">return</span> (
+    <span class="tg">&lt;SafeAreaView</span> <span class="pr">style</span>={styles.container}<span class="tg">&gt;</span>
+      <span class="tg">&lt;Text</span> <span class="pr">style</span>={styles.titulo}<span class="tg">&gt;</span>Lugares Misteriosos<span class="tg">&lt;/Text&gt;</span>
+      <span class="tg">&lt;Text</span> <span class="pr">style</span>={styles.subtitulo}<span class="tg">&gt;</span>Morelia, Michoacán<span class="tg">&lt;/Text&gt;</span>
+      <span class="tg">&lt;FlatList</span>
+        <span class="pr">data</span>={lugares}
+        <span class="pr">keyExtractor</span>={(item) => item.id}
+        <span class="pr">renderItem</span>={({ item }) => (
+          <span class="tg">&lt;LugarCard</span>
+            <span class="pr">lugar</span>={item}
+            <span class="pr">onPress</span>={() => navigation.<span class="fn">navigate</span>(<span class="str">'Detalle'</span>, { lugar: item })}
+          <span class="tg">/&gt;</span>
+        )}
+        <span class="pr">contentContainerStyle</span>={{ padding: <span class="nm">16</span> }}
+      <span class="tg">/&gt;</span>
+    <span class="tg">&lt;/SafeAreaView&gt;</span>
+  );
+}
+
+<span class="kw">const</span> styles = <span class="fn">StyleSheet.create</span>({
+  container: { flex: <span class="nm">1</span>, backgroundColor: <span class="str">'#f5f5f5'</span> },
+  titulo: { fontSize: <span class="nm">24</span>, fontWeight: <span class="str">'bold'</span>, marginTop: <span class="nm">20</span>, marginLeft: <span class="nm">16</span> },
+  subtitulo: { fontSize: <span class="nm">14</span>, color: <span class="str">'#888'</span>, marginLeft: <span class="nm">16</span>, marginBottom: <span class="nm">8</span> },
+});</code></pre></div>
+    </div>
+  </div>
+
+  <!-- PASO 7 -->
+  <div class="paso" id="p7">
+    <div class="paso-header" onclick="toggle('p7')">
+      <div class="paso-num c2">7</div>
+      <div><div class="paso-titulo">screens/DetalleScreen.jsx</div><div class="paso-sub">Detalle completo del lugar seleccionado</div></div>
+      <i class="ti ti-chevron-down paso-icon" id="icon-p7"></i>
+    </div>
+    <div class="paso-body" id="body-p7">
+      <p>Recibe los datos del lugar a través de <span class="hl">route.params.lugar</span> y muestra la imagen, nombre, ubicación e historia completa.</p>
+      <div class="bloque"><div class="bloque-label"><i class="ti ti-file-code"></i> screens/DetalleScreen.jsx</div><pre><code><span class="kw">import</span> { View, Text, Image, ScrollView, StyleSheet } <span class="kw">from</span> <span class="str">'react-native'</span>;
+
+<span class="kw">export default function</span> <span class="fn">DetalleScreen</span>({ route }) {
+  <span class="kw">const</span> { lugar } = route.params; <span class="cm">// datos enviados desde HomeScreen</span>
+
+  <span class="kw">return</span> (
+    <span class="tg">&lt;ScrollView</span> <span class="pr">style</span>={styles.container}<span class="tg">&gt;</span>
+      <span class="tg">&lt;Image</span> <span class="pr">source</span>={lugar.imagen} <span class="pr">style</span>={styles.imagen} <span class="tg">/&gt;</span>
+      <span class="tg">&lt;View</span> <span class="pr">style</span>={styles.cuerpo}<span class="tg">&gt;</span>
+        <span class="tg">&lt;Text</span> <span class="pr">style</span>={styles.nombre}<span class="tg">&gt;</span>{lugar.nombre}<span class="tg">&lt;/Text&gt;</span>
+        <span class="tg">&lt;Text</span> <span class="pr">style</span>={styles.ubicacion}<span class="tg">&gt;</span>📍 {lugar.ubicacion}<span class="tg">&lt;/Text&gt;</span>
+        <span class="tg">&lt;Text</span> <span class="pr">style</span>={styles.historia}<span class="tg">&gt;</span>{lugar.historia}<span class="tg">&lt;/Text&gt;</span>
+      <span class="tg">&lt;/View&gt;</span>
+    <span class="tg">&lt;/ScrollView&gt;</span>
+  );
+}
+
+<span class="kw">const</span> styles = <span class="fn">StyleSheet.create</span>({
+  container: { flex: <span class="nm">1</span>, backgroundColor: <span class="str">'#fff'</span> },
+  imagen: { width: <span class="str">'100%'</span>, height: <span class="nm">260</span>, resizeMode: <span class="str">'cover'</span> },
+  cuerpo: { padding: <span class="nm">20</span> },
+  nombre: { fontSize: <span class="nm">22</span>, fontWeight: <span class="str">'bold'</span>, marginBottom: <span class="nm">8</span> },
+  ubicacion: { fontSize: <span class="nm">13</span>, color: <span class="str">'#888'</span>, marginBottom: <span class="nm">16</span> },
+  historia: { fontSize: <span class="nm">15</span>, color: <span class="str">'#333'</span>, lineHeight: <span class="nm">24</span> },
+});</code></pre></div>
+    </div>
+  </div>
+
+  <!-- PASO 8 -->
+  <div class="paso" id="p8">
+    <div class="paso-header" onclick="toggle('p8')">
+      <div class="paso-num c2">8</div>
+      <div><div class="paso-titulo">screens/MapaScreen.jsx</div><div class="paso-sub">Tab Mapa</div></div>
+      <i class="ti ti-chevron-down paso-icon" id="icon-p8"></i>
+    </div>
+    <div class="paso-body" id="body-p8">
+      <div class="bloque"><div class="bloque-label"><i class="ti ti-file-code"></i> screens/MapaScreen.jsx</div><pre><code><span class="kw">import</span> { View, Text, StyleSheet } <span class="kw">from</span> <span class="str">'react-native'</span>;
+
+<span class="kw">export default function</span> <span class="fn">MapaScreen</span>() {
+  <span class="kw">return</span> (
+    <span class="tg">&lt;View</span> <span class="pr">style</span>={styles.container}<span class="tg">&gt;</span>
+      <span class="tg">&lt;Text</span> <span class="pr">style</span>={styles.titulo}<span class="tg">&gt;</span>Mapa de Lugares<span class="tg">&lt;/Text&gt;</span>
+      <span class="tg">&lt;Text</span> <span class="pr">style</span>={styles.texto}<span class="tg">&gt;</span>
+        Próximamente: mapa con las ubicaciones de cada lugar.
+      <span class="tg">&lt;/Text&gt;</span>
+    <span class="tg">&lt;/View&gt;</span>
+  );
+}
+
+<span class="kw">const</span> styles = <span class="fn">StyleSheet.create</span>({
+  container: { flex: <span class="nm">1</span>, alignItems: <span class="str">'center'</span>, justifyContent: <span class="str">'center'</span>, padding: <span class="nm">24</span>, backgroundColor: <span class="str">'#fff'</span> },
+  titulo: { fontSize: <span class="nm">22</span>, fontWeight: <span class="str">'bold'</span>, marginBottom: <span class="nm">12</span> },
+  texto: { fontSize: <span class="nm">15</span>, color: <span class="str">'#555'</span>, textAlign: <span class="str">'center'</span>, lineHeight: <span class="nm">24</span> },
+});</code></pre></div>
+    </div>
+  </div>
+
+  <!-- PASO 9 -->
+  <div class="paso" id="p9">
+    <div class="paso-header" onclick="toggle('p9')">
+      <div class="paso-num c2">9</div>
+      <div><div class="paso-titulo">screens/FavoritosScreen.jsx y AcercaScreen.jsx</div><div class="paso-sub">Tab Favoritos y opción del Drawer</div></div>
+      <i class="ti ti-chevron-down paso-icon" id="icon-p9"></i>
+    </div>
+    <div class="paso-body" id="body-p9">
+      <div class="bloque"><div class="bloque-label"><i class="ti ti-file-code"></i> screens/FavoritosScreen.jsx</div><pre><code><span class="kw">import</span> { View, Text, StyleSheet } <span class="kw">from</span> <span class="str">'react-native'</span>;
+
+<span class="kw">export default function</span> <span class="fn">FavoritosScreen</span>() {
+  <span class="kw">return</span> (
+    <span class="tg">&lt;View</span> <span class="pr">style</span>={styles.container}<span class="tg">&gt;</span>
+      <span class="tg">&lt;Text</span> <span class="pr">style</span>={styles.titulo}<span class="tg">&gt;</span>Mis Favoritos<span class="tg">&lt;/Text&gt;</span>
+      <span class="tg">&lt;Text</span> <span class="pr">style</span>={styles.texto}<span class="tg">&gt;</span>
+        Aquí aparecerán los lugares que marques como favoritos.
+      <span class="tg">&lt;/Text&gt;</span>
+    <span class="tg">&lt;/View&gt;</span>
+  );
+}
+
+<span class="kw">const</span> styles = <span class="fn">StyleSheet.create</span>({
+  container: { flex: <span class="nm">1</span>, alignItems: <span class="str">'center'</span>, justifyContent: <span class="str">'center'</span>, padding: <span class="nm">24</span>, backgroundColor: <span class="str">'#fff'</span> },
+  titulo: { fontSize: <span class="nm">22</span>, fontWeight: <span class="str">'bold'</span>, marginBottom: <span class="nm">12</span> },
+  texto: { fontSize: <span class="nm">15</span>, color: <span class="str">'#555'</span>, textAlign: <span class="str">'center'</span>, lineHeight: <span class="nm">24</span> },
+});</code></pre></div>
+
+      <div class="bloque"><div class="bloque-label"><i class="ti ti-file-code"></i> screens/AcercaScreen.jsx</div><pre><code><span class="kw">import</span> { View, Text, StyleSheet } <span class="kw">from</span> <span class="str">'react-native'</span>;
+
+<span class="kw">export default function</span> <span class="fn">AcercaScreen</span>() {
+  <span class="kw">return</span> (
+    <span class="tg">&lt;View</span> <span class="pr">style</span>={styles.container}<span class="tg">&gt;</span>
+      <span class="tg">&lt;Text</span> <span class="pr">style</span>={styles.titulo}<span class="tg">&gt;</span>Acerca de<span class="tg">&lt;/Text&gt;</span>
+      <span class="tg">&lt;Text</span> <span class="pr">style</span>={styles.texto}<span class="tg">&gt;</span>
+        App de lugares misteriosos de Morelia, Michoacán.{'{\'\\n\\n\'}'}
+        Desarrollada con React Native + Expo Go SDK 54.
+      <span class="tg">&lt;/Text&gt;</span>
+    <span class="tg">&lt;/View&gt;</span>
+  );
+}
+
+<span class="kw">const</span> styles = <span class="fn">StyleSheet.create</span>({
+  container: { flex: <span class="nm">1</span>, alignItems: <span class="str">'center'</span>, justifyContent: <span class="str">'center'</span>, padding: <span class="nm">24</span>, backgroundColor: <span class="str">'#fff'</span> },
+  titulo: { fontSize: <span class="nm">22</span>, fontWeight: <span class="str">'bold'</span>, marginBottom: <span class="nm">12</span> },
+  texto: { fontSize: <span class="nm">15</span>, color: <span class="str">'#555'</span>, textAlign: <span class="str">'center'</span>, lineHeight: <span class="nm">24</span> },
+});</code></pre></div>
+    </div>
+  </div>
+
+  <!-- PASO 10 -->
+  <div class="paso" id="p10">
+    <div class="paso-header" onclick="toggle('p10')">
+      <div class="paso-num c3">10</div>
+      <div><div class="paso-titulo">App.js — configurar toda la navegación</div><div class="paso-sub">Stack + Bottom Tab + Drawer en un solo archivo</div></div>
+      <i class="ti ti-chevron-down paso-icon" id="icon-p10"></i>
+    </div>
+    <div class="paso-body" id="body-p10">
+      <p>Se crean 3 funciones anidadas: <span class="hl">InicioStack</span> dentro de <span class="hl">MisTabs</span> dentro de <span class="hl">App</span> con el Drawer.</p>
+      <div class="alerta"><strong>La primera línea debe ser <code>import 'react-native-gesture-handler'</code></strong> — si no está, el Drawer no funcionará.</div>
+      <div class="bloque"><div class="bloque-label"><i class="ti ti-file-code"></i> App.js</div><pre><code><span class="kw">import</span> <span class="str">'react-native-gesture-handler'</span>; <span class="cm">// debe ser la primera línea</span>
+<span class="kw">import</span> { NavigationContainer }        <span class="kw">from</span> <span class="str">'@react-navigation/native'</span>;
+<span class="kw">import</span> { createNativeStackNavigator } <span class="kw">from</span> <span class="str">'@react-navigation/native-stack'</span>;
+<span class="kw">import</span> { createBottomTabNavigator }   <span class="kw">from</span> <span class="str">'@react-navigation/bottom-tabs'</span>;
+<span class="kw">import</span> { createDrawerNavigator }      <span class="kw">from</span> <span class="str">'@react-navigation/drawer'</span>;
+
+<span class="kw">import</span> HomeScreen      <span class="kw">from</span> <span class="str">'./screens/HomeScreen'</span>;
+<span class="kw">import</span> DetalleScreen   <span class="kw">from</span> <span class="str">'./screens/DetalleScreen'</span>;
+<span class="kw">import</span> MapaScreen      <span class="kw">from</span> <span class="str">'./screens/MapaScreen'</span>;
+<span class="kw">import</span> FavoritosScreen <span class="kw">from</span> <span class="str">'./screens/FavoritosScreen'</span>;
+<span class="kw">import</span> AcercaScreen    <span class="kw">from</span> <span class="str">'./screens/AcercaScreen'</span>;
+
+<span class="kw">const</span> Stack  = <span class="fn">createNativeStackNavigator</span>();
+<span class="kw">const</span> Tab    = <span class="fn">createBottomTabNavigator</span>();
+<span class="kw">const</span> Drawer = <span class="fn">createDrawerNavigator</span>();
+
+<span class="cm">// 1. Stack: Home → Detalle</span>
+<span class="kw">function</span> <span class="fn">InicioStack</span>() {
+  <span class="kw">return</span> (
+    <span class="tg">&lt;Stack.Navigator&gt;</span>
+      <span class="tg">&lt;Stack.Screen</span> <span class="pr">name</span>=<span class="str">"Home"</span>    <span class="pr">component</span>={HomeScreen}
+        <span class="pr">options</span>={{ title: <span class="str">'Lugares Misteriosos'</span> }} <span class="tg">/&gt;</span>
+      <span class="tg">&lt;Stack.Screen</span> <span class="pr">name</span>=<span class="str">"Detalle"</span> <span class="pr">component</span>={DetalleScreen}
+        <span class="pr">options</span>={({ route }) => ({ title: route.params.lugar.nombre })} <span class="tg">/&gt;</span>
+    <span class="tg">&lt;/Stack.Navigator&gt;</span>
+  );
+}
+
+<span class="cm">// 2. Tab: Inicio | Mapa | Favoritos</span>
+<span class="kw">function</span> <span class="fn">MisTabs</span>() {
+  <span class="kw">return</span> (
+    <span class="tg">&lt;Tab.Navigator</span>
+      <span class="pr">screenOptions</span>={{ tabBarActiveTintColor: <span class="str">'#4A90E2'</span>, tabBarInactiveTintColor: <span class="str">'#aaa'</span>, headerShown: <span class="kw">false</span> }}
+    <span class="tg">&gt;</span>
+      <span class="tg">&lt;Tab.Screen</span> <span class="pr">name</span>=<span class="str">"Inicio"</span>    <span class="pr">component</span>={InicioStack}     <span class="tg">/&gt;</span>
+      <span class="tg">&lt;Tab.Screen</span> <span class="pr">name</span>=<span class="str">"Mapa"</span>      <span class="pr">component</span>={MapaScreen}      <span class="tg">/&gt;</span>
+      <span class="tg">&lt;Tab.Screen</span> <span class="pr">name</span>=<span class="str">"Favoritos"</span> <span class="pr">component</span>={FavoritosScreen} <span class="tg">/&gt;</span>
+    <span class="tg">&lt;/Tab.Navigator&gt;</span>
+  );
+}
+
+<span class="cm">// 3. Drawer: Tabs | Acerca de</span>
+<span class="kw">export default function</span> <span class="fn">App</span>() {
+  <span class="kw">return</span> (
+    <span class="tg">&lt;NavigationContainer&gt;</span>
+      <span class="tg">&lt;Drawer.Navigator</span> <span class="pr">screenOptions</span>={{ headerShown: <span class="kw">false</span> }}<span class="tg">&gt;</span>
+        <span class="tg">&lt;Drawer.Screen</span> <span class="pr">name</span>=<span class="str">"Principal"</span> <span class="pr">component</span>={MisTabs}      <span class="pr">options</span>={{ title: <span class="str">'Inicio'</span> }}     <span class="tg">/&gt;</span>
+        <span class="tg">&lt;Drawer.Screen</span> <span class="pr">name</span>=<span class="str">"Acerca"</span>    <span class="pr">component</span>={AcercaScreen} <span class="pr">options</span>={{ title: <span class="str">'Acerca de'</span> }} <span class="tg">/&gt;</span>
+      <span class="tg">&lt;/Drawer.Navigator&gt;</span>
+    <span class="tg">&lt;/NavigationContainer&gt;</span>
+  );
+}</code></pre></div>
+    </div>
+  </div>
+
+  <!-- PASO 11 -->
+  <div class="paso" id="p11">
+    <div class="paso-header" onclick="toggle('p11')">
+      <div class="paso-num c4">11</div>
+      <div><div class="paso-titulo">Ejecutar la app</div><div class="paso-sub">Ver en Expo Go en el celular</div></div>
+      <i class="ti ti-chevron-down paso-icon" id="icon-p11"></i>
+    </div>
+    <div class="paso-body" id="body-p11">
+      <div class="bloque bash"><div class="bloque-label"><i class="ti ti-terminal"></i> misma red WiFi</div><pre><code>npx expo start</code></pre></div>
+      <div class="bloque bash"><div class="bloque-label"><i class="ti ti-terminal"></i> redes diferentes</div><pre><code>npx expo start --tunnel</code></pre></div>
+      <div class="alerta"><strong>Si la terminal dice "no such file or directory":</strong> cierra esa terminal, abre una nueva y entra a la carpeta con <code>cd</code> antes de correr el comando.</div>
+    </div>
+  </div>
+
+  <hr>
+
+  <div class="seccion-titulo">Resumen de archivos</div>
+  <table>
+    <thead><tr><th>Archivo</th><th>Tipo</th><th>Rol</th></tr></thead>
+    <tbody>
+      <tr><td><code>App.js</code></td><td><span class="chip r">raíz</span></td><td>Configura Stack + Tab + Drawer. Conecta todo.</td></tr>
+      <tr><td><code>data.js</code></td><td><span class="chip n">datos</span></td><td>Array con los 5 lugares misteriosos.</td></tr>
+      <tr><td><code>components/LugarCard.jsx</code></td><td><span class="chip c">componente</span></td><td>Card reutilizable. Recibe props. Se usa 5 veces.</td></tr>
+      <tr><td><code>screens/HomeScreen.jsx</code></td><td><span class="chip s">screen</span></td><td>Lista de cards. Llama a navigate() al dar clic.</td></tr>
+      <tr><td><code>screens/DetalleScreen.jsx</code></td><td><span class="chip s">screen</span></td><td>Detalle del lugar. Lee datos con route.params.</td></tr>
+      <tr><td><code>screens/MapaScreen.jsx</code></td><td><span class="chip s">screen</span></td><td>Tab Mapa.</td></tr>
+      <tr><td><code>screens/FavoritosScreen.jsx</code></td><td><span class="chip s">screen</span></td><td>Tab Favoritos.</td></tr>
+      <tr><td><code>screens/AcercaScreen.jsx</code></td><td><span class="chip s">screen</span></td><td>Opción en el Drawer.</td></tr>
+    </tbody>
+  </table>
+
+  <footer>Práctica — Lugares Misteriosos de Morelia · React Native + Expo Go SDK 54</footer>
+</div>
+
+<script>
+  // ── Renderizar bloques de código como canvas (no copiable) ──────────────────
+  const COLOR_MAP = {
+    kw: '#7c3aed', fn: '#0369a1', str: '#059669',
+    tg: '#b45309', nm: '#dc2626', cm: '#94a3b8', pr: '#be185d'
+  };
+  const DEFAULT_COLOR = '#1e293b';
+  const FONT_SIZE = 14;
+  const LINE_HEIGHT = 24;
+  const PADDING = 18;
+  const FONT = `${FONT_SIZE}px Menlo,Monaco,'Courier New',monospace`;
+  // Ancho lógico fijo: todos los bloques usan el mismo, sin escalar
+  const CANVAS_W = 800;
+
+  function extractNodes(el) {
+    const items = [];
+    el.childNodes.forEach(node => {
+      if (node.nodeType === Node.TEXT_NODE) {
+        items.push({ text: node.textContent, color: DEFAULT_COLOR });
+      } else {
+        const cls = node.className || '';
+        items.push({ text: node.textContent, color: COLOR_MAP[cls] || DEFAULT_COLOR });
+      }
+    });
+    return items;
+  }
+
+  function buildLines(nodes) {
+    const lines = [{ runs: [] }];
+    nodes.forEach(({ text, color }) => {
+      text.split('\n').forEach((part, i, arr) => {
+        if (part) lines[lines.length - 1].runs.push({ text: part, color });
+        if (i < arr.length - 1) lines.push({ runs: [] });
+      });
+    });
+    if (lines.length > 1 && lines[lines.length - 1].runs.length === 0) lines.pop();
+    return lines;
+  }
+
+  function renderCodeBlock(codeEl, bgColor) {
+    const nodes = extractNodes(codeEl);
+    const lines = buildLines(nodes);
+
+    const dpr = window.devicePixelRatio || 1;
+    const W = CANVAS_W;
+    const H = lines.length * LINE_HEIGHT + PADDING * 2;
+
+    const canvas = document.createElement('canvas');
+    canvas.width = Math.round(W * dpr);
+    canvas.height = Math.round(H * dpr);
+    // Tamaño visual fijo — nunca estira ni encoge
+    canvas.style.width  = W + 'px';
+    canvas.style.height = H + 'px';
+    canvas.style.display = 'block';
+    canvas.style.maxWidth = '100%';
+    canvas.style.cursor = 'default';
+    canvas.style.borderRadius = '0 0 8px 8px';
+
+    const ctx = canvas.getContext('2d');
+    ctx.scale(dpr, dpr);
+
+    ctx.fillStyle = bgColor || '#fafbff';
+    ctx.fillRect(0, 0, W, H);
+
+    ctx.font = FONT;
+    ctx.textBaseline = 'alphabetic';
+
+    lines.forEach((line, li) => {
+      let x = PADDING;
+      const y = PADDING + li * LINE_HEIGHT + FONT_SIZE + 2;
+      line.runs.forEach(run => {
+        ctx.fillStyle = run.color;
+        ctx.fillText(run.text, x, y);
+        x += ctx.measureText(run.text).width;
+      });
+    });
+
+    return canvas;
+  }
+
+  // Devuelve true si este bloque debe quedarse como texto copiable
+  function esCopiable(bloque) {
+    if (!bloque) return false;
+    return bloque.classList.contains('bash') ||
+           bloque.classList.contains('cfg')  ||
+           bloque.hasAttribute('data-texto');
+  }
+
+  function convertirPre(pre) {
+    const bloque = pre.closest('.bloque');
+    if (esCopiable(bloque)) return; // dejar como texto
+    const code = pre.querySelector('code');
+    if (!code) return;
+    const canvas = renderCodeBlock(code, '#fafbff');
+    pre.parentNode.replaceChild(canvas, pre);
+  }
+
+  // ── Toggle acordeón ─────────────────────────────────────────────────────────
+  const rendered = new Set();
+
+  function toggle(id) {
+    const body = document.getElementById('body-' + id);
+    const icon = document.getElementById('icon-' + id);
+    const isOpen = body.classList.contains('abierto');
+    body.classList.toggle('abierto', !isOpen);
+    icon.style.transform = isOpen ? 'rotate(0deg)' : 'rotate(180deg)';
+    if (!isOpen && !rendered.has(id)) {
+      rendered.add(id);
+      body.querySelectorAll('.bloque pre').forEach(convertirPre);
+    }
+  }
+
+  // Convertir bloques visibles al cargar (fuera de acordeones)
+  document.addEventListener('DOMContentLoaded', () => {
+    document.querySelectorAll('.bloque pre').forEach(pre => {
+      if (!pre.closest('.paso-body')) convertirPre(pre);
+    });
+  });
+</script>
+</body>
+</html>
