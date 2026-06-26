@@ -1,0 +1,1139 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Práctica — Generación de APK con Expo y EAS Build</title>
+<style>
+* { margin:0; padding:0; box-sizing:border-box; }
+body {
+  font-family:'Segoe UI',Arial,sans-serif;
+  background:#fff;
+  color:#1a1a2e;
+  font-size:14px;
+  line-height:1.75;
+}
+
+/* ── HEADER ── */
+.header { background:#1565C0; color:#fff; }
+.header-top {
+  background:#0D47A1;
+  padding:16px 40px 14px;
+  display:flex;
+  justify-content:space-between;
+  align-items:flex-start;
+}
+.header-inst { font-size:11px; opacity:.85; letter-spacing:.04em; text-transform:uppercase; }
+.header-carrera { font-size:13px; font-weight:700; margin-top:3px; }
+.header-badge {
+  background:#fff; color:#0D47A1; font-weight:700; font-size:12px;
+  padding:5px 16px; border-radius:20px; white-space:nowrap; align-self:center;
+}
+.header-main { padding:18px 40px 22px; }
+.header-practica { font-size:10px; opacity:.75; text-transform:uppercase; letter-spacing:.1em; margin-bottom:6px; }
+.header-titulo { font-size:27px; font-weight:800; margin-bottom:10px; line-height:1.2; }
+.header-meta { display:flex; gap:22px; font-size:12px; opacity:.9; flex-wrap:wrap; }
+.header-strip { height:5px; background:#42A5F5; }
+
+/* ── LAYOUT ── */
+.content { max-width:980px; margin:0 auto; padding:36px 40px 70px; }
+
+/* ── TOC ── */
+.toc {
+  background:#E3F2FD; border-left:4px solid #1565C0; border-radius:0 8px 8px 0;
+  padding:18px 24px; margin-bottom:36px;
+}
+.toc-title { font-size:12px; font-weight:700; color:#0D47A1; text-transform:uppercase; letter-spacing:.06em; margin-bottom:10px; }
+.toc ol { padding-left:18px; columns:2; column-gap:32px; }
+.toc li { font-size:12.5px; color:#1565C0; padding:3px 0; break-inside:avoid; }
+.toc a { color:#1565C0; text-decoration:none; }
+.toc a:hover { text-decoration:underline; }
+
+/* ── SECTIONS ── */
+.seccion { margin-bottom:40px; }
+.seccion-titulo {
+  font-size:17px; font-weight:800; color:#0D47A1; border-bottom:2px solid #BBDEFB;
+  padding-bottom:8px; margin-bottom:18px; display:flex; align-items:center; gap:10px;
+}
+.seccion-num {
+  background:#1565C0; color:#fff; font-size:12px; font-weight:700; width:26px; height:26px;
+  border-radius:50%; display:flex; align-items:center; justify-content:center; flex-shrink:0;
+}
+.subseccion-titulo { font-size:14px; font-weight:700; color:#1565C0; margin:20px 0 8px; }
+p { margin-bottom:10px; }
+
+/* ── CARDS ── */
+.contexto-card {
+  background:#F8FBFF; border:1px solid #BBDEFB; border-radius:10px;
+  padding:18px 22px; margin-bottom:16px;
+}
+
+/* ── OBJECTIVES ── */
+.obj-lista { list-style:none; padding:0; }
+.obj-lista li {
+  padding:7px 0 7px 26px; position:relative; font-size:13.5px; border-bottom:1px solid #F0F4FF;
+}
+.obj-lista li::before { content:'✓'; position:absolute; left:0; color:#1565C0; font-weight:700; }
+
+/* ── CALLOUTS ── */
+.nota, .info, .peligro, .profesional, .tip {
+  border-radius:0 8px 8px 0; padding:12px 16px; margin:14px 0; font-size:13px; line-height:1.6;
+}
+.nota     { background:#FFF8E1; border-left:4px solid #F59E0B; }
+.info     { background:#E8F5E9; border-left:4px solid #43A047; }
+.peligro  { background:#FFEBEE; border-left:4px solid #E53935; }
+.profesional { background:#EDE7F6; border-left:4px solid #7B1FA2; }
+.tip      { background:#E0F7FA; border-left:4px solid #0097A7; }
+
+/* ── FLOW DIAGRAM ── */
+.flujo {
+  display:flex; align-items:stretch; gap:0; flex-wrap:nowrap; overflow-x:auto;
+  padding-bottom:4px; margin:20px 0;
+}
+.flujo-item {
+  background:#E3F2FD; border:1.5px solid #90CAF9; padding:10px 14px;
+  text-align:center; font-size:11.5px; min-width:110px; flex:1;
+  display:flex; flex-direction:column; align-items:center; justify-content:center; gap:4px;
+  line-height:1.3;
+}
+.flujo-item:first-child { border-radius:8px 0 0 8px; }
+.flujo-item:last-child  { border-radius:0 8px 8px 0; }
+.flujo-item.activo { background:#1565C0; color:#fff; border-color:#1565C0; font-weight:700; }
+.flujo-item .fi-icon { font-size:18px; }
+.flujo-sep { color:#90CAF9; font-size:20px; display:flex; align-items:center; flex-shrink:0; padding:0 2px; }
+
+/* ── STEPS ── */
+.paso {
+  background:#fff; border:1px solid #BBDEFB; border-radius:10px;
+  padding:20px 24px; margin-bottom:22px;
+  border-left:4px solid #1565C0;
+}
+.paso-header { display:flex; align-items:center; gap:12px; margin-bottom:14px; }
+.paso-num {
+  background:#1565C0; color:#fff; font-size:12px; font-weight:700;
+  padding:4px 12px; border-radius:14px; white-space:nowrap;
+}
+.paso-titulo { font-size:15px; font-weight:700; color:#0D47A1; }
+
+/* ── CODE BLOCKS ── */
+.file-label {
+  display:inline-block; background:#E3F2FD; color:#0D47A1; font-family:'Courier New',monospace;
+  font-size:11.5px; padding:4px 12px; border-radius:6px 6px 0 0; border:1px solid #BBDEFB;
+  border-bottom:none; font-weight:600; margin-top:10px;
+}
+.code-wrap {
+  border:1px solid #BBDEFB; border-radius:0 8px 8px 8px;
+  overflow:auto; margin-bottom:12px; background:#fff;
+}
+.code-wrap canvas { display:block; max-width:100%; background:#fff; }
+
+/* ── PREGUNTA CARD ── */
+.pregunta-card { border:1px solid #BBDEFB; border-radius:8px; overflow:hidden; margin:14px 0; }
+.pregunta-card .pq-header { background:#E3F2FD; padding:8px 14px; font-size:12px; font-weight:700; color:#0D47A1; }
+.pregunta-card .pq-respuesta { padding:10px 14px; font-size:12.5px; background:#E8F5E9; color:#2E7D32; }
+
+/* ── SCREEN MOCK ── */
+.screen-row { display:flex; gap:24px; margin:16px 0; flex-wrap:wrap; align-items:flex-start; }
+.screen-block { flex:1; min-width:220px; }
+.screen-label {
+  font-size:11px; font-weight:700; color:#0D47A1; text-transform:uppercase;
+  letter-spacing:.06em; margin-bottom:8px; padding-left:4px;
+}
+.phone-mock {
+  width:196px; background:#111; border-radius:28px; padding:8px;
+  box-shadow:0 8px 30px rgba(0,0,0,.2); margin:0 auto;
+}
+.phone-screen {
+  background:#fff; border-radius:20px; overflow:hidden; min-height:330px;
+  display:flex; flex-direction:column;
+}
+.phone-status {
+  background:#1565C0; color:#fff; font-size:9px; padding:5px 14px;
+  display:flex; justify-content:space-between;
+}
+.phone-content { flex:1; padding:12px; }
+.phone-app-header {
+  background:#1565C0; color:#fff; padding:10px 12px; font-size:12px;
+  font-weight:700; border-radius:0 0 8px 8px; margin:-12px -12px 10px;
+}
+.phone-list-item {
+  padding:8px 0; border-bottom:1px solid #eee; font-size:11px; color:#333;
+  display:flex; gap:7px; align-items:center;
+}
+.phone-list-item .item-icon { font-size:16px; }
+.phone-list-item .item-text .title { font-weight:600; font-size:11px; color:#111; }
+.phone-list-item .item-text .sub { font-size:9.5px; color:#777; }
+.phone-badge { background:#1565C0; color:#fff; font-size:8px; padding:2px 6px; border-radius:8px; margin-left:auto; }
+.phone-home-btn { height:3px; background:#ccc; border-radius:2px; margin:6px 55px; }
+
+/* ── BROWSER MOCK ── */
+.browser-mock {
+  border:1px solid #ddd; border-radius:10px; overflow:hidden; margin:14px 0;
+  box-shadow:0 2px 8px rgba(0,0,0,.07);
+}
+.browser-bar {
+  background:#f3f4f6; padding:7px 12px; display:flex; align-items:center; gap:8px;
+  border-bottom:1px solid #ddd;
+}
+.browser-dots { display:flex; gap:5px; }
+.browser-dot { width:10px; height:10px; border-radius:50%; }
+.browser-dot.r { background:#FF5F57; }
+.browser-dot.y { background:#FEBC2E; }
+.browser-dot.g { background:#28C840; }
+.browser-url {
+  flex:1; background:#fff; border:1px solid #ddd; border-radius:5px;
+  padding:4px 10px; font-size:11.5px; color:#555; font-family:'Courier New',monospace;
+}
+.browser-body { background:#fff; padding:18px 20px; }
+
+/* ── EXPO DASHBOARD MOCK ── */
+.expo-dash { border-radius:8px; overflow:hidden; border:1px solid #e0e0e0; margin:14px 0; }
+.expo-dash-header {
+  background:#000; color:#fff; padding:10px 14px;
+  display:flex; align-items:center; gap:10px; font-size:12.5px; font-weight:600;
+}
+.expo-dash-body { padding:14px; background:#fafafa; }
+.expo-build-card {
+  background:#fff; border:1px solid #e8e8e8; border-radius:8px; padding:13px 15px; margin-bottom:10px;
+}
+.build-status {
+  display:inline-flex; align-items:center; gap:5px; font-size:11px;
+  font-weight:700; padding:3px 9px; border-radius:12px; margin-bottom:7px;
+}
+.build-status.running { background:#FFF3CD; color:#856404; }
+.build-status.success { background:#D1FAE5; color:#065F46; }
+.build-status .dot { width:7px; height:7px; border-radius:50%; background:currentColor; }
+.build-info { font-size:11.5px; color:#555; line-height:1.7; }
+.build-link { color:#1565C0; font-size:12px; font-weight:600; }
+.qr-placeholder {
+  width:80px; height:80px; background:#f0f0f0; border:2px dashed #ccc;
+  border-radius:6px; display:flex; align-items:center; justify-content:center;
+  font-size:26px; flex-shrink:0;
+}
+.build-row { display:flex; gap:12px; align-items:center; }
+
+/* ── TABLES ── */
+.tabla-gen, .rubrica, .actividades, .error-table {
+  width:100%; border-collapse:collapse; font-size:13px; margin:14px 0;
+}
+.tabla-gen th, .rubrica th, .actividades th {
+  background:#1565C0; color:#fff; padding:10px 14px; text-align:left; font-size:12px;
+}
+.error-table th { background:#B71C1C; color:#fff; padding:9px 14px; text-align:left; font-size:12px; }
+.tabla-gen td, .rubrica td, .actividades td { padding:9px 14px; border-bottom:1px solid #E3F2FD; vertical-align:top; }
+.error-table td { padding:9px 14px; border-bottom:1px solid #FFCDD2; vertical-align:top; }
+.tabla-gen tr:nth-child(even) td,
+.rubrica  tr:nth-child(even) td,
+.actividades tr:nth-child(even) td { background:#F8FBFF; }
+.error-table tr:nth-child(even) td { background:#FFF5F5; }
+.badge-apk  { background:#DBEAFE; color:#1E40AF; font-size:11px; font-weight:700; padding:2px 8px; border-radius:10px; }
+.badge-aab  { background:#D1FAE5; color:#065F46; font-size:11px; font-weight:700; padding:2px 8px; border-radius:10px; }
+.badge-ipa  { background:#EDE9FE; color:#5B21B6; font-size:11px; font-weight:700; padding:2px 8px; border-radius:10px; }
+.error-tag  { color:#B71C1C; font-family:'Courier New',monospace; font-size:12px; }
+.solution-tag { color:#2E7D32; font-size:12px; }
+
+code { background:#E3F2FD; color:#0D47A1; padding:1px 6px; border-radius:3px; font-size:12px; font-family:'Courier New',monospace; }
+
+/* ── ENTREGABLE ── */
+.entregable-lista { list-style:none; padding:0; }
+.entregable-lista li { padding:8px 14px 8px 36px; position:relative; font-size:13.5px; border-bottom:1px solid #F0F4FF; }
+.entregable-lista li::before { content:'📄'; position:absolute; left:8px; }
+
+/* ── FOOTER ── */
+.footer { background:#0D47A1; color:#fff; text-align:center; padding:14px 40px; font-size:12px; margin-top:40px; }
+
+@media print {
+  .content { max-width:100%; padding:20px 28px; }
+  .paso { page-break-inside:avoid; }
+  .toc ol { columns:2; }
+  .flujo { flex-wrap:wrap; }
+}
+</style>
+</head>
+<body>
+
+<!-- HEADER -->
+<div class="header">
+  <div class="header-top">
+    <div>
+      <div class="header-inst">Universidad Tecnológica de Morelia · Ingeniería en Desarrollo y Gestión de Software</div>
+      <div class="header-carrera">Desarrollo de Aplicaciones Móviles con React Native</div>
+    </div>
+    <div class="header-badge">Práctica</div>
+  </div>
+  <div class="header-main">
+    <div class="header-practica">Fase de despliegue móvil</div>
+    <div class="header-titulo">Generación de APK para Android con Expo y EAS Build</div>
+    <div class="header-meta">
+      <span>⏱ Duración estimada: 2 horas</span>
+      <span>📱 Android · Expo Go · EAS Build</span>
+      <span>📦 Entregable: APK instalado en dispositivo físico</span>
+    </div>
+  </div>
+  <div class="header-strip"></div>
+</div>
+
+<div class="content">
+
+  <!-- TOC -->
+  <div class="toc">
+    <div class="toc-title">Tabla de contenidos</div>
+    <ol>
+      <li><a href="#intro">Introducción</a></li>
+      <li><a href="#diferencia">Expo Go vs. APK: ¿cuál es la diferencia?</a></li>
+      <li><a href="#conceptos">Conceptos clave</a></li>
+      <li><a href="#objetivos">Objetivos</a></li>
+      <li><a href="#flujo">Flujo general del proceso</a></li>
+      <li><a href="#desarrollo">Desarrollo paso a paso</a></li>
+      <li><a href="#android">Generación del APK Android</a></li>
+      <li><a href="#errores">Errores comunes y soluciones</a></li>
+      <li><a href="#ios">Nota sobre iOS</a></li>
+      <li><a href="#actividades">Actividades</a></li>
+      <li><a href="#entregable">Entregable</a></li>
+      <li><a href="#rubrica">Rúbrica</a></li>
+      <li><a href="#reflexion">Preguntas de reflexión</a></li>
+    </ol>
+  </div>
+
+  <!-- 1. INTRODUCCIÓN -->
+  <div class="seccion" id="intro">
+    <div class="seccion-titulo"><span class="seccion-num">1</span> Introducción</div>
+    <div class="contexto-card">
+      <p>Hasta ahora has probado tu aplicación a través de <strong>Expo Go</strong>: escaneas un código QR, la app abre en el celular y puedes interactuar con ella. Sin embargo, esta forma de ejecutarla <em>no es la versión final</em> que un usuario instalaría en su celular — es solo una herramienta de desarrollo.</p>
+      <p>En esta práctica realizarás el proceso para <strong>compilar tu aplicación React Native en un archivo APK instalable de Android</strong>, usando el servicio en la nube <strong>EAS Build</strong> de Expo. Al terminar, tu app se podrá instalar en cualquier dispositivo Android sin necesitar Expo Go ni que tu computadora esté encendida.</p>
+      <p>Los bloques de código se presentan como imágenes con fondo blanco para que los escribas manualmente en la terminal. No los copies y pegues.</p>
+    </div>
+  </div>
+
+  <!-- 2. EXPO GO VS APK -->
+  <div class="seccion" id="diferencia">
+    <div class="seccion-titulo"><span class="seccion-num">2</span> Expo Go vs. APK instalable: ¿cuál es la diferencia?</div>
+    <p>Es fundamental entender la diferencia antes de comenzar:</p>
+
+    <div class="screen-row" style="margin-top:16px;">
+      <!-- EXPO GO -->
+      <div class="screen-block">
+        <div class="screen-label">🔷 Con Expo Go (desarrollo)</div>
+        <div class="phone-mock">
+          <div class="phone-screen">
+            <div class="phone-status"><span>9:41</span><span>📶 🔋</span></div>
+            <div class="phone-content">
+              <div class="phone-app-header">Expo Go</div>
+              <div class="phone-list-item">
+                <span class="item-icon">📷</span>
+                <div class="item-text">
+                  <div class="title">Escanear código QR</div>
+                  <div class="sub">Conecta al servidor en tu compu</div>
+                </div>
+              </div>
+              <div class="phone-list-item">
+                <span class="item-icon">⚡</span>
+                <div class="item-text">
+                  <div class="title">MiAppExpo</div>
+                  <div class="sub">Proyecto reciente</div>
+                </div>
+                <span class="phone-badge">DEV</span>
+              </div>
+              <div style="margin-top:10px; padding:9px; background:#FFF3CD; border-radius:6px; font-size:10px; color:#856404; line-height:1.5;">
+                ⚠️ Requiere tu computadora encendida y en la misma red Wi-Fi
+              </div>
+            </div>
+            <div class="phone-home-btn"></div>
+          </div>
+        </div>
+        <div style="margin-top:10px; font-size:12px; color:#555; line-height:1.8;">
+          ✅ Rápido para probar cambios<br>
+          ✅ Refleja cambios al instante<br>
+          ❌ Requiere computadora encendida<br>
+          ❌ Requiere misma red Wi-Fi<br>
+          ❌ No se puede distribuir a usuarios
+        </div>
+      </div>
+
+      <!-- APK -->
+      <div class="screen-block">
+        <div class="screen-label">🟢 Con APK instalado (distribución)</div>
+        <div class="phone-mock">
+          <div class="phone-screen">
+            <div class="phone-status"><span>9:41</span><span>📶 🔋</span></div>
+            <div class="phone-content">
+              <div class="phone-app-header" style="background:#2E7D32;">Lugares Misteriosos</div>
+              <div class="phone-list-item">
+                <span class="item-icon">🗺️</span>
+                <div class="item-text">
+                  <div class="title">Templo Las Rosas</div>
+                  <div class="sub">Centro histórico · 1.2 km</div>
+                </div>
+              </div>
+              <div class="phone-list-item">
+                <span class="item-icon">🌫️</span>
+                <div class="item-text">
+                  <div class="title">El Callejón del Diablo</div>
+                  <div class="sub">Col. Centro · 0.8 km</div>
+                </div>
+              </div>
+              <div class="phone-list-item">
+                <span class="item-icon">🏰</span>
+                <div class="item-text">
+                  <div class="title">Casa de las Ranas</div>
+                  <div class="sub">Morelia · 2.1 km</div>
+                </div>
+              </div>
+              <div style="margin-top:9px; padding:7px 9px; background:#E8F5E9; border-radius:6px; font-size:9.5px; color:#2E7D32; line-height:1.5;">
+                ✅ App independiente — sin Expo Go
+              </div>
+            </div>
+            <div class="phone-home-btn"></div>
+          </div>
+        </div>
+        <div style="margin-top:10px; font-size:12px; color:#555; line-height:1.8;">
+          ✅ Funciona sin computadora<br>
+          ✅ Funciona en cualquier red (o sin red)<br>
+          ✅ Se puede compartir a cualquiera<br>
+          ✅ App profesional independiente<br>
+          ⏳ Requiere compilación (~10–20 min en la nube)
+        </div>
+      </div>
+    </div>
+
+    <div class="profesional" style="margin-top:16px;"><strong>En el mundo profesional:</strong> Expo Go es solo para el equipo de desarrollo. El usuario final nunca ve Expo Go; instala la app compilada desde la tienda o mediante un enlace de descarga.</div>
+  </div>
+
+  <!-- 3. CONCEPTOS CLAVE -->
+  <div class="seccion" id="conceptos">
+    <div class="seccion-titulo"><span class="seccion-num">3</span> Conceptos clave</div>
+
+    <table class="tabla-gen">
+      <thead><tr><th>Concepto</th><th>¿Qué es?</th><th>¿Cuándo se usa?</th></tr></thead>
+      <tbody>
+        <tr>
+          <td><strong>Expo Go</strong></td>
+          <td>Aplicación móvil que permite probar proyectos Expo durante el desarrollo. Se conecta al servidor Metro de tu computadora mediante un código QR y ejecuta el código JavaScript en tiempo real.</td>
+          <td>Solo durante el desarrollo. Nunca para distribución final.</td>
+        </tr>
+        <tr>
+          <td><strong>EAS Build</strong></td>
+          <td>Servicio en la nube de Expo que compila el código React Native y genera archivos instalables. La compilación ocurre en servidores remotos de Expo; tu computadora solo envía los archivos y espera el resultado.</td>
+          <td>Para generar la versión compilada de la app (APK, AAB o IPA).</td>
+        </tr>
+        <tr>
+          <td><strong>EAS CLI</strong></td>
+          <td>Herramienta de línea de comandos que instala en tu computadora. Permite autenticarte con tu cuenta de Expo y enviar comandos de compilación a los servidores de EAS Build.</td>
+          <td>En la computadora de desarrollo, antes y durante la compilación.</td>
+        </tr>
+        <tr>
+          <td><span class="badge-apk">APK</span><br><small>Android Package</small></td>
+          <td>Archivo instalable de Android. Equivale a un instalador .exe de Windows. Se puede descargar e instalar directamente en cualquier dispositivo Android sin pasar por la tienda.</td>
+          <td>Pruebas internas, distribución directa entre personas conocidas. Esta práctica genera un APK.</td>
+        </tr>
+        <tr>
+          <td><span class="badge-aab">AAB</span><br><small>Android App Bundle</small></td>
+          <td>Formato de publicación para Google Play Store. Google recibe el AAB y genera APKs optimizados para cada tipo de dispositivo. No se puede instalar directamente como un APK.</td>
+          <td>Publicación en Google Play Store.</td>
+        </tr>
+        <tr>
+          <td><span class="badge-ipa">IPA</span><br><small>iOS App Archive</small></td>
+          <td>Equivalente al APK pero para dispositivos Apple (iPhone, iPad). No se puede instalar directamente en iOS por las restricciones de Apple; requiere pasar por App Store o TestFlight.</td>
+          <td>Distribución en iOS vía App Store o TestFlight con cuenta Apple Developer.</td>
+        </tr>
+        <tr>
+          <td><strong>Keystore</strong></td>
+          <td>Archivo de certificado digital que firma las aplicaciones Android. Funciona como la identidad del desarrollador: garantiza que los APKs de la misma app provienen del mismo autor. Android exige esta firma para instalar cualquier app.</td>
+          <td>Obligatorio en toda compilación Android. Debe conservarse para poder publicar actualizaciones de la misma app.</td>
+        </tr>
+        <tr>
+          <td><strong>Perfil de build</strong></td>
+          <td>Configuración definida en el archivo <code>eas.json</code> que indica cómo compilar la app. Puedes tener perfiles distintos: uno para generar APK de prueba (<code>preview</code>) y otro para generar AAB de producción (<code>production</code>).</td>
+          <td>Se especifica al ejecutar <code>eas build</code> con la bandera <code>--profile</code>.</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <div class="subseccion-titulo">Comparativa visual: APK vs AAB vs IPA</div>
+    <div style="display:flex; gap:14px; flex-wrap:wrap; margin:14px 0;">
+      <div style="flex:1; min-width:160px; border:2px solid #DBEAFE; border-radius:10px; padding:14px; text-align:center;">
+        <div style="font-size:26px; margin-bottom:6px;">🤖</div>
+        <div class="badge-apk" style="display:block; margin-bottom:8px; padding:4px 0; font-size:12px;">APK</div>
+        <div style="font-size:12px; color:#444; line-height:1.7;">Instalación directa<br>en Android<br>Sin Google Play</div>
+      </div>
+      <div style="flex:1; min-width:160px; border:2px solid #D1FAE5; border-radius:10px; padding:14px; text-align:center;">
+        <div style="font-size:26px; margin-bottom:6px;">🤖</div>
+        <div class="badge-aab" style="display:block; margin-bottom:8px; padding:4px 0; font-size:12px;">AAB</div>
+        <div style="font-size:12px; color:#444; line-height:1.7;">Solo para<br>Google Play Store<br>No instalable directo</div>
+      </div>
+      <div style="flex:1; min-width:160px; border:2px solid #EDE9FE; border-radius:10px; padding:14px; text-align:center;">
+        <div style="font-size:26px; margin-bottom:6px;">🍎</div>
+        <div class="badge-ipa" style="display:block; margin-bottom:8px; padding:4px 0; font-size:12px;">IPA</div>
+        <div style="font-size:12px; color:#444; line-height:1.7;">Solo iOS<br>App Store o TestFlight<br>Requiere Apple Developer</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 4. OBJETIVOS -->
+  <div class="seccion" id="objetivos">
+    <div class="seccion-titulo"><span class="seccion-num">4</span> Objetivos</div>
+    <ul class="obj-lista">
+      <li>Crear o verificar una cuenta en Expo y autenticarse desde la terminal con EAS CLI.</li>
+      <li>Instalar Expo Go en el dispositivo móvil y verificar que el proyecto corre correctamente antes de compilar.</li>
+      <li>Configurar EAS Build en el proyecto generando el archivo <code>eas.json</code> con el perfil APK.</li>
+      <li>Entender qué es el Keystore de Android y por qué no debe perderse.</li>
+      <li>Generar un APK para Android usando EAS Build en la nube.</li>
+      <li>Instalar la app en un dispositivo Android usando el enlace generado al finalizar la compilación.</li>
+      <li>Distinguir entre APK (instalación directa), AAB (Google Play) e IPA (iOS).</li>
+    </ul>
+  </div>
+
+  <!-- 5. FLUJO GENERAL -->
+  <div class="seccion" id="flujo">
+    <div class="seccion-titulo"><span class="seccion-num">5</span> Flujo general del proceso</div>
+    <p>El proceso tiene tres grandes etapas: <strong>preparación en la computadora</strong>, <strong>compilación en la nube (EAS)</strong>, e <strong>instalación en el celular</strong>.</p>
+
+    <div class="flujo">
+      <div class="flujo-item activo"><span class="fi-icon">🔐</span>Cuenta<br>Expo</div>
+      <div class="flujo-sep">→</div>
+      <div class="flujo-item"><span class="fi-icon">📱</span>Verificar<br>Expo Go</div>
+      <div class="flujo-sep">→</div>
+      <div class="flujo-item"><span class="fi-icon">⚙️</span>Instalar<br>EAS CLI</div>
+      <div class="flujo-sep">→</div>
+      <div class="flujo-item"><span class="fi-icon">🔑</span>eas login</div>
+      <div class="flujo-sep">→</div>
+      <div class="flujo-item"><span class="fi-icon">📝</span>eas build<br>:configure</div>
+      <div class="flujo-sep">→</div>
+      <div class="flujo-item"><span class="fi-icon">☁️</span>Build APK<br><span style="font-size:10px;opacity:.8;">10–20 min</span></div>
+      <div class="flujo-sep">→</div>
+      <div class="flujo-item"><span class="fi-icon">📲</span>Instalar<br>APK</div>
+    </div>
+
+    <div class="tip"><strong>¿Qué pasa durante la compilación?</strong> Tu código se sube a los servidores de Expo, que se encargan de compilarlo (igual que lo haría Android Studio localmente, pero en la nube). Tú solo esperas y recibes el enlace de descarga al terminar. No necesitas tener Android Studio instalado.</div>
+  </div>
+
+  <!-- 6. DESARROLLO PASO A PASO -->
+  <div class="seccion" id="desarrollo">
+    <div class="seccion-titulo"><span class="seccion-num">6</span> Desarrollo paso a paso</div>
+
+    <!-- PASO 1 -->
+    <div class="paso">
+      <div class="paso-header"><span class="paso-num">Paso 1</span><span class="paso-titulo">Crear o verificar la cuenta de Expo</span></div>
+      <p>Para usar EAS Build necesitas una cuenta gratuita en Expo. Si ya tienes una, verifica que recuerdas tu correo y contraseña.</p>
+      <p>Ve a <code>expo.dev</code> en el navegador → haz clic en <strong>Sign up</strong> (o <strong>Sign in</strong> si ya tienes cuenta). Puedes registrarte con correo, Google, GitHub o Apple.</p>
+
+      <div class="browser-mock">
+        <div class="browser-bar">
+          <div class="browser-dots">
+            <div class="browser-dot r"></div><div class="browser-dot y"></div><div class="browser-dot g"></div>
+          </div>
+          <div class="browser-url">https://expo.dev</div>
+        </div>
+        <div class="browser-body">
+          <div style="display:flex; align-items:center; gap:12px; margin-bottom:14px;">
+            <div style="font-size:24px; font-weight:900; letter-spacing:-1px;">expo</div>
+            <div style="font-size:11.5px; color:#555; border-left:1px solid #ddd; padding-left:12px;">Plataforma de desarrollo para React Native</div>
+          </div>
+          <div style="display:flex; gap:10px; margin-bottom:12px; flex-wrap:wrap;">
+            <div style="flex:1; min-width:130px; border:2px solid #000; border-radius:7px; padding:9px 12px; text-align:center; font-weight:700; font-size:12px;">
+              Sign up — Crear cuenta
+            </div>
+            <div style="flex:1; min-width:130px; border:1px solid #ddd; border-radius:7px; padding:9px 12px; text-align:center; font-size:12px; color:#555;">
+              Sign in — Ya tengo cuenta
+            </div>
+          </div>
+          <div style="font-size:11px; color:#888; text-align:center;">Tu cuenta Expo es la misma que usarás con EAS Build y en la terminal</div>
+        </div>
+      </div>
+      <div class="info"><strong>Anota tu usuario y contraseña.</strong> Los necesitarás en el Paso 5 para autenticarte desde la terminal.</div>
+    </div>
+
+    <!-- PASO 2 -->
+    <div class="paso">
+      <div class="paso-header"><span class="paso-num">Paso 2</span><span class="paso-titulo">Instalar Expo Go en el celular Android</span></div>
+      <p>Expo Go permite probar la app durante el desarrollo antes de compilarla. Es importante verificar que la app funciona en este modo antes de generar el APK.</p>
+      <p>Desde el celular Android: abre <strong>Play Store</strong> → busca <strong>Expo Go</strong> → instala → permite los permisos que solicite.</p>
+
+      <div class="screen-row">
+        <div class="screen-block">
+          <div class="screen-label">Play Store — buscar "Expo Go"</div>
+          <div class="phone-mock">
+            <div class="phone-screen">
+              <div class="phone-status"><span>9:41</span><span>📶 🔋</span></div>
+              <div class="phone-content" style="padding-top:8px;">
+                <div style="background:#f3f4f6; border-radius:18px; padding:7px 12px; font-size:10px; color:#555; margin-bottom:10px;">🔍 Expo Go</div>
+                <div style="display:flex; gap:8px; align-items:flex-start;">
+                  <div style="width:44px; height:44px; background:#000; border-radius:9px; display:flex; align-items:center; justify-content:center; font-size:20px; flex-shrink:0;">⚡</div>
+                  <div>
+                    <div style="font-size:11px; font-weight:700;">Expo Go</div>
+                    <div style="font-size:9.5px; color:#777;">Expo · Herramientas para desarrolladores</div>
+                    <div style="font-size:9.5px; color:#43A047; margin-top:2px;">★★★★★ · 4.7</div>
+                    <div style="margin-top:5px; background:#01875F; color:#fff; font-size:9.5px; font-weight:700; padding:3px 10px; border-radius:4px; display:inline-block;">Instalar</div>
+                  </div>
+                </div>
+              </div>
+              <div class="phone-home-btn"></div>
+            </div>
+          </div>
+        </div>
+        <div class="screen-block" style="padding-top:20px;">
+          <div class="nota"><strong>Importante:</strong> Expo Go sirve <em>solo para desarrollo</em>. El APK que generarás en esta práctica se instalará como una app completamente independiente, sin necesitar Expo Go.</div>
+          <div class="tip" style="margin-top:10px;"><strong>¿Ya tienes Expo Go?</strong> Ve a Play Store, búscalo y verifica que esté actualizado antes de continuar.</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- PASO 3 -->
+    <div class="paso">
+      <div class="paso-header"><span class="paso-num">Paso 3</span><span class="paso-titulo">Verificar que el proyecto corre en Expo Go</span></div>
+      <p>Antes de compilar, confirma que la app funciona sin errores en modo desarrollo. Si tiene errores al correr con Expo Go, la compilación puede fallar o la app compilada tendrá los mismos problemas.</p>
+      <p>Desde la carpeta del proyecto en la terminal, ejecuta:</p>
+
+      <div class="file-label">Terminal — iniciar servidor de desarrollo</div>
+      <div class="code-wrap"><canvas id="c_start"></canvas></div>
+
+      <p>Se abrirá una pantalla en la terminal con un código QR. Escanéalo con Expo Go. Si la app abre correctamente en el celular, el proyecto está listo para continuar.</p>
+      <div class="peligro"><strong>Si hay errores en rojo:</strong> corrígelos antes de continuar. No tiene sentido compilar un APK de una app con errores.</div>
+    </div>
+
+    <!-- PASO 4 -->
+    <div class="paso">
+      <div class="paso-header"><span class="paso-num">Paso 4</span><span class="paso-titulo">Instalar EAS CLI</span></div>
+      <p><strong>EAS CLI</strong> es la herramienta de línea de comandos que se instala en tu computadora. Permite autenticarte con tu cuenta de Expo y enviar el proyecto a los servidores de EAS Build para compilarlo.</p>
+      <p>Abre una terminal (si tienes el servidor de Expo corriendo, detenerlo con <strong>Ctrl + C</strong> primero) y ejecuta:</p>
+
+      <div class="file-label">Terminal — instalar EAS CLI globalmente</div>
+      <div class="code-wrap"><canvas id="c_install"></canvas></div>
+
+      <p>Después de instalarlo, verifica que quedó instalado correctamente:</p>
+
+      <div class="file-label">Terminal — verificar versión instalada</div>
+      <div class="code-wrap"><canvas id="c_version"></canvas></div>
+
+      <div class="file-label">Salida esperada</div>
+      <div class="code-wrap"><canvas id="c_version_out"></canvas></div>
+
+      <div class="nota"><strong>Si ves un número de versión</strong>, la instalación fue exitosa. Si dice <code>command not found</code>, cierra y vuelve a abrir la terminal e intenta de nuevo.</div>
+    </div>
+
+    <!-- PASO 5 -->
+    <div class="paso">
+      <div class="paso-header"><span class="paso-num">Paso 5</span><span class="paso-titulo">Iniciar sesión con tu cuenta de Expo desde la terminal</span></div>
+      <p>EAS Build necesita saber quién eres para asociar la compilación a tu cuenta. Usa las mismas credenciales que creaste en el Paso 1.</p>
+
+      <div class="file-label">Terminal — autenticarse en Expo</div>
+      <div class="code-wrap"><canvas id="c_login"></canvas></div>
+
+      <p>La terminal pedirá tu correo o nombre de usuario y tu contraseña. Después verifica que el login fue exitoso:</p>
+
+      <div class="file-label">Terminal — verificar usuario activo</div>
+      <div class="code-wrap"><canvas id="c_whoami"></canvas></div>
+
+      <div class="file-label">Salida esperada</div>
+      <div class="code-wrap"><canvas id="c_whoami_out"></canvas></div>
+
+      <div class="info"><strong>Debe mostrar tu nombre de usuario de Expo.</strong> Si muestra <code>Not logged in</code>, ejecuta <code>eas login</code> nuevamente.</div>
+    </div>
+
+    <!-- PASO 6 -->
+    <div class="paso">
+      <div class="paso-header"><span class="paso-num">Paso 6</span><span class="paso-titulo">Configurar EAS Build en el proyecto</span></div>
+      <p>Este comando debe ejecutarse <strong>desde la carpeta raíz del proyecto</strong>. Crea el archivo <code>eas.json</code> con los perfiles de compilación y vincula el proyecto local con tu cuenta de Expo.</p>
+
+      <div class="file-label">Terminal — configurar EAS en el proyecto</div>
+      <div class="code-wrap"><canvas id="c_configure"></canvas></div>
+
+      <p>El asistente hará varias preguntas interactivas. Responde de la siguiente manera:</p>
+
+      <div class="pregunta-card">
+        <div class="pq-header">Pregunta 1 — ¿Crear un proyecto EAS?</div>
+        <div class="code-wrap" style="border-radius:0; border:none; border-top:1px solid #BBDEFB;"><canvas id="c_q_project"></canvas></div>
+        <div class="pq-respuesta">✅ Responde <strong>Y</strong>. Esto registra tu proyecto en expo.dev y permite monitorear las compilaciones desde el navegador.</div>
+      </div>
+
+      <div class="pregunta-card">
+        <div class="pq-header">Pregunta 2 — ¿Inicializar Git?</div>
+        <div class="code-wrap" style="border-radius:0; border:none; border-top:1px solid #BBDEFB;"><canvas id="c_q_git"></canvas></div>
+        <div class="pq-respuesta">✅ Responde <strong>Y</strong>. EAS necesita que Git esté inicializado para identificar la carpeta raíz del proyecto. No es necesario haber hecho ningún commit; EAS sube tus archivos tal como están en la carpeta.</div>
+      </div>
+
+      <div class="pregunta-card">
+        <div class="pq-header">Pregunta 3 — ¿Crear archivo .gitignore?</div>
+        <div class="code-wrap" style="border-radius:0; border:none; border-top:1px solid #BBDEFB;"><canvas id="c_q_gitignore"></canvas></div>
+        <div class="pq-respuesta">✅ Responde <strong>Y</strong>. El archivo <code>.gitignore</code> le indica a Git qué carpetas ignorar, como <code>node_modules</code>, que puede pesar varios GB y no necesita subirse.</div>
+      </div>
+
+      <div class="pregunta-card">
+        <div class="pq-header">Pregunta 4 — ¿Para qué plataforma configurar EAS?</div>
+        <div class="code-wrap" style="border-radius:0; border:none; border-top:1px solid #BBDEFB;"><canvas id="c_q_platform"></canvas></div>
+        <div class="pq-respuesta">✅ Selecciona <strong>Android</strong> con las flechas del teclado y presiona Enter. Solo configuraremos Android en esta práctica.</div>
+      </div>
+
+      <div class="profesional" style="margin-top:12px;"><strong>¿Qué genera este comando?</strong> Crea el archivo <code>eas.json</code> en la raíz del proyecto. Ese archivo define los "perfiles" de compilación. El siguiente paso lo revisaremos para asegurarnos de que el perfil <code>preview</code> genera un APK y no un AAB.</div>
+    </div>
+
+    <!-- PASO 7 -->
+    <div class="paso">
+      <div class="paso-header"><span class="paso-num">Paso 7</span><span class="paso-titulo">Verificar que Git está inicializado</span></div>
+      <p>EAS Build necesita que Git esté inicializado en el proyecto para identificar la carpeta raíz. Sin embargo, <strong>no es necesario haber hecho commits</strong>: EAS sube los archivos tal como están en tu carpeta de proyecto en ese momento.</p>
+      <p>Puedes verificar que Git está activo ejecutando:</p>
+
+      <div class="file-label">Terminal — verificar que Git está inicializado</div>
+      <div class="code-wrap"><canvas id="c_git_status"></canvas></div>
+
+      <div class="file-label">Salida normal (Git activo con cambios pendientes — no hay problema)</div>
+      <div class="code-wrap"><canvas id="c_git_out"></canvas></div>
+
+      <div class="file-label">Si Git NO está inicializado — verás este error</div>
+      <div class="code-wrap"><canvas id="c_git_err"></canvas></div>
+
+      <div class="file-label">Solución — inicializar Git</div>
+      <div class="code-wrap"><canvas id="c_git_init"></canvas></div>
+
+      <div class="profesional"><strong>Aclaración técnica:</strong> EAS Build <em>no compila desde tu historial de commits</em>. Toma una copia de tus archivos actuales, los empaqueta y los sube a la nube. Git solo se necesita para que EAS identifique correctamente la raíz del proyecto.</div>
+    </div>
+  </div>
+
+  <!-- 7. GENERACIÓN DEL APK -->
+  <div class="seccion" id="android">
+    <div class="seccion-titulo"><span class="seccion-num">7</span> Generación del APK Android</div>
+
+    <!-- PASO 8 -->
+    <div class="paso">
+      <div class="paso-header"><span class="paso-num">Paso 8</span><span class="paso-titulo">Verificar el perfil APK en eas.json</span></div>
+      <p>El archivo <code>eas.json</code> generado puede usar <code>app-bundle</code> (AAB) por defecto. Para generar un APK instalable directamente, el perfil <code>preview</code> debe especificar <code>"buildType": "apk"</code>.</p>
+      <p>Abre el archivo <code>eas.json</code> y verifica o ajusta su contenido para que quede así:</p>
+
+      <div class="file-label">eas.json — configuración de perfiles</div>
+      <div class="code-wrap"><canvas id="c_easjson"></canvas></div>
+
+      <div style="background:#F8FBFF; border:1px solid #BBDEFB; border-radius:8px; padding:13px 16px; margin-top:10px; font-size:13px; line-height:1.8;">
+        <strong>Explicación de perfiles:</strong><br>
+        · Perfil <code>preview</code> → genera <strong>APK</strong>. Para instalar directamente en Android sin pasar por la tienda.<br>
+        · Perfil <code>production</code> → genera <strong>AAB</strong>. Para subir a Google Play Store cuando la app esté lista para el público.
+      </div>
+    </div>
+
+    <!-- PASO 9 -->
+    <div class="paso">
+      <div class="paso-header"><span class="paso-num">Paso 9</span><span class="paso-titulo">Generar el APK con EAS Build</span></div>
+      <p>Este es el comando principal. Sube el proyecto a los servidores de Expo para compilarlo. La compilación puede tardar entre <strong>10 y 20 minutos</strong> dependiendo de la carga de los servidores.</p>
+
+      <div class="file-label">Terminal — iniciar compilación APK para Android</div>
+      <div class="code-wrap"><canvas id="c_build"></canvas></div>
+
+      <p>Durante el proceso aparecerá la pregunta del Keystore:</p>
+
+      <div class="pregunta-card">
+        <div class="pq-header">Pregunta — ¿Generar un nuevo Android Keystore?</div>
+        <div class="code-wrap" style="border-radius:0; border:none; border-top:1px solid #BBDEFB;"><canvas id="c_q_keystore"></canvas></div>
+        <div class="pq-respuesta">✅ Responde <strong>Y</strong>. Expo generará el Keystore y lo guardará de forma segura en tu cuenta de Expo en la nube.</div>
+      </div>
+
+      <div class="peligro">
+        <strong>⚠️ ¿Qué es el Keystore y por qué importa?</strong><br>
+        El Keystore es el certificado digital que firma la app. Android exige esta firma para instalar cualquier aplicación. Si perdieras el Keystore de una app ya publicada en Google Play, <em>no podrías publicar actualizaciones de esa misma app</em>; tendrías que publicarla como una app completamente nueva (con otro nombre de paquete).<br><br>
+        Al responder Y, Expo genera y almacena el Keystore en tu cuenta de Expo automáticamente, por lo que queda respaldado sin que tengas que administrarlo tú mismo.
+      </div>
+
+      <p style="margin-top:12px;">Después de confirmar el Keystore, la terminal mostrará el progreso y el enlace de monitoreo:</p>
+
+      <div class="file-label">Salida esperada — enlace de seguimiento</div>
+      <div class="code-wrap"><canvas id="c_build_out"></canvas></div>
+
+      <div class="tip"><strong>¿Puedes hacer otra cosa mientras esperas?</strong> Sí. La compilación ocurre completamente en la nube. Puedes cerrar la terminal y monitorear el progreso desde el navegador en <code>expo.dev</code> → tu proyecto → sección <em>Builds</em>.</div>
+
+      <!-- Dashboard mock -->
+      <div class="expo-dash">
+        <div class="expo-dash-header">
+          <span>⬛</span> expo.dev / tu-usuario / MiAppExpo / Builds
+        </div>
+        <div class="expo-dash-body">
+          <div class="expo-build-card">
+            <div class="build-status running"><span class="dot"></span> In Progress</div>
+            <div class="build-info">
+              <strong>android · preview · APK</strong><br>
+              Iniciado hace 5 minutos · SDK 54 · React Native 0.81.5
+            </div>
+            <div style="margin-top:8px; background:#f0f0f0; border-radius:6px; height:5px; overflow:hidden;">
+              <div style="background:#F59E0B; height:100%; width:35%; border-radius:6px;"></div>
+            </div>
+            <div style="font-size:11px; color:#888; margin-top:4px;">Compilando... aprox. 15 min restantes</div>
+          </div>
+          <div class="expo-build-card">
+            <div class="build-status success"><span class="dot"></span> Finished</div>
+            <div class="build-row">
+              <div class="build-info" style="flex:1;">
+                <strong>android · preview · APK</strong><br>
+                Completado exitosamente<br>
+                Tamaño: ~42 MB<br>
+                <span class="build-link">⬇ Enlace de descarga del APK</span>
+              </div>
+              <div class="qr-placeholder">📱</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- PASO 10 -->
+    <div class="paso">
+      <div class="paso-header"><span class="paso-num">Paso 10</span><span class="paso-titulo">Instalar el APK en el celular Android</span></div>
+      <p>Cuando la compilación termine, recibirás un enlace de descarga (y opcionalmente un código QR). Desde el celular Android:</p>
+
+      <div class="file-label">Salida final — enlace de descarga</div>
+      <div class="code-wrap"><canvas id="c_qr"></canvas></div>
+
+      <div style="border:1px solid #BBDEFB; border-radius:10px; overflow:hidden; margin:14px 0;">
+        <div style="padding:10px 14px; border-bottom:1px solid #BBDEFB; display:flex; gap:12px; align-items:center; font-size:12.5px;">
+          <div style="width:24px; height:24px; background:#1565C0; color:#fff; border-radius:50%; display:flex; align-items:center; justify-content:center; font-weight:700; font-size:11px; flex-shrink:0;">1</div>
+          Abre el enlace en el navegador del celular Android (o escanea el QR si aparece)
+        </div>
+        <div style="padding:10px 14px; border-bottom:1px solid #BBDEFB; display:flex; gap:12px; align-items:center; font-size:12.5px;">
+          <div style="width:24px; height:24px; background:#1565C0; color:#fff; border-radius:50%; display:flex; align-items:center; justify-content:center; font-weight:700; font-size:11px; flex-shrink:0;">2</div>
+          Toca <strong>"Descargar APK"</strong> en la página de expo.dev que se abre
+        </div>
+        <div style="padding:10px 14px; border-bottom:1px solid #BBDEFB; display:flex; gap:12px; align-items:center; font-size:12.5px;">
+          <div style="width:24px; height:24px; background:#F59E0B; color:#fff; border-radius:50%; display:flex; align-items:center; justify-content:center; font-weight:700; font-size:11px; flex-shrink:0;">!</div>
+          Android puede mostrar una advertencia de "fuentes desconocidas" → toca <strong>Configuración</strong> → activa el permiso para el navegador → regresa e intenta de nuevo
+        </div>
+        <div style="padding:10px 14px; border-bottom:1px solid #BBDEFB; display:flex; gap:12px; align-items:center; font-size:12.5px;">
+          <div style="width:24px; height:24px; background:#1565C0; color:#fff; border-radius:50%; display:flex; align-items:center; justify-content:center; font-weight:700; font-size:11px; flex-shrink:0;">3</div>
+          Toca <strong>"Instalar"</strong> cuando Android lo solicite
+        </div>
+        <div style="padding:10px 14px; display:flex; gap:12px; align-items:center; font-size:12.5px;">
+          <div style="width:24px; height:24px; background:#43A047; color:#fff; border-radius:50%; display:flex; align-items:center; justify-content:center; font-weight:700; font-size:11px; flex-shrink:0;">✓</div>
+          Abre la app. Debe funcionar <strong>completamente sola</strong>, sin Expo Go y sin la computadora encendida
+        </div>
+      </div>
+
+      <div class="peligro"><strong>El enlace/QR final de EAS Build es diferente al QR de desarrollo de Expo Go.</strong> El QR de desarrollo conecta el celular al servidor Metro de tu computadora. El enlace final de EAS Build apunta al archivo APK compilado en los servidores de Expo para descargarlo e instalarlo.</div>
+    </div>
+
+    <!-- PASO 11 -->
+    <div class="paso">
+      <div class="paso-header"><span class="paso-num">Paso 11</span><span class="paso-titulo">Referencia: generar AAB para Google Play (uso futuro)</span></div>
+      <p>Cuando la app esté lista para publicarse en Google Play Store, se usa el perfil <code>production</code> que genera un AAB en lugar de APK:</p>
+
+      <div class="file-label">Terminal — generar AAB para Google Play</div>
+      <div class="code-wrap"><canvas id="c_aab"></canvas></div>
+
+      <div class="info"><strong>Diferencia práctica:</strong> el APK (perfil <code>preview</code>) lo instalas tú directamente en el celular para pruebas. El AAB (perfil <code>production</code>) lo subes a Google Play Console y es Google quien lo distribuye a los usuarios finales en forma optimizada.</div>
+    </div>
+  </div>
+
+  <!-- 8. ERRORES COMUNES -->
+  <div class="seccion" id="errores">
+    <div class="seccion-titulo"><span class="seccion-num">8</span> Errores comunes y cómo resolverlos</div>
+    <table class="error-table">
+      <thead>
+        <tr><th>Error / Síntoma</th><th>Causa probable</th><th>Solución</th></tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><span class="error-tag">eas: command not found</span></td>
+          <td>EAS CLI no se instaló o el PATH no está actualizado.</td>
+          <td><span class="solution-tag">Cierra y vuelve a abrir la terminal. Si persiste, ejecuta <code>npm install -g eas-cli</code> nuevamente.</span></td>
+        </tr>
+        <tr>
+          <td><span class="error-tag">Not logged in</span></td>
+          <td>La sesión no se completó o expiró.</td>
+          <td><span class="solution-tag">Ejecuta <code>eas login</code> e ingresa tus credenciales de expo.dev.</span></td>
+        </tr>
+        <tr>
+          <td><span class="error-tag">fatal: not a git repository</span></td>
+          <td>Git no está inicializado en el proyecto. EAS lo necesita para identificar la carpeta raíz.</td>
+          <td><span class="solution-tag">Ejecuta <code>git init</code> en la raíz del proyecto. No es necesario hacer commits; EAS sube tus archivos actuales directamente.</span></td>
+        </tr>
+        <tr>
+          <td>Android bloquea la instalación del APK</td>
+          <td>Android bloquea por defecto apps de fuentes fuera de la tienda oficial.</td>
+          <td><span class="solution-tag">Configuración → Privacidad o Seguridad → Instalar apps de fuentes desconocidas → permite el navegador con el que descargaste el APK.</span></td>
+        </tr>
+        <tr>
+          <td><span class="error-tag">Build failed — SDK version mismatch</span></td>
+          <td>La versión de Expo SDK en el proyecto no coincide con la configuración de EAS.</td>
+          <td><span class="solution-tag">Verifica que <code>app.json</code> tenga la versión de SDK correcta y que las dependencias en <code>package.json</code> correspondan a esa versión.</span></td>
+        </tr>
+        <tr>
+          <td>La compilación tarda más de 30 minutos</td>
+          <td>Los servidores de Expo pueden estar con alta demanda.</td>
+          <td><span class="solution-tag">Es normal en horas pico. Monitorea el estado en expo.dev → Builds. Si marca error, reintenta el comando.</span></td>
+        </tr>
+        <tr>
+          <td>La app se instala pero inmediatamente se cierra</td>
+          <td>Hay un error en el código JavaScript que no se detectó durante el desarrollo con Expo Go.</td>
+          <td><span class="solution-tag">Prueba la app en Expo Go primero y corrige todos los errores antes de compilar. Revisa que las variables de entorno necesarias estén correctamente configuradas para producción.</span></td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- 9. iOS -->
+  <div class="seccion" id="ios">
+    <div class="seccion-titulo"><span class="seccion-num">9</span> Nota sobre iOS</div>
+    <div class="contexto-card">
+      <p>Para iOS, el proceso de compilación con EAS Build es técnicamente similar, pero la <strong>distribución es completamente diferente</strong> al modelo de Android:</p>
+      <ul style="padding-left:18px; margin:10px 0; line-height:2.2; font-size:13.5px;">
+        <li>En Android puedes instalar el APK directamente descargándolo desde cualquier enlace.</li>
+        <li>En iOS <strong>no existe el equivalente de instalación directa</strong>. Todo debe pasar por canales oficiales de Apple.</li>
+        <li>Para distribuir en iOS se requiere una cuenta de <strong>Apple Developer</strong> ($99 USD/año).</li>
+        <li>Para pruebas internas se usa <strong>TestFlight</strong>. Para distribución pública, la <strong>App Store</strong>.</li>
+        <li>Apple revisa cada versión antes de aprobarla para distribución.</li>
+      </ul>
+
+      <div class="file-label">Terminal — compilar para iOS (referencia)</div>
+      <div class="code-wrap"><canvas id="c_ios"></canvas></div>
+
+      <div class="nota"><strong>En esta práctica solo trabajamos Android.</strong> La nota sobre iOS es únicamente informativa para que conozcas las diferencias entre plataformas.</div>
+    </div>
+  </div>
+
+  <!-- 10. ACTIVIDADES -->
+  <div class="seccion" id="actividades">
+    <div class="seccion-titulo"><span class="seccion-num">10</span> Actividades</div>
+    <table class="actividades">
+      <thead><tr><th>Núm.</th><th>Actividad</th><th>Evidencia requerida</th></tr></thead>
+      <tbody>
+        <tr><td>A1</td><td>Crear o verificar cuenta de Expo en expo.dev.</td><td>Captura de la cuenta iniciada en el navegador.</td></tr>
+        <tr><td>A2</td><td>Instalar Expo Go y verificar que la app corre con <code>npx expo start</code>.</td><td>Foto del celular con la app abierta en Expo Go.</td></tr>
+        <tr><td>A3</td><td>Instalar EAS CLI y verificar con <code>eas --version</code>.</td><td>Captura de la terminal mostrando la versión instalada.</td></tr>
+        <tr><td>A4</td><td>Autenticarse con <code>eas login</code> y verificar con <code>eas whoami</code>.</td><td>Captura de la terminal mostrando tu nombre de usuario.</td></tr>
+        <tr><td>A5</td><td>Ejecutar <code>eas build:configure</code> y mostrar el <code>eas.json</code> generado con el perfil APK.</td><td>Captura del archivo <code>eas.json</code> abierto en el editor.</td></tr>
+        <tr><td>A6</td><td>Generar el APK y esperar a que la compilación termine.</td><td>Captura de expo.dev mostrando el build con estado "Finished".</td></tr>
+        <tr><td>A7</td><td>Instalar el APK en el celular Android y abrir la app.</td><td>Foto del celular con la app instalada y funcionando de forma independiente.</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- 11. ENTREGABLE -->
+  <div class="seccion" id="entregable">
+    <div class="seccion-titulo"><span class="seccion-num">11</span> Entregable</div>
+    <ul class="entregable-lista">
+      <li>Captura de la cuenta de Expo iniciada en el navegador.</li>
+      <li>Captura de <code>eas --version</code> en la terminal.</li>
+      <li>Captura de <code>eas whoami</code> mostrando tu usuario de Expo.</li>
+      <li>Archivo <code>eas.json</code> con los perfiles <code>preview</code> (APK) y <code>production</code> (AAB) configurados.</li>
+      <li>Captura del panel de expo.dev con el build en estado "Finished".</li>
+      <li>Enlace de descarga del APK generado.</li>
+      <li>Foto del celular con la app instalada y funcionando de forma independiente (sin Expo Go).</li>
+      <li>Respuestas a las preguntas de reflexión.</li>
+    </ul>
+  </div>
+
+  <!-- 12. RÚBRICA -->
+  <div class="seccion" id="rubrica">
+    <div class="seccion-titulo"><span class="seccion-num">12</span> Rúbrica de evaluación</div>
+    <table class="rubrica">
+      <thead><tr><th>Criterio</th><th>Descripción</th><th>Pts</th></tr></thead>
+      <tbody>
+        <tr><td>Cuenta Expo y Expo Go</td><td>Tiene cuenta en expo.dev, Expo Go instalado y la app corriendo en desarrollo sin errores.</td><td>10</td></tr>
+        <tr><td>EAS CLI instalado</td><td>EAS CLI instalado y autenticado. Evidencia de <code>eas --version</code> y <code>eas whoami</code>.</td><td>15</td></tr>
+        <tr><td>Configuración EAS</td><td><code>eas.json</code> con perfiles <code>preview</code> (APK) y <code>production</code> (AAB) correctamente definidos.</td><td>20</td></tr>
+        <tr><td>APK generado</td><td>Compilación exitosa. Evidencia del panel de expo.dev con estado "Finished" y enlace del APK.</td><td>30</td></tr>
+        <tr><td>Instalación en Android</td><td>App instalada y funcionando de forma independiente en el dispositivo Android, sin Expo Go.</td><td>15</td></tr>
+        <tr><td>Reflexión técnica</td><td>Responde correctamente la diferencia entre Expo Go, APK, AAB, IPA, Keystore y EAS Build.</td><td>10</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- 13. REFLEXIÓN -->
+  <div class="seccion" id="reflexion">
+    <div class="seccion-titulo"><span class="seccion-num">13</span> Preguntas de reflexión</div>
+    <ol style="padding-left:22px; line-height:2.5; font-size:13.5px;">
+      <li>¿Cuál es la diferencia entre probar una app con Expo Go y generar un APK? ¿Por qué Expo Go no es una solución de distribución final?</li>
+      <li>¿Para qué sirve EAS Build y en qué parte del proceso ocurre la compilación: en tu computadora o en la nube?</li>
+      <li>¿Por qué Android requiere un Keystore para instalar una app? ¿Qué consecuencia tendría perder el Keystore de una app ya publicada?</li>
+      <li>¿Cuál es la diferencia entre APK y AAB? ¿Cuándo usarías cada uno?</li>
+      <li>¿Por qué el enlace de descarga final de EAS Build es diferente al código QR de desarrollo de Expo Go?</li>
+      <li>¿Por qué EAS Build necesita que Git esté inicializado en el proyecto? ¿Es necesario haber hecho commits antes de compilar?</li>
+      <li>¿Qué diferencias existen entre distribuir una app en Android y en iOS?</li>
+    </ol>
+  </div>
+
+</div><!-- /content -->
+
+<div class="footer">
+  Práctica — Desarrollo de Aplicaciones Móviles · React Native · Expo SDK 54 · EAS Build · Ingeniería en Desarrollo y Gestión de Software
+</div>
+
+<script>
+/* ─── COLORES SYNTAX HIGHLIGHTING ─── */
+const PL = '#1a1a2e';  // plain / default
+const KW = '#0000CC';  // keyword / comando principal
+const ST = '#008000';  // string / output exitoso
+const CM = '#6c7086';  // comment
+const FN = '#7B1FA2';  // función / propiedad
+const NM = '#C62828';  // número / valor
+const GR = '#2E7D32';  // green output
+const ER = '#B71C1C';  // error output
+const WN = '#856404';  // warning / prompt interactivo
+
+const FONT   = '13px "Courier New", monospace';
+const LINE_H = 22;
+const PAD_X  = 16;
+const PAD_Y  = 12;
+
+const bloques = {
+
+  c_start: [
+    [[KW,'npx'],[PL,' expo start']],
+  ],
+
+  c_install: [
+    [[KW,'npm'],[PL,' install -g eas-cli']],
+  ],
+
+  c_version: [
+    [[KW,'eas'],[PL,' --version']],
+  ],
+
+  c_version_out: [
+    [[ST,'eas-cli/14.x.x  darwin-arm64  node-v20.x.x']],
+  ],
+
+  c_login: [
+    [[KW,'eas'],[PL,' login']],
+  ],
+
+  c_whoami: [
+    [[KW,'eas'],[PL,' whoami']],
+  ],
+
+  c_whoami_out: [
+    [[ST,'alumno2025']],
+  ],
+
+  c_configure: [
+    [[KW,'eas'],[PL,' build:configure']],
+  ],
+
+  c_q_project: [
+    [[WN,'? Would you like to automatically create an EAS project?'],[PL,'  (Y/n)']],
+  ],
+
+  c_q_git: [
+    [[WN,"? Would you like us to run 'git init' in your project?"],[PL,'  (Y/n)']],
+  ],
+
+  c_q_gitignore: [
+    [[WN,'? Would you like to add a .gitignore file?'],[PL,'  (Y/n)']],
+  ],
+
+  c_q_platform: [
+    [[PL,'Which platforms would you like to configure for EAS Build?']],
+    [[PL,'  All']],
+    [[PL,'  iOS']],
+    [[KW,'❯ Android']],
+  ],
+
+  c_git_status: [
+    [[KW,'git'],[PL,' status']],
+  ],
+
+  c_git_out: [
+    [[WN,'On branch main']],
+    [[WN,'Changes not staged for commit:']],
+    [[PL,'  modified: app.json']],
+    [[PL,'  modified: eas.json']],
+    [[CM,'# Esto es normal — EAS sube tus archivos actuales, no los commits']],
+  ],
+
+  c_git_err: [
+    [[ER,'fatal: not a git repository (or any of the parent directories): .git']],
+  ],
+
+  c_git_init: [
+    [[KW,'git'],[PL,' init']],
+  ],
+
+  c_easjson: [
+    [[PL,'{']],
+    [[PL,'  '],[FN,'"build"'],[PL,': {']],
+    [[PL,'    '],[FN,'"preview"'],[PL,': {']],
+    [[PL,'      '],[FN,'"android"'],[PL,': {']],
+    [[PL,'        '],[FN,'"buildType"'],[PL,': '],[ST,'"apk"']],
+    [[PL,'      }']],
+    [[PL,'    },']],
+    [[PL,'    '],[FN,'"production"'],[PL,': {']],
+    [[PL,'      '],[FN,'"android"'],[PL,': {']],
+    [[PL,'        '],[FN,'"buildType"'],[PL,': '],[ST,'"app-bundle"']],
+    [[PL,'      }']],
+    [[PL,'    }']],
+    [[PL,'  }']],
+    [[PL,'}']],
+  ],
+
+  c_build: [
+    [[KW,'eas'],[PL,' build -p android --profile preview']],
+  ],
+
+  c_q_keystore: [
+    [[WN,'? Generate a new Android Keystore?'],[PL,'  (Y/n)']],
+  ],
+
+  c_build_out: [
+    [[ST,'✔ Using remote Android credentials (managed by Expo)']],
+    [[ST,'✔ Project files uploaded to EAS']],
+    [[PL,'']],
+    [[GR,'Build queued — track progress at:']],
+    [[FN,'https://expo.dev/accounts/tu-usuario/projects/MiAppExpo/builds/...']],
+    [[PL,'']],
+    [[CM,'# La compilación continúa en la nube aunque cierres la terminal']],
+  ],
+
+  c_qr: [
+    [[GR,'✔ Build finished!']],
+    [[PL,'']],
+    [[GR,'Download APK:']],
+    [[FN,'https://expo.dev/accounts/tu-usuario/projects/MiAppExpo/builds/abc123']],
+    [[PL,'']],
+    [[CM,'# Abre este enlace desde el navegador de tu celular Android']],
+  ],
+
+  c_aab: [
+    [[KW,'eas'],[PL,' build -p android --profile production']],
+  ],
+
+  c_ios: [
+    [[KW,'eas'],[PL,' build -p ios --profile production']],
+  ],
+
+};
+
+function drawCode(id, lines) {
+  const canvas = document.getElementById(id);
+  if (!canvas) return;
+  const dpr = window.devicePixelRatio || 1;
+  const tmp = document.createElement('canvas');
+  const tc  = tmp.getContext('2d');
+  tc.font    = FONT;
+  let maxW   = 0;
+  for (const line of lines) {
+    const w = tc.measureText(line.map(s => s[1]).join('')).width;
+    if (w > maxW) maxW = w;
+  }
+  const W = Math.ceil(maxW + PAD_X * 2);
+  const H = lines.length * LINE_H + PAD_Y * 2;
+  canvas.width        = W * dpr;
+  canvas.height       = H * dpr;
+  canvas.style.width  = W + 'px';
+  canvas.style.height = H + 'px';
+  const ctx = canvas.getContext('2d');
+  ctx.scale(dpr, dpr);
+  ctx.fillStyle = '#ffffff';
+  ctx.fillRect(0, 0, W, H);
+  ctx.font          = FONT;
+  ctx.textBaseline  = 'alphabetic';
+  lines.forEach((segs, i) => {
+    const y = PAD_Y + i * LINE_H + LINE_H * 0.75;
+    let x   = PAD_X;
+    for (const [color, text] of segs) {
+      ctx.fillStyle = color;
+      ctx.fillText(text, x, y);
+      x += tc.measureText(text).width;
+    }
+  });
+}
+
+document.fonts.ready.then(() => {
+  for (const [id, lines] of Object.entries(bloques)) drawCode(id, lines);
+});
+</script>
+</body>
+</html>
