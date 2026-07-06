@@ -1,0 +1,947 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Ejercicios React Native — Morelia</title>
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: #f0f4ff; color: #1a1a1a; }
+.hdr { background: linear-gradient(135deg,#1e40af,#2563eb); padding: 1.4rem 2rem; color:#fff; display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:12px; }
+.hdr h1 { font-size:19px; font-weight:700; }
+.hdr p  { font-size:12px; color:rgba(255,255,255,.7); margin-top:3px; }
+.score-box { background:rgba(255,255,255,.15); border-radius:12px; padding:10px 22px; text-align:center; }
+.score-num { font-size:28px; font-weight:800; line-height:1; }
+.score-lbl { font-size:11px; color:rgba(255,255,255,.7); margin-top:2px; }
+.barra-w { height:6px; background:#bfdbfe; }
+.barra   { height:6px; background:#2563eb; transition:width .4s; }
+.wrap { max-width:840px; margin:0 auto; padding:2rem 1rem 4rem; }
+
+/* Ejercicio */
+.ej { background:#fff; border-radius:16px; padding:28px; box-shadow:0 2px 14px rgba(0,0,0,.07); display:none; }
+.ej.on { display:block; animation:up .3s; }
+@keyframes up { from{opacity:0;transform:translateY(10px)} to{opacity:1;transform:translateY(0)} }
+.ej-tags { display:flex; gap:8px; margin-bottom:12px; }
+.tag { font-size:11px; font-weight:700; padding:3px 11px; border-radius:20px; }
+.tag-n { background:#dbeafe; color:#1d4ed8; }
+.tag-t { background:#f1f5f9; color:#475569; }
+.ej-titulo { font-size:18px; font-weight:700; margin-bottom:6px; }
+.ej-desc { font-size:13px; color:#64748b; margin-bottom:16px; line-height:1.6; }
+.tip { background:#eff6ff; border-left:4px solid #3b82f6; border-radius:8px; padding:10px 14px; font-size:13px; color:#1d4ed8; margin-bottom:18px; font-weight:600; }
+
+/* Bloques */
+.pool { display:flex; flex-wrap:wrap; gap:10px; margin-bottom:18px; padding:14px; background:#f8faff; border:2px dashed #c7d2fe; border-radius:12px; min-height:52px; }
+.blk { background:#fff; border:2px solid #c7d2fe; border-radius:8px; padding:9px 16px; font-size:13px; font-weight:600; cursor:pointer; color:#1e3a8a; font-family:Menlo,Monaco,'Courier New',monospace; transition:all .15s; user-select:none; }
+.blk:hover { border-color:#2563eb; background:#eff6ff; transform:translateY(-2px); box-shadow:0 4px 12px rgba(37,99,235,.2); }
+.blk.on  { border-color:#2563eb; background:#dbeafe; box-shadow:0 0 0 3px #93c5fd; transform:scale(1.05); }
+.blk.dim { opacity:.3; pointer-events:none; }
+.blk.g { border-color:#86efac; color:#065f46; }
+.blk.p { border-color:#c4b5fd; color:#5b21b6; }
+.blk.o { border-color:#fcd34d; color:#92400e; }
+.blk.r { border-color:#fca5a5; color:#991b1b; }
+
+/* Zonas */
+.zona { border:2px dashed #e2e8f0; border-radius:12px; padding:12px 14px; min-height:56px; cursor:pointer; transition:all .2s; }
+.zona:hover:not(.ok):not(.err) { border-color:#2563eb; background:#f0f6ff; }
+.zona.ok  { border-color:#059669 !important; background:#f0fdf4 !important; }
+.zona.err { border-color:#dc2626 !important; background:#fff5f5 !important; animation:shake .3s; }
+@keyframes shake { 0%,100%{transform:translateX(0)} 25%{transform:translateX(-6px)} 75%{transform:translateX(6px)} }
+.zona-lbl { font-size:11px; font-weight:700; color:#94a3b8; text-transform:uppercase; letter-spacing:.05em; margin-bottom:8px; }
+.zona-items { display:flex; flex-wrap:wrap; gap:6px; min-height:32px; }
+
+/* Orden */
+.ord-item { background:#fff; border:2px solid #e2e8f0; border-radius:10px; padding:12px 16px; font-size:13px; cursor:pointer; display:flex; align-items:center; gap:12px; transition:all .15s; user-select:none; }
+.ord-item:hover:not(.ok):not(.err) { border-color:#2563eb; background:#eff6ff; }
+.ord-item.ok  { border-color:#059669; background:#f0fdf4; pointer-events:none; }
+.ord-item.err { border-color:#dc2626; background:#fff5f5; }
+.ord-num { width:28px; height:28px; border-radius:50%; background:#e2e8f0; color:#64748b; font-size:13px; font-weight:700; display:flex; align-items:center; justify-content:center; flex-shrink:0; transition:all .2s; }
+.ord-num.set { background:#2563eb; color:#fff; }
+
+/* Código */
+.code { background:#fafbff; border:1px solid #e2e8f0; border-radius:10px; padding:18px 20px; font-family:Menlo,Monaco,'Courier New',monospace; font-size:13px; line-height:2.2; margin-bottom:16px; overflow-x:auto; }
+.gap { display:inline-block; border-bottom:2px solid #2563eb; min-width:100px; padding:1px 8px; background:#eff6ff; border-radius:4px; cursor:pointer; color:#1d4ed8; font-weight:700; vertical-align:middle; text-align:center; transition:all .2s; }
+.gap:hover { background:#dbeafe; }
+.gap.set  { background:#dbeafe; }
+.gap.ok   { background:#d1fae5; border-color:#059669; color:#065f46; pointer-events:none; }
+.gap.err  { background:#fee2e2; border-color:#dc2626; color:#991b1b; }
+.kw { color:#7c3aed; } .st { color:#059669; } .fn { color:#0369a1; } .cm { color:#94a3b8; }
+
+/* VF */
+.vf { background:#fff; border:2px solid #e2e8f0; border-radius:10px; padding:12px 16px; margin-bottom:10px; display:flex; align-items:center; gap:12px; }
+.vf-txt { flex:1; font-size:13px; }
+.vf-bts { display:flex; gap:8px; }
+.vf-b { border:2px solid #e2e8f0; background:#f8faff; border-radius:8px; padding:7px 18px; font-size:13px; font-weight:700; cursor:pointer; transition:all .15s; }
+.vf-b:hover { transform:scale(1.06); }
+.vf-b.V.on { background:#d1fae5; border-color:#059669; color:#065f46; }
+.vf-b.F.on { background:#fee2e2; border-color:#dc2626; color:#991b1b; }
+.vf.ok  { border-color:#059669; background:#f0fdf4; }
+.vf.err { border-color:#dc2626; background:#fff5f5; }
+
+/* Feedback */
+.fb { padding:12px 16px; border-radius:10px; font-size:13px; margin:14px 0; display:none; line-height:1.6; font-weight:600; }
+.fb.ok  { background:#d1fae5; color:#065f46; border-left:4px solid #059669; display:block; }
+.fb.err { background:#fee2e2; color:#991b1b; border-left:4px solid #dc2626; display:block; }
+
+/* Botones */
+.bts { display:flex; flex-wrap:wrap; gap:10px; margin-top:4px; }
+.btn-v { background:#2563eb; color:#fff; border:none; border-radius:10px; padding:12px 26px; font-size:14px; font-weight:700; cursor:pointer; transition:all .2s; }
+.btn-v:hover { background:#1d4ed8; transform:translateY(-1px); }
+.btn-s { background:#059669; color:#fff; border:none; border-radius:10px; padding:12px 26px; font-size:14px; font-weight:700; cursor:pointer; display:none; }
+.btn-s:hover { background:#047857; }
+.btn-r { background:#f1f5f9; color:#475569; border:none; border-radius:10px; padding:12px 18px; font-size:13px; font-weight:600; cursor:pointer; }
+
+/* Resultado */
+.res { background:#fff; border-radius:16px; padding:36px; box-shadow:0 2px 14px rgba(0,0,0,.07); display:none; }
+.res.on { display:block; animation:up .4s; }
+.res-c { width:110px; height:110px; border-radius:50%; background:linear-gradient(135deg,#1e40af,#2563eb); color:#fff; font-size:30px; font-weight:800; display:flex; align-items:center; justify-content:center; margin:0 auto 16px; }
+.res-t { font-size:22px; font-weight:700; text-align:center; margin-bottom:6px; }
+.res-d { color:#555; text-align:center; margin-bottom:22px; font-size:14px; }
+.flujo { display:flex; align-items:center; flex-wrap:wrap; gap:6px; justify-content:center; margin:16px 0; }
+.fn { padding:8px 14px; border-radius:8px; font-weight:700; font-family:monospace; font-size:12px; }
+.libs { display:grid; grid-template-columns:repeat(auto-fit,minmax(185px,1fr)); gap:10px; margin:14px 0; }
+.lib { background:#f8faff; border:1px solid #dbeafe; border-radius:10px; padding:12px; }
+.lib-n { font-size:12px; font-weight:700; font-family:monospace; color:#1d4ed8; margin-bottom:3px; }
+.lib-v { font-size:11px; color:#059669; font-family:monospace; margin-bottom:3px; }
+.lib-d { font-size:11px; color:#64748b; }
+.sec { font-size:16px; font-weight:700; margin:22px 0 12px; }
+.ibox { background:#f8faff; border:1px solid #dbeafe; border-radius:10px; padding:14px 18px; font-size:13px; line-height:2; margin:12px 0; }
+</style>
+</head>
+<body>
+
+<div class="hdr">
+  <div><h1>Ejercicios — React Native + Expo Go SDK 54</h1><p>App Lugares Misteriosos de Morelia · Da clic para seleccionar y colocar</p></div>
+  <div class="score-box"><div class="score-num" id="score">0</div><div class="score-lbl">pts de 100</div></div>
+</div>
+<div class="barra-w"><div class="barra" id="barra" style="width:0%"></div></div>
+
+<div class="wrap">
+
+<!-- ════════════════════ EJ 1 — Ordenar pasos ════════════════════ -->
+<div class="ej on" id="ej1">
+  <div class="ej-tags"><span class="tag tag-n">Pregunta 1 de 10</span><span class="tag tag-t">Ordenar</span></div>
+  <div class="ej-titulo">¿En qué orden se crea el proyecto?</div>
+  <div class="ej-desc">Da clic en los pasos en el orden correcto: primero el que va como paso 1, después el 2, y así.</div>
+  <div class="tip">👆 Da clic al paso que va primero, luego al segundo, y así hasta el 4.</div>
+  <div id="lista1" style="display:flex;flex-direction:column;gap:8px;margin-bottom:18px;"></div>
+  <div class="fb" id="fb1"></div>
+  <div class="bts">
+    <button class="btn-v" onclick="E1.verificar()">Verificar</button>
+    <button class="btn-s" id="sig1" onclick="avanzar(1)">Siguiente →</button>
+    <button class="btn-r" onclick="E1.reset()">Reiniciar</button>
+  </div>
+</div>
+
+<!-- ════════════════════ EJ 2 — Match librerías ════════════════════ -->
+<div class="ej" id="ej2">
+  <div class="ej-tags"><span class="tag tag-n">Pregunta 2 de 10</span><span class="tag tag-t">Emparejar</span></div>
+  <div class="ej-titulo">¿Para qué sirve cada librería?</div>
+  <div class="ej-desc">Da clic en una librería y luego en su definición.</div>
+  <div class="tip">👆 Clic en la librería → clic en su definición</div>
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:16px;">
+    <div>
+      <div style="font-size:11px;font-weight:700;color:#64748b;text-transform:uppercase;margin-bottom:8px;">Librerías</div>
+      <div id="libs2" style="display:flex;flex-direction:column;gap:8px;"></div>
+    </div>
+    <div>
+      <div style="font-size:11px;font-weight:700;color:#64748b;text-transform:uppercase;margin-bottom:8px;">Definiciones</div>
+      <div id="defs2" style="display:flex;flex-direction:column;gap:8px;"></div>
+    </div>
+  </div>
+  <div class="fb" id="fb2"></div>
+  <div class="bts">
+    <button class="btn-v" onclick="E2.verificar()">Verificar</button>
+    <button class="btn-s" id="sig2" onclick="avanzar(2)">Siguiente →</button>
+    <button class="btn-r" onclick="E2.reset()">Reiniciar</button>
+  </div>
+</div>
+
+<!-- ════════════════════ EJ 3 — Carpetas ════════════════════ -->
+<div class="ej" id="ej3">
+  <div class="ej-tags"><span class="tag tag-n">Pregunta 3 de 10</span><span class="tag tag-t">Clasificar archivos</span></div>
+  <div class="ej-titulo">¿En qué carpeta va cada archivo?</div>
+  <div class="ej-desc">Da clic en un archivo y luego en la carpeta donde debe ir.</div>
+  <div class="tip">👆 Clic en el archivo → clic en la carpeta</div>
+  <div class="pool" id="pool3"></div>
+  <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;margin-bottom:16px;">
+    <div class="zona" id="z3-raiz"><div class="zona-lbl">📁 raíz</div><div class="zona-items" id="zi3-raiz"></div></div>
+    <div class="zona" id="z3-screens"><div class="zona-lbl">📁 screens/</div><div class="zona-items" id="zi3-screens"></div></div>
+    <div class="zona" id="z3-comp"><div class="zona-lbl">📁 components/</div><div class="zona-items" id="zi3-comp"></div></div>
+  </div>
+  <div class="fb" id="fb3"></div>
+  <div class="bts">
+    <button class="btn-v" onclick="E3.verificar()">Verificar</button>
+    <button class="btn-s" id="sig3" onclick="avanzar(3)">Siguiente →</button>
+    <button class="btn-r" onclick="E3.reset()">Reiniciar</button>
+  </div>
+</div>
+
+<!-- ════════════════════ EJ 4 — Completar data.js ════════════════════ -->
+<div class="ej" id="ej4">
+  <div class="ej-tags"><span class="tag tag-n">Pregunta 4 de 10</span><span class="tag tag-t">Completar código</span></div>
+  <div class="ej-titulo">Completa el código de data.js</div>
+  <div class="ej-desc">Da clic en un bloque del panel y luego en el espacio azul donde va.</div>
+  <div class="tip">👆 Clic en el bloque → clic en el espacio azul</div>
+  <div class="pool" id="pool4"></div>
+  <div class="code">
+    <span class="gap" id="g4-1">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span> lugares = <span class="gap" id="g4-2">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span>;<br><br>
+    <span class="cm">// cada objeto del array tiene:</span><br>
+    {<br>
+    &nbsp;&nbsp;<span class="gap" id="g4-3">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span> <span class="st">'1'</span>,<br>
+    &nbsp;&nbsp;nombre: <span class="st">'Catedral de Morelia'</span>,<br>
+    &nbsp;&nbsp;imagen: { <span class="gap" id="g4-4">&nbsp;&nbsp;&nbsp;&nbsp;</span> <span class="st">'https://...'</span> },<br>
+    }<br><br>
+    <span class="gap" id="g4-5">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span> lugares;
+  </div>
+  <div class="fb" id="fb4"></div>
+  <div class="bts">
+    <button class="btn-v" onclick="E4.verificar()">Verificar</button>
+    <button class="btn-s" id="sig4" onclick="avanzar(4)">Siguiente →</button>
+    <button class="btn-r" onclick="E4.reset()">Reiniciar</button>
+  </div>
+</div>
+
+<!-- ════════════════════ EJ 5 — Completar LugarCard ════════════════════ -->
+<div class="ej" id="ej5">
+  <div class="ej-tags"><span class="tag tag-n">Pregunta 5 de 10</span><span class="tag tag-t">Completar código</span></div>
+  <div class="ej-titulo">Completa el componente LugarCard.jsx</div>
+  <div class="ej-desc">Da clic en un bloque y luego en el espacio donde va.</div>
+  <div class="tip">👆 Clic en el bloque → clic en el espacio azul</div>
+  <div class="pool" id="pool5"></div>
+  <div class="code">
+    <span class="kw">export default function</span> <span class="fn">LugarCard</span>({ <span class="gap" id="g5-1">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span>, <span class="gap" id="g5-2">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span> }) {<br>
+    &nbsp;&nbsp;<span class="kw">return</span> (<br>
+    &nbsp;&nbsp;&nbsp;&nbsp;&lt;<span class="gap" id="g5-3">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span> onPress={onPress}&gt;<br>
+    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;<span class="gap" id="g5-4">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span>&gt;<br>
+    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;Image source={<span class="gap" id="g5-5">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span>} /&gt;<br>
+    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;Card.Title&gt;{<span class="gap" id="g5-6">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span>}&lt;/Card.Title&gt;<br>
+    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;/Card&gt;<br>
+    &nbsp;&nbsp;&nbsp;&nbsp;&lt;/TouchableOpacity&gt;<br>
+    &nbsp;&nbsp;);<br>
+    }
+  </div>
+  <div class="fb" id="fb5"></div>
+  <div class="bts">
+    <button class="btn-v" onclick="E5.verificar()">Verificar</button>
+    <button class="btn-s" id="sig5" onclick="avanzar(5)">Siguiente →</button>
+    <button class="btn-r" onclick="E5.reset()">Reiniciar</button>
+  </div>
+</div>
+
+<!-- ════════════════════ EJ 6 — Completar HomeScreen ════════════════════ -->
+<div class="ej" id="ej6">
+  <div class="ej-tags"><span class="tag tag-n">Pregunta 6 de 10</span><span class="tag tag-t">Completar código</span></div>
+  <div class="ej-titulo">Completa HomeScreen — navegación al Detalle</div>
+  <div class="ej-desc">Da clic en un bloque y luego en el espacio donde va. Algunos bloques se usan más de una vez.</div>
+  <div class="tip">👆 Clic en el bloque → clic en el espacio azul · Puedes usar el mismo bloque varias veces</div>
+  <div class="pool" id="pool6"></div>
+  <div class="code">
+    <span class="kw">export default function</span> <span class="fn">HomeScreen</span>({ <span class="gap" id="g6-1">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span> }) {<br>
+    &nbsp;&nbsp;<span class="kw">return</span> (<br>
+    &nbsp;&nbsp;&nbsp;&nbsp;&lt;<span class="gap" id="g6-2">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span><br>
+    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;data={<span class="gap" id="g6-3">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span>}<br>
+    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;renderItem={({ <span class="gap" id="g6-4">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span> }) => (<br>
+    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;LugarCard lugar={item}<br>
+    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;onPress={() =&gt; <span class="gap" id="g6-5">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span>.<span class="gap" id="g6-6">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span>(<span class="gap" id="g6-7">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span>, { lugar: item })}<br>
+    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;/&gt;<br>
+    &nbsp;&nbsp;&nbsp;&nbsp;/&gt;<br>
+    &nbsp;&nbsp;);<br>
+    }
+  </div>
+  <div class="fb" id="fb6"></div>
+  <div class="bts">
+    <button class="btn-v" onclick="E6.verificar()">Verificar</button>
+    <button class="btn-s" id="sig6" onclick="avanzar(6)">Siguiente →</button>
+    <button class="btn-r" onclick="E6.reset()">Reiniciar</button>
+  </div>
+</div>
+
+<!-- ════════════════════ EJ 7 — Completar DetalleScreen ════════════════════ -->
+<div class="ej" id="ej7">
+  <div class="ej-tags"><span class="tag tag-n">Pregunta 7 de 10</span><span class="tag tag-t">Completar código</span></div>
+  <div class="ej-titulo">Completa DetalleScreen — recibir datos con route.params</div>
+  <div class="ej-desc">Da clic en el bloque y luego en el espacio donde va.</div>
+  <div class="tip">👆 Clic en el bloque → clic en el espacio azul</div>
+  <div class="pool" id="pool7"></div>
+  <div class="code">
+    <span class="kw">export default function</span> <span class="fn">DetalleScreen</span>({ <span class="gap" id="g7-1">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span> }) {<br>
+    &nbsp;&nbsp;<span class="kw">const</span> { <span class="gap" id="g7-2">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span> } = <span class="gap" id="g7-3">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span>.<span class="gap" id="g7-4">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span>;<br><br>
+    &nbsp;&nbsp;<span class="kw">return</span> (<br>
+    &nbsp;&nbsp;&nbsp;&nbsp;&lt;<span class="gap" id="g7-5">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span>&gt;<br>
+    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;Text&gt;{<span class="gap" id="g7-6">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span>}&lt;/Text&gt;<br>
+    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;Text&gt;{<span class="gap" id="g7-7">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span>}&lt;/Text&gt;<br>
+    &nbsp;&nbsp;&nbsp;&nbsp;&lt;/ScrollView&gt;<br>
+    &nbsp;&nbsp;);<br>
+    }
+  </div>
+  <div class="fb" id="fb7"></div>
+  <div class="bts">
+    <button class="btn-v" onclick="E7.verificar()">Verificar</button>
+    <button class="btn-s" id="sig7" onclick="avanzar(7)">Siguiente →</button>
+    <button class="btn-r" onclick="E7.reset()">Reiniciar</button>
+  </div>
+</div>
+
+<!-- ════════════════════ EJ 8 — Clasificar pantallas ════════════════════ -->
+<div class="ej" id="ej8">
+  <div class="ej-tags"><span class="tag tag-n">Pregunta 8 de 10</span><span class="tag tag-t">Clasificar</span></div>
+  <div class="ej-titulo">¿Qué descripción corresponde a qué navigator?</div>
+  <div class="ej-desc">Da clic en una descripción y luego en el navigator al que pertenece.</div>
+  <div class="tip">👆 Clic en la descripción → clic en el navigator</div>
+  <div class="pool" id="pool8"></div>
+  <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;margin-bottom:16px;">
+    <div class="zona" id="z8-stack"><div class="zona-lbl">Stack Navigator</div><div class="zona-items" id="zi8-stack"></div></div>
+    <div class="zona" id="z8-tab"><div class="zona-lbl">Bottom Tab</div><div class="zona-items" id="zi8-tab"></div></div>
+    <div class="zona" id="z8-drawer"><div class="zona-lbl">Drawer</div><div class="zona-items" id="zi8-drawer"></div></div>
+  </div>
+  <div class="fb" id="fb8"></div>
+  <div class="bts">
+    <button class="btn-v" onclick="E8.verificar()">Verificar</button>
+    <button class="btn-s" id="sig8" onclick="avanzar(8)">Siguiente →</button>
+    <button class="btn-r" onclick="E8.reset()">Reiniciar</button>
+  </div>
+</div>
+
+<!-- ════════════════════ EJ 9 — Completar App.js ════════════════════ -->
+<div class="ej" id="ej9">
+  <div class="ej-tags"><span class="tag tag-n">Pregunta 9 de 10</span><span class="tag tag-t">Completar código</span></div>
+  <div class="ej-titulo">Completa App.js — los 3 navigators anidados</div>
+  <div class="ej-desc">Da clic en el bloque y luego en el espacio donde va.</div>
+  <div class="tip">👆 Clic en el bloque → clic en el espacio azul</div>
+  <div class="pool" id="pool9"></div>
+  <div class="code">
+    <span class="kw">import</span> <span class="gap" id="g9-1">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span>; <span class="cm">// primera línea obligatoria</span><br><br>
+    <span class="kw">function</span> <span class="fn">InicioStack</span>() {<br>
+    &nbsp;&nbsp;<span class="kw">return</span> (<br>
+    &nbsp;&nbsp;&nbsp;&nbsp;&lt;Stack.Navigator&gt;<br>
+    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;Stack.Screen <span class="kw">name</span>=<span class="st">"Home"</span>    component={<span class="gap" id="g9-2">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span>} /&gt;<br>
+    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;Stack.Screen <span class="kw">name</span>=<span class="st">"Detalle"</span> component={<span class="gap" id="g9-3">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span>} /&gt;<br>
+    &nbsp;&nbsp;&nbsp;&nbsp;&lt;/Stack.Navigator&gt;<br>
+    &nbsp;&nbsp;);<br>
+    }<br><br>
+    <span class="kw">function</span> <span class="fn">MisTabs</span>() {<br>
+    &nbsp;&nbsp;<span class="kw">return</span> (<br>
+    &nbsp;&nbsp;&nbsp;&nbsp;&lt;Tab.Navigator screenOptions={{ headerShown: <span class="gap" id="g9-4">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span> }}&gt;<br>
+    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;Tab.Screen component={<span class="gap" id="g9-5">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span>} /&gt; <span class="cm">// contiene el Stack</span><br>
+    &nbsp;&nbsp;&nbsp;&nbsp;&lt;/Tab.Navigator&gt;<br>
+    &nbsp;&nbsp;);<br>
+    }<br><br>
+    <span class="kw">export default function</span> <span class="fn">App</span>() {<br>
+    &nbsp;&nbsp;<span class="kw">return</span> (<br>
+    &nbsp;&nbsp;&nbsp;&nbsp;&lt;<span class="gap" id="g9-6">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span>&gt;<br>
+    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;Drawer.Navigator&gt;<br>
+    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;Drawer.Screen component={<span class="gap" id="g9-7">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span>} /&gt;<br>
+    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;/Drawer.Navigator&gt;<br>
+    &nbsp;&nbsp;&nbsp;&nbsp;&lt;/NavigationContainer&gt;<br>
+    &nbsp;&nbsp;);<br>
+    }
+  </div>
+  <div class="fb" id="fb9"></div>
+  <div class="bts">
+    <button class="btn-v" onclick="E9.verificar()">Verificar</button>
+    <button class="btn-s" id="sig9" onclick="avanzar(9)">Siguiente →</button>
+    <button class="btn-r" onclick="E9.reset()">Reiniciar</button>
+  </div>
+</div>
+
+<!-- ════════════════════ EJ 10 — Verdadero / Falso ════════════════════ -->
+<div class="ej" id="ej10">
+  <div class="ej-tags"><span class="tag tag-n">Pregunta 10 de 10</span><span class="tag tag-t">Verdadero / Falso</span></div>
+  <div class="ej-titulo">¿Verdadero o Falso?</div>
+  <div class="ej-desc">Lee cada enunciado y da clic en V o F.</div>
+  <div id="vf10" style="margin-bottom:16px;"></div>
+  <div class="fb" id="fb10"></div>
+  <div class="bts">
+    <button class="btn-v" onclick="E10.verificar()">Verificar</button>
+    <button class="btn-s" id="sig10" onclick="verResultado()">Ver Resultado →</button>
+    <button class="btn-r" onclick="E10.reset()">Reiniciar</button>
+  </div>
+</div>
+
+<!-- ════════════════════ RESULTADO ════════════════════ -->
+<div class="res" id="resultado">
+  <div class="res-c" id="res-n">0</div>
+  <div class="res-t" id="res-t">Ejercicios completados</div>
+  <div class="res-d" id="res-d"></div>
+  <hr style="margin:22px 0;border-color:#e5e5e5;">
+
+  <div class="sec">Flujo de datos en la app</div>
+  <div class="flujo">
+    <div class="fn" style="background:#dbeafe;color:#1d4ed8;">App.js<br><small style="font-weight:400;font-size:10px;">punto de entrada</small></div>
+    <span style="color:#94a3b8;font-size:16px;">→</span>
+    <div class="fn" style="background:#fee2e2;color:#991b1b;">Drawer<br><small style="font-weight:400;font-size:10px;">menú lateral</small></div>
+    <span style="color:#94a3b8;font-size:16px;">→</span>
+    <div class="fn" style="background:#fef3c7;color:#92400e;">Tab<br><small style="font-weight:400;font-size:10px;">barra inferior</small></div>
+    <span style="color:#94a3b8;font-size:16px;">→</span>
+    <div class="fn" style="background:#dbeafe;color:#1d4ed8;">Stack<br><small style="font-weight:400;font-size:10px;">Home / Detalle</small></div>
+    <span style="color:#94a3b8;font-size:16px;">→</span>
+    <div class="fn" style="background:#d1fae5;color:#065f46;">HomeScreen<br><small style="font-weight:400;font-size:10px;">ve el usuario</small></div>
+  </div>
+  <div class="ibox">
+    <strong>navigation.navigate('Detalle', { lugar: item })</strong> → envía datos al Detalle<br>
+    <strong>const { lugar } = route.params</strong> → recibe los datos en DetalleScreen<br>
+    <strong>export default function App()</strong> → React Native arranca desde aquí<br>
+    <strong>react-native-gesture-handler</strong> debe ser la primera importación en App.js
+  </div>
+
+  <div class="sec">Librerías del proyecto (SDK 54)</div>
+  <div class="libs">
+    <div class="lib"><div class="lib-n">expo</div><div class="lib-v">~54.0.34</div><div class="lib-d">SDK base. Crear con --template blank@sdk-54</div></div>
+    <div class="lib"><div class="lib-n">@rneui/themed</div><div class="lib-v">^4.0.0-rc.8</div><div class="lib-d">Card, Button, Text con estilos</div></div>
+    <div class="lib"><div class="lib-n">@rneui/base</div><div class="lib-v">^4.0.0-rc.8</div><div class="lib-d">Requerida por @rneui/themed</div></div>
+    <div class="lib"><div class="lib-n">@react-navigation/native</div><div class="lib-v">^7.0.0</div><div class="lib-d">Base de toda la navegación</div></div>
+    <div class="lib"><div class="lib-n">@react-navigation/native-stack</div><div class="lib-v">^7.0.0</div><div class="lib-d">Stack Navigator</div></div>
+    <div class="lib"><div class="lib-n">@react-navigation/bottom-tabs</div><div class="lib-v">^7.0.0</div><div class="lib-d">Barra de pestañas inferior</div></div>
+    <div class="lib"><div class="lib-n">@react-navigation/drawer</div><div class="lib-v">^7.0.0</div><div class="lib-d">Menú lateral deslizable</div></div>
+    <div class="lib"><div class="lib-n">react-native-gesture-handler</div><div class="lib-v">~2.20.2</div><div class="lib-d">Gestos táctiles — necesaria para el Drawer</div></div>
+    <div class="lib"><div class="lib-n">react-native-reanimated</div><div class="lib-v">~3.16.1</div><div class="lib-d">Animaciones — necesaria para el Drawer</div></div>
+    <div class="lib"><div class="lib-n">react-native-screens</div><div class="lib-v">~4.4.0</div><div class="lib-d">Optimiza rendimiento de pantallas</div></div>
+    <div class="lib"><div class="lib-n">react-native-safe-area-context</div><div class="lib-v">~4.14.0</div><div class="lib-d">Evita que el contenido quede bajo el notch</div></div>
+  </div>
+  <div style="text-align:center;margin-top:24px;">
+    <button onclick="reiniciarTodo()" style="background:#2563eb;color:#fff;border:none;border-radius:10px;padding:14px 32px;font-size:15px;font-weight:700;cursor:pointer;">Reiniciar todos los ejercicios</button>
+  </div>
+</div>
+
+</div>
+
+<script>
+// ════════════════════════════════════════════════════════════════
+// MOTOR GLOBAL
+// ════════════════════════════════════════════════════════════════
+let puntos = 0;
+let ejActual = 1;
+const TOTAL = 10;
+
+function addPts(n) { puntos += n; document.getElementById('score').textContent = puntos; }
+function showSig(n) { document.getElementById('sig'+n).style.display = 'inline-block'; }
+function hideSig(n) { document.getElementById('sig'+n).style.display = 'none'; }
+
+function avanzar(n) {
+  document.getElementById('ej'+n).classList.remove('on');
+  ejActual = n + 1;
+  document.getElementById('ej'+ejActual).classList.add('on');
+  document.getElementById('barra').style.width = ((ejActual-1)/TOTAL*100)+'%';
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+
+function verResultado() {
+  document.getElementById('ej10').classList.remove('on');
+  const r = document.getElementById('resultado');
+  r.classList.add('on');
+  const pct = Math.round(puntos/100*100);
+  document.getElementById('res-n').textContent = puntos+'/100';
+  document.getElementById('res-t').textContent = pct>=80 ? '¡Excelente dominio de React Native!' : pct>=60 ? 'Bien, sigue repasando' : 'Necesitas repasar los conceptos';
+  document.getElementById('res-d').textContent = 'Obtuviste '+pct+'%';
+  document.getElementById('barra').style.width = '100%';
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+
+function fb(n, ok, msgOk, msgMal) {
+  const el = document.getElementById('fb'+n);
+  el.textContent = (ok?'✓ ':'✗ ') + (ok?msgOk:msgMal);
+  el.className = 'fb '+(ok?'ok':'err');
+  showSig(n);
+}
+
+// ════════════════════════════════════════════════════════════════
+// EJ 1 — Ordenar (clic para asignar número)
+// ════════════════════════════════════════════════════════════════
+const E1 = (() => {
+  const pasos = [
+    { val:2, txt:'Entrar a la carpeta: <code>cd LugaresMorelia</code>' },
+    { val:1, txt:'Crear el proyecto: <code>npx create-expo-app@latest LugaresMorelia --template blank@sdk-54</code>' },
+    { val:4, txt:'Crear archivos: <code>data.js</code>, screens y components, y editar <code>App.js</code>' },
+    { val:3, txt:'Instalar librerías: <code>npx expo install ...</code>' },
+  ];
+  let asignados = {};
+  let contador = 0;
+
+  function build() {
+    const lista = document.getElementById('lista1');
+    lista.innerHTML = '';
+    pasos.forEach(p => {
+      const div = document.createElement('div');
+      div.className = 'ord-item';
+      div.dataset.val = p.val;
+      div.innerHTML = `<div class="ord-num" data-nb="${p.val}">?</div><span>${p.txt}</span>`;
+      div.addEventListener('click', () => {
+        if (div.classList.contains('ok') || div.classList.contains('err')) return;
+        const nb = div.querySelector('.ord-num');
+        if (nb.classList.contains('set')) {
+          // quitar número
+          const num = parseInt(nb.textContent);
+          nb.textContent = '?'; nb.classList.remove('set');
+          delete asignados[p.val];
+          // reordenar los mayores
+          lista.querySelectorAll('.ord-item').forEach(item => {
+            const b = item.querySelector('.ord-num');
+            if (b.classList.contains('set') && parseInt(b.textContent) > num) {
+              b.textContent = parseInt(b.textContent) - 1;
+            }
+          });
+          contador = Object.keys(asignados).length;
+        } else {
+          contador++;
+          nb.textContent = contador; nb.classList.add('set');
+          asignados[p.val] = contador;
+        }
+      });
+      lista.appendChild(div);
+    });
+  }
+
+  return {
+    init: build,
+    verificar() {
+      const ok = asignados[1]===1 && asignados[2]===2 && asignados[3]===3 && asignados[4]===4;
+      document.querySelectorAll('#lista1 .ord-item').forEach(item => {
+        const v = parseInt(item.dataset.val);
+        item.classList.toggle('ok', asignados[v]===v);
+        item.classList.toggle('err', asignados[v]!==v);
+      });
+      fb(1, ok, '¡Orden correcto! Crear proyecto → entrar a carpeta → instalar librerías → crear archivos.', 'Revisa: 1) crear proyecto, 2) entrar a la carpeta con cd, 3) instalar librerías, 4) crear archivos y editar App.js.');
+      if (ok) addPts(10);
+    },
+    reset() {
+      asignados = {}; contador = 0; build();
+      document.getElementById('fb1').className = 'fb'; hideSig(1);
+    }
+  };
+})();
+E1.init();
+
+// ════════════════════════════════════════════════════════════════
+// EJ 2 — Emparejar librerías
+// ════════════════════════════════════════════════════════════════
+const E2 = (() => {
+  const libs = [
+    { id:'rneui',      txt:'@rneui/themed',                   cls:'',  def:'Componentes listos: Card, Button, Text con estilos incluidos' },
+    { id:'stack',      txt:'@react-navigation/native-stack',  cls:'g', def:'Navega apilando pantallas. Aparece el botón ← para regresar' },
+    { id:'tabs',       txt:'@react-navigation/bottom-tabs',   cls:'p', def:'Barra de pestañas en la parte inferior del celular' },
+    { id:'drawer',     txt:'@react-navigation/drawer',        cls:'o', def:'Menú lateral que se desliza desde la izquierda' },
+    { id:'reanimated', txt:'react-native-reanimated',         cls:'r', def:'Animaciones nativas. Requerida para que funcione el Drawer' },
+  ];
+  let sel = null;
+  let colocadas = {}; // defId → libId
+
+  function build() {
+    const libsEl = document.getElementById('libs2');
+    const defsEl = document.getElementById('defs2');
+    libsEl.innerHTML = ''; defsEl.innerHTML = '';
+    libs.forEach(l => {
+      // bloque librería
+      const b = document.createElement('div');
+      b.className = 'blk ' + l.cls; b.id = 'lb-'+l.id; b.textContent = l.txt;
+      b.addEventListener('click', () => {
+        if (b.classList.contains('dim')) return;
+        document.querySelectorAll('#libs2 .blk').forEach(x => x.classList.remove('on'));
+        sel = l.id; b.classList.add('on');
+      });
+      libsEl.appendChild(b);
+      // zona destino
+      const z = document.createElement('div');
+      z.className = 'zona'; z.id = 'df-'+l.id;
+      z.innerHTML = `<div style="font-size:12px;color:#475569;margin-bottom:6px;">${l.def}</div><div id="dp-${l.id}" style="min-height:30px;"></div>`;
+      z.addEventListener('click', () => {
+        if (!sel) return;
+        // devolver anterior si había
+        if (colocadas[l.id]) document.getElementById('lb-'+colocadas[l.id]).classList.remove('dim');
+        // poner el nuevo
+        const place = document.getElementById('dp-'+l.id);
+        const libData = libs.find(x => x.id === sel);
+        place.innerHTML = `<span class="blk ${libData.cls}" style="font-size:12px;padding:4px 10px;cursor:default;">${libData.txt}</span>`;
+        colocadas[l.id] = sel;
+        document.getElementById('lb-'+sel).classList.remove('on');
+        document.getElementById('lb-'+sel).classList.add('dim');
+        sel = null;
+      });
+      defsEl.appendChild(z);
+    });
+  }
+
+  return {
+    init: build,
+    verificar() {
+      let ok = 0;
+      libs.forEach(l => {
+        const z = document.getElementById('df-'+l.id);
+        z.classList.remove('ok','err');
+        const correcto = colocadas[l.id] === l.id;
+        z.classList.add(correcto ? 'ok' : 'err');
+        if (correcto) ok++;
+      });
+      const bien = ok === libs.length;
+      fb(2, bien, '¡Todas correctas! Conoces el propósito de cada librería.', `Tienes ${ok}/${libs.length} correctas. rneui=componentes UI, stack=apila pantallas, tabs=barra inferior, drawer=menú lateral, reanimated=animaciones.`);
+      if (bien) addPts(10);
+    },
+    reset() {
+      colocadas = {}; sel = null; build();
+      document.getElementById('fb2').className = 'fb'; hideSig(2);
+    }
+  };
+})();
+E2.init();
+
+// ════════════════════════════════════════════════════════════════
+// EJ 3 — Carpetas
+// ════════════════════════════════════════════════════════════════
+const E3 = (() => {
+  const archivos = [
+    { id:'home',    txt:'HomeScreen.jsx',    cls:'',  zona:'screens' },
+    { id:'lugar',   txt:'LugarCard.jsx',     cls:'g', zona:'comp' },
+    { id:'data',    txt:'data.js',           cls:'p', zona:'raiz' },
+    { id:'app',     txt:'App.js',            cls:'o', zona:'raiz' },
+    { id:'detalle', txt:'DetalleScreen.jsx', cls:'r', zona:'screens' },
+    { id:'mapa',    txt:'MapaScreen.jsx',    cls:'',  zona:'screens' },
+    { id:'acerca',  txt:'AcercaScreen.jsx',  cls:'g', zona:'screens' },
+  ];
+  let sel = null;
+  let ubicados = {};
+
+  function build() {
+    const pool = document.getElementById('pool3');
+    pool.innerHTML = '';
+    archivos.forEach(a => {
+      const b = document.createElement('div');
+      b.className = 'blk ' + a.cls; b.id = 'a3-'+a.id; b.textContent = a.txt;
+      b.addEventListener('click', () => {
+        if (b.classList.contains('dim')) return;
+        document.querySelectorAll('#pool3 .blk').forEach(x => x.classList.remove('on'));
+        sel = a.id; b.classList.add('on');
+      });
+      pool.appendChild(b);
+    });
+    ['raiz','screens','comp'].forEach(zona => {
+      const z = document.getElementById('z3-'+zona);
+      z.onclick = () => {
+        if (!sel) return;
+        const a = archivos.find(x => x.id === sel);
+        const cont = document.getElementById('zi3-'+zona);
+        const tag = document.createElement('span');
+        tag.className = 'blk '+a.cls;
+        tag.style.cssText = 'font-size:12px;padding:4px 10px;cursor:default;';
+        tag.textContent = a.txt;
+        cont.appendChild(tag);
+        ubicados[sel] = zona;
+        document.getElementById('a3-'+sel).classList.remove('on');
+        document.getElementById('a3-'+sel).classList.add('dim');
+        sel = null;
+      };
+    });
+  }
+
+  return {
+    init: build,
+    verificar() {
+      let ok = true;
+      archivos.forEach(a => { if (ubicados[a.id] !== a.zona) ok = false; });
+      fb(3, ok, '¡Correcto! App.js y data.js en la raíz, pantallas en screens/, LugarCard en components/.', 'Revisa: App.js y data.js van en la raíz. Todas las pantallas (HomeScreen, DetalleScreen, etc.) en screens/. LugarCard.jsx en components/.');
+      if (ok) addPts(10);
+    },
+    reset() {
+      ubicados = {}; sel = null;
+      ['raiz','screens','comp'].forEach(z => document.getElementById('zi3-'+z).innerHTML = '');
+      build();
+      document.getElementById('fb3').className = 'fb'; hideSig(3);
+    }
+  };
+})();
+E3.init();
+
+// ════════════════════════════════════════════════════════════════
+// MOTOR DE GAPS (completar código) — usado por E4, E5, E6, E7, E9
+// ════════════════════════════════════════════════════════════════
+function makeGapExercise(ejNum, bloques, gapMap, msgOk, msgMal) {
+  let sel = null;
+  let vals = {};
+
+  function build() {
+    const pool = document.getElementById('pool'+ejNum);
+    pool.innerHTML = '';
+    bloques.forEach(b => {
+      const el = document.createElement('div');
+      el.className = 'blk ' + (b.cls||'');
+      el.textContent = b.txt;
+      el.addEventListener('click', () => {
+        document.querySelectorAll('#pool'+ejNum+' .blk').forEach(x => x.classList.remove('on'));
+        sel = b.id; el.classList.add('on');
+      });
+      pool.appendChild(el);
+    });
+    Object.keys(gapMap).forEach(gid => {
+      const gap = document.getElementById(gid);
+      if (!gap) return;
+      gap.onclick = () => {
+        if (!sel) return;
+        if (gap.classList.contains('ok')) return;
+        vals[gid] = sel;
+        const blkData = bloques.find(x => x.id === sel);
+        gap.textContent = blkData ? blkData.txt : sel;
+        gap.classList.remove('err'); gap.classList.add('set');
+        // no marcar como dim — el mismo bloque puede usarse en varios gaps
+        document.querySelectorAll('#pool'+ejNum+' .blk').forEach(x => x.classList.remove('on'));
+        sel = null;
+      };
+    });
+  }
+
+  return {
+    init: build,
+    verificar() {
+      let ok = true;
+      Object.entries(gapMap).forEach(([gid, exp]) => {
+        const g = document.getElementById(gid);
+        g.classList.remove('ok','err','set');
+        const correcto = vals[gid] === exp;
+        g.classList.add(correcto ? 'ok' : 'err');
+        if (!correcto) ok = false;
+      });
+      fb(ejNum, ok, msgOk, msgMal);
+      if (ok) addPts(10);
+    },
+    reset() {
+      vals = {}; sel = null;
+      Object.keys(gapMap).forEach(gid => {
+        const g = document.getElementById(gid);
+        if (!g) return;
+        g.textContent = '       '; g.className = 'gap';
+      });
+      build();
+      document.getElementById('fb'+ejNum).className = 'fb'; hideSig(ejNum);
+    }
+  };
+}
+
+// EJ 4 — data.js
+const E4 = makeGapExercise(4,
+  [
+    { id:'const',   txt:'const',          cls:'' },
+    { id:'export',  txt:'export default', cls:'g' },
+    { id:'uri',     txt:'uri:',           cls:'p' },
+    { id:'array',   txt:'[ ]',            cls:'o' },
+    { id:'id',      txt:'id:',            cls:'r' },
+  ],
+  { 'g4-1':'const', 'g4-2':'array', 'g4-3':'id', 'g4-4':'uri', 'g4-5':'export' },
+  '¡Correcto! const declara el array, id: identifica cada objeto, uri: apunta a la imagen, export default al final.',
+  'Revisa: const para declarar, [ ] para el array, id: para el campo identificador, uri: dentro de imagen, export default al final.'
+);
+E4.init();
+
+// EJ 5 — LugarCard
+const E5 = makeGapExercise(5,
+  [
+    { id:'lugar',             txt:'lugar',             cls:'' },
+    { id:'onPress',           txt:'onPress',           cls:'g' },
+    { id:'TouchableOpacity',  txt:'TouchableOpacity',  cls:'p' },
+    { id:'Card',              txt:'Card',              cls:'o' },
+    { id:'lugar.imagen',      txt:'lugar.imagen',      cls:'r' },
+    { id:'lugar.nombre',      txt:'lugar.nombre',      cls:'' },
+  ],
+  { 'g5-1':'lugar', 'g5-2':'onPress', 'g5-3':'TouchableOpacity', 'g5-4':'Card', 'g5-5':'lugar.imagen', 'g5-6':'lugar.nombre' },
+  '¡Perfecto! Props: lugar y onPress. TouchableOpacity detecta el toque. Card da el estilo. lugar.imagen y lugar.nombre acceden a los datos.',
+  'Recuerda: las props van en los parámetros. TouchableOpacity envuelve lo clicable. source={lugar.imagen} y {lugar.nombre} usan los datos del objeto.'
+);
+E5.init();
+
+// EJ 6 — HomeScreen (navigation se usa 2 veces — el bloque se puede reusar)
+const E6 = makeGapExercise(6,
+  [
+    { id:'navigation', txt:'navigation', cls:'' },
+    { id:'navigate',   txt:'navigate',   cls:'g' },
+    { id:'Detalle',    txt:"'Detalle'",  cls:'p' },
+    { id:'item',       txt:'item',       cls:'o' },
+    { id:'FlatList',   txt:'FlatList',   cls:'r' },
+    { id:'lugares',    txt:'lugares',    cls:'' },
+  ],
+  { 'g6-1':'navigation', 'g6-2':'FlatList', 'g6-3':'lugares', 'g6-4':'item', 'g6-5':'navigation', 'g6-6':'navigate', 'g6-7':'Detalle' },
+  '¡Correcto! FlatList recorre lugares. navigation.navigate("Detalle", { lugar: item }) envía los datos.',
+  "Revisa: FlatList recibe data={lugares}. Para navegar: navigation.navigate('Detalle', { lugar: item }). El prop 'navigation' va como parámetro de la función Y dentro del navigate."
+);
+E6.init();
+
+// EJ 7 — DetalleScreen
+const E7 = makeGapExercise(7,
+  [
+    { id:'route',          txt:'route',          cls:'' },
+    { id:'params',         txt:'params',         cls:'g' },
+    { id:'lugar',          txt:'lugar',          cls:'p' },
+    { id:'ScrollView',     txt:'ScrollView',     cls:'o' },
+    { id:'lugar.historia', txt:'lugar.historia', cls:'r' },
+    { id:'lugar.nombre',   txt:'lugar.nombre',   cls:'' },
+  ],
+  { 'g7-1':'route', 'g7-2':'lugar', 'g7-3':'route', 'g7-4':'params', 'g7-5':'ScrollView', 'g7-6':'lugar.nombre', 'g7-7':'lugar.historia' },
+  '¡Perfecto! route.params contiene el objeto enviado por navigate(). ScrollView permite hacer scroll en el contenido.',
+  'Recuerda: const { lugar } = route.params — así se obtiene el objeto. route aparece como parámetro de la función y también en route.params.'
+);
+E7.init();
+
+// ════════════════════════════════════════════════════════════════
+// EJ 8 — Clasificar pantallas en navigators
+// ════════════════════════════════════════════════════════════════
+const E8 = (() => {
+  const items = [
+    { id:'d1', txt:'Permite navegar hacia atrás con un botón o gesto',     cls:'',  zona:'stack' },
+    { id:'d2', txt:'Guarda un historial de pantallas visitadas',            cls:'g', zona:'stack' },
+    { id:'d3', txt:'Muestra pestañas en la parte inferior del teléfono',   cls:'p', zona:'tab'   },
+    { id:'d4', txt:'Ideal para las secciones principales de la app',       cls:'o', zona:'tab'   },
+    { id:'d5', txt:'Abre un menú deslizable desde el lado izquierdo',      cls:'r', zona:'drawer'},
+    { id:'d6', txt:'Se activa con el ícono de 3 líneas (hamburguesa)',     cls:'',  zona:'drawer'},
+  ];
+  let sel = null;
+  let ubicados = {};
+
+  function build() {
+    const pool = document.getElementById('pool8');
+    pool.innerHTML = '';
+    items.forEach(p => {
+      const b = document.createElement('div');
+      b.className = 'blk '+p.cls; b.id='p8-'+p.id;
+      b.style.cssText = 'font-family:inherit;font-size:12px;max-width:220px;white-space:normal;line-height:1.4;padding:8px 12px;';
+      b.textContent = p.txt;
+      b.addEventListener('click', () => {
+        if (b.classList.contains('dim')) return;
+        document.querySelectorAll('#pool8 .blk').forEach(x => x.classList.remove('on'));
+        sel = p.id; b.classList.add('on');
+      });
+      pool.appendChild(b);
+    });
+    ['stack','tab','drawer'].forEach(zona => {
+      const z = document.getElementById('z8-'+zona);
+      z.onclick = () => {
+        if (!sel) return;
+        const p = items.find(x => x.id === sel);
+        const cont = document.getElementById('zi8-'+zona);
+        const tag = document.createElement('span');
+        tag.className = 'blk '+p.cls;
+        tag.style.cssText = 'font-family:inherit;font-size:11px;padding:4px 8px;cursor:default;white-space:normal;line-height:1.3;max-width:180px;';
+        tag.textContent = p.txt;
+        cont.appendChild(tag);
+        ubicados[sel] = zona;
+        document.getElementById('p8-'+sel).classList.remove('on');
+        document.getElementById('p8-'+sel).classList.add('dim');
+        sel = null;
+      };
+    });
+  }
+
+  return {
+    init: build,
+    verificar() {
+      let ok = true;
+      items.forEach(p => { if (ubicados[p.id] !== p.zona) ok = false; });
+      ['stack','tab','drawer'].forEach(z => {
+        const z_ok = items.filter(p=>p.zona===z).every(p=>ubicados[p.id]===z);
+        document.getElementById('z8-'+z).classList.remove('ok','err');
+        document.getElementById('z8-'+z).classList.add(z_ok?'ok':'err');
+      });
+      fb(8, ok,
+        '¡Correcto! Stack = historial + botón atrás. Bottom Tab = pestañas inferiores + secciones. Drawer = menú hamburguesa deslizable.',
+        'Recuerda: Stack guarda historial y permite volver atrás. Tab muestra pestañas abajo. Drawer es el menú de 3 líneas que se desliza.');
+      if (ok) addPts(10);
+    },
+    reset() {
+      ubicados={}; sel=null;
+      ['stack','tab','drawer'].forEach(z=>{document.getElementById('zi8-'+z).innerHTML='';document.getElementById('z8-'+z).classList.remove('ok','err');});
+      build();
+      document.getElementById('fb8').className='fb'; hideSig(8);
+    }
+  };
+})();
+E8.init();
+
+// EJ 9 — App.js
+const E9 = makeGapExercise(9,
+  [
+    { id:'gesture',             txt:"'react-native-gesture-handler'", cls:'' },
+    { id:'HomeScreen',          txt:'HomeScreen',                     cls:'g' },
+    { id:'DetalleScreen',       txt:'DetalleScreen',                  cls:'p' },
+    { id:'false',               txt:'false',                          cls:'o' },
+    { id:'InicioStack',         txt:'InicioStack',                    cls:'r' },
+    { id:'NavigationContainer', txt:'NavigationContainer',            cls:'' },
+    { id:'MisTabs',             txt:'MisTabs',                        cls:'g' },
+  ],
+  { 'g9-1':'gesture', 'g9-2':'HomeScreen', 'g9-3':'DetalleScreen', 'g9-4':'false', 'g9-5':'InicioStack', 'g9-6':'NavigationContainer', 'g9-7':'MisTabs' },
+  '¡Excelente! gesture-handler va primero, NavigationContainer envuelve todo, MisTabs contiene al InicioStack (Drawer → Tab → Stack).',
+  "Clave: react-native-gesture-handler en la primera importación. HomeScreen y DetalleScreen en el Stack. false en headerShown. InicioStack dentro de MisTabs. NavigationContainer envuelve el Drawer. MisTabs en el Drawer."
+);
+E9.init();
+
+// ════════════════════════════════════════════════════════════════
+// EJ 10 — Verdadero / Falso
+// ════════════════════════════════════════════════════════════════
+const E10 = (() => {
+  const items = [
+    { id:'a', txt:'navigation.navigate() recibe el nombre de la pantalla como primer argumento',                       ans:'V' },
+    { id:'b', txt:'El Stack Navigator es el que muestra el menú de hamburguesa deslizable',                            ans:'F' },
+    { id:'c', txt:'route.params se usa en la pantalla destino para recibir los datos enviados con navigate()',          ans:'V' },
+    { id:'d', txt:'FlatList necesita que tú escribas un ciclo for para recorrer el arreglo de datos',                  ans:'F' },
+    { id:'e', txt:'La primera Screen registrada en el Stack es la que aparece al abrir la app',                        ans:'V' },
+    { id:'f', txt:'npx expo install instala Expo Go en el celular del alumno',                                         ans:'F' },
+    { id:'g', txt:'LugarCard es un componente reutilizable que se puede usar en varias pantallas',                     ans:'V' },
+    { id:'h', txt:'App.js es una pantalla con diseño visual que el usuario navega como cualquier otra screen',         ans:'F' },
+  ];
+  let respuestas = {};
+
+  function build() {
+    const cont = document.getElementById('vf10');
+    cont.innerHTML = '';
+    items.forEach(item => {
+      const div = document.createElement('div');
+      div.className = 'vf'; div.id = 'vf-'+item.id;
+      div.innerHTML = `<div class="vf-txt">${item.txt}</div>
+        <div class="vf-bts">
+          <button class="vf-b V" id="vfbV-${item.id}" onclick="E10.pick('${item.id}','V')">V</button>
+          <button class="vf-b F" id="vfbF-${item.id}" onclick="E10.pick('${item.id}','F')">F</button>
+        </div>`;
+      cont.appendChild(div);
+    });
+  }
+
+  return {
+    init: build,
+    pick(id, val) {
+      const item = document.getElementById('vf-'+id);
+      if (item.classList.contains('ok') || item.classList.contains('err')) return;
+      item.querySelectorAll('.vf-b').forEach(b => b.classList.remove('on'));
+      document.getElementById('vfb'+val+'-'+id).classList.add('on');
+      respuestas[id] = val;
+    },
+    verificar() {
+      let ok = true;
+      items.forEach(item => {
+        const div = document.getElementById('vf-'+item.id);
+        div.classList.remove('ok','err');
+        const correcto = respuestas[item.id] === item.ans;
+        div.classList.add(correcto ? 'ok' : 'err');
+        if (!correcto) ok = false;
+      });
+      fb(10, ok,
+        '¡Perfecto! Dominas todos los conceptos clave de React Native.',
+        'Revisa: El menú hamburguesa es el DRAWER (no el Stack). FlatList recorre el arreglo automáticamente, tú solo defines el renderItem. npx expo install agrega librerías al proyecto, no instala Expo Go. App.js es solo configuración de navegación, no una pantalla.');
+      if (ok) addPts(10);
+    },
+    reset() {
+      respuestas = {}; build();
+      document.getElementById('fb10').className='fb'; hideSig(10);
+    }
+  };
+})();
+E10.init();
+
+// ════════════════════════════════════════════════════════════════
+// REINICIAR TODO
+// ════════════════════════════════════════════════════════════════
+function reiniciarTodo() {
+  puntos = 0; ejActual = 1;
+  document.getElementById('score').textContent = 0;
+  document.getElementById('barra').style.width = '0%';
+  document.getElementById('resultado').classList.remove('on');
+  for (let i=1;i<=10;i++) { document.getElementById('ej'+i).classList.toggle('on',i===1); }
+  E1.reset(); E2.reset(); E3.reset(); E4.reset(); E5.reset();
+  E6.reset(); E7.reset(); E8.reset(); E9.reset(); E10.reset();
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+</script>
+</body>
+</html>
