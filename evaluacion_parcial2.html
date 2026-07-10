@@ -1,0 +1,699 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Evaluación Parcial II — Desarrollo de Aplicaciones</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:#f0f4ff;color:#1a1a1a}
+.hdr{background:linear-gradient(135deg,#1e40af,#2563eb);padding:1.4rem 2rem;color:#fff;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px}
+.hdr h1{font-size:18px;font-weight:700}
+.hdr p{font-size:12px;color:rgba(255,255,255,.7);margin-top:3px}
+.score-box{background:rgba(255,255,255,.15);border-radius:12px;padding:10px 22px;text-align:center;min-width:100px}
+.score-num{font-size:28px;font-weight:800;line-height:1}
+.score-lbl{font-size:11px;color:rgba(255,255,255,.7);margin-top:2px}
+.barra-w{height:6px;background:#bfdbfe}
+.barra{height:6px;background:#2563eb;transition:width .4s}
+.wrap{max-width:860px;margin:0 auto;padding:2rem 1rem 4rem}
+
+.bc{background:#fff;border-radius:16px;padding:28px;box-shadow:0 2px 14px rgba(0,0,0,.07);display:none}
+.bc.on{display:block;animation:up .3s}
+@keyframes up{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
+.tags{display:flex;gap:8px;margin-bottom:12px;flex-wrap:wrap}
+.tag{font-size:11px;font-weight:700;padding:3px 11px;border-radius:20px}
+.tag-n{background:#dbeafe;color:#1d4ed8}
+.tag-t{background:#f1f5f9;color:#475569}
+.tag-p{background:#fef3c7;color:#92400e}
+.btitulo{font-size:18px;font-weight:700;margin-bottom:6px}
+.bdesc{font-size:13px;color:#64748b;margin-bottom:16px;line-height:1.6}
+
+.int-row{display:flex;align-items:center;gap:6px;margin-bottom:14px}
+.int-dot{width:10px;height:10px;border-radius:50%;background:#e2e8f0;transition:.2s}
+.int-dot.used{background:#f97316}
+.int-lbl{font-size:11px;color:#94a3b8}
+
+/* V/F */
+.vfr{background:#fff;border:2px solid #e2e8f0;border-radius:10px;padding:12px 16px;margin-bottom:10px;display:flex;align-items:flex-start;gap:12px;transition:.2s}
+.vfr.ok{border-color:#059669;background:#f0fdf4}
+.vfr.err-flash{border-color:#dc2626;background:#fff5f5}
+.vf-txt{flex:1;font-size:13px;line-height:1.5}
+.vf-bts{display:flex;gap:8px;flex-shrink:0}
+.vf-b{border:2px solid #e2e8f0;background:#f8faff;border-radius:8px;padding:7px 16px;font-size:13px;font-weight:700;cursor:pointer;transition:all .15s}
+.vf-b:hover:not(:disabled){transform:scale(1.06)}
+.vf-b.sV{background:#d1fae5;border-color:#059669;color:#065f46}
+.vf-b.sF{background:#fee2e2;border-color:#dc2626;color:#991b1b}
+.vf-b:disabled{opacity:.5;cursor:default;transform:none}
+.vf-reveal{font-size:11px;font-weight:700;color:#dc2626;margin-top:4px;display:none}
+
+/* MC */
+.mcq{margin-bottom:22px}
+.mcq-txt{font-size:14px;font-weight:600;margin-bottom:10px;color:#1e3a8a;line-height:1.5}
+.mc-opts{display:flex;flex-direction:column;gap:7px}
+.mc-opt{border:2px solid #e2e8f0;background:#f8faff;border-radius:9px;padding:10px 14px;font-size:13px;cursor:pointer;transition:all .15s;display:flex;align-items:center;gap:10px}
+.mc-opt:hover:not(.dis){border-color:#2563eb;background:#eff6ff}
+.mc-opt.sel{border-color:#2563eb;background:#dbeafe}
+.mc-opt.ok{border-color:#059669!important;background:#d1fae5!important;pointer-events:none}
+.mc-opt.err{border-color:#dc2626!important;background:#fee2e2!important}
+.mc-opt.reveal{border-color:#059669!important;background:#d1fae5!important;pointer-events:none}
+.mc-opt.dis{pointer-events:none}
+.mc-ltr{width:26px;height:26px;border-radius:50%;background:#e2e8f0;color:#475569;font-size:12px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.mc-opt.sel .mc-ltr{background:#2563eb;color:#fff}
+
+/* Pool / gaps */
+.pool{display:flex;flex-wrap:wrap;gap:10px;margin-bottom:12px;padding:12px;background:#f8faff;border:2px dashed #c7d2fe;border-radius:12px;min-height:48px}
+.blk{background:#fff;border:2px solid #c7d2fe;border-radius:8px;padding:8px 14px;font-size:13px;font-weight:600;cursor:pointer;color:#1e3a8a;font-family:Menlo,Monaco,'Courier New',monospace;transition:all .15s;user-select:none}
+.blk:hover:not(.dim){border-color:#2563eb;background:#eff6ff;transform:translateY(-2px)}
+.blk.on{border-color:#2563eb;background:#dbeafe;box-shadow:0 0 0 3px #93c5fd}
+.blk.dim{opacity:.3;pointer-events:none}
+.code{background:#fafbff;border:1px solid #e2e8f0;border-radius:10px;padding:16px 18px;font-family:Menlo,Monaco,'Courier New',monospace;font-size:13px;line-height:2.2;margin-bottom:4px;overflow-x:auto}
+.gap{display:inline-block;border-bottom:2px solid #2563eb;min-width:90px;padding:1px 8px;background:#eff6ff;border-radius:4px;cursor:pointer;color:#1d4ed8;font-weight:700;vertical-align:middle;text-align:center;transition:all .2s}
+.gap:hover{background:#dbeafe}
+.gap.filled{background:#dbeafe}
+.gap.ok{background:#d1fae5;border-color:#059669;color:#065f46;pointer-events:none}
+.gap.err{background:#fee2e2;border-color:#dc2626;color:#991b1b}
+.kw{color:#7c3aed}.st{color:#059669}.fc{color:#0369a1}.cm{color:#94a3b8}
+
+/* Classify */
+.cls-pool{display:flex;flex-wrap:wrap;gap:10px;margin-bottom:16px;padding:14px;background:#f8faff;border:2px dashed #c7d2fe;border-radius:12px;min-height:54px}
+.cls-blk{background:#fff;border:2px solid #c7d2fe;border-radius:8px;padding:8px 14px;font-size:12px;font-weight:600;cursor:pointer;color:#1e3a8a;font-family:inherit;white-space:normal;max-width:280px;line-height:1.4;transition:all .15s;user-select:none}
+.cls-blk:hover:not(.dim){border-color:#2563eb;background:#eff6ff}
+.cls-blk.on{border-color:#2563eb;background:#dbeafe;box-shadow:0 0 0 3px #93c5fd}
+.cls-blk.dim{opacity:.35;pointer-events:none}
+.cls-blk.g{border-color:#86efac;color:#065f46}
+.cls-blk.p{border-color:#c4b5fd;color:#5b21b6}
+.cls-blk.o{border-color:#fcd34d;color:#92400e}
+.cls-blk.r{border-color:#fca5a5;color:#991b1b}
+.cls-zonas{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:16px}
+.cls-zona{border:2px dashed #e2e8f0;border-radius:10px;padding:12px;min-height:80px;cursor:pointer;transition:all .2s}
+.cls-zona:hover:not(.ok):not(.err){border-color:#2563eb;background:#f0f6ff}
+.cls-zona.ok{border-color:#059669!important;background:#f0fdf4!important}
+.cls-zona.err{border-color:#dc2626!important;background:#fff5f5!important}
+.cls-zona-lbl{font-size:11px;font-weight:700;color:#94a3b8;text-transform:uppercase;letter-spacing:.05em;margin-bottom:8px;font-family:Menlo,Monaco,'Courier New',monospace}
+.cls-zona-items{display:flex;flex-wrap:wrap;gap:6px;min-height:30px}
+
+/* Feedback */
+.fb{padding:12px 16px;border-radius:10px;font-size:13px;margin:14px 0;display:none;line-height:1.6;font-weight:600}
+.fb.ok{background:#d1fae5;color:#065f46;border-left:4px solid #059669;display:block}
+.fb.err{background:#fee2e2;color:#991b1b;border-left:4px solid #dc2626;display:block}
+.fb.warn{background:#fef3c7;color:#92400e;border-left:4px solid #f59e0b;display:block}
+
+/* Buttons */
+.bts{display:flex;flex-wrap:wrap;gap:10px;margin-top:16px}
+.btn-e{background:#2563eb;color:#fff;border:none;border-radius:10px;padding:12px 26px;font-size:14px;font-weight:700;cursor:pointer;transition:all .2s}
+.btn-e:hover:not(:disabled){background:#1d4ed8;transform:translateY(-1px)}
+.btn-e:disabled{background:#93c5fd;cursor:default;transform:none}
+.btn-sig{background:#059669;color:#fff;border:none;border-radius:10px;padding:12px 26px;font-size:14px;font-weight:700;cursor:pointer;display:none;transition:all .2s}
+.btn-sig:hover{background:#047857}
+
+/* Gap question container */
+.gq{margin-bottom:20px;padding-bottom:18px;border-bottom:1px solid #f1f5f9}
+.gq:last-child{border-bottom:none;margin-bottom:0}
+.gq-lbl{font-size:12px;font-weight:700;color:#64748b;margin-bottom:8px}
+
+/* Result */
+.result{background:#fff;border-radius:16px;padding:36px;box-shadow:0 2px 14px rgba(0,0,0,.07);display:none;text-align:center}
+.result.on{display:block;animation:up .4s}
+.res-c{width:120px;height:120px;border-radius:50%;background:linear-gradient(135deg,#1e40af,#2563eb);color:#fff;font-size:32px;font-weight:800;display:flex;align-items:center;justify-content:center;margin:0 auto 16px}
+.res-title{font-size:22px;font-weight:700;margin-bottom:6px}
+.res-sub{color:#64748b;font-size:13px;margin-bottom:20px}
+.det-tbl{width:100%;border-collapse:collapse;margin-bottom:24px;text-align:left;font-size:13px}
+.det-tbl th{background:#dbeafe;color:#1d4ed8;padding:8px 12px;font-size:12px}
+.det-tbl td{padding:8px 12px;border-bottom:1px solid #f1f5f9}
+.det-tbl tr:last-child td{font-weight:700;background:#f0f4ff}
+.n-input{width:100%;max-width:400px;padding:12px 16px;border:2px solid #c7d2fe;border-radius:10px;font-size:14px;outline:none;margin-bottom:12px;display:block;margin-left:auto;margin-right:auto}
+.n-input:focus{border-color:#2563eb}
+.btn-ent{background:linear-gradient(135deg,#1e40af,#2563eb);color:#fff;border:none;border-radius:12px;padding:14px 36px;font-size:15px;font-weight:700;cursor:pointer;transition:all .2s;margin-bottom:24px}
+.btn-ent:hover{transform:translateY(-2px);box-shadow:0 6px 20px rgba(37,99,235,.4)}
+.ent-card{background:linear-gradient(135deg,#f0f9ff,#e0f2fe);border:3px solid #2563eb;border-radius:16px;padding:28px;display:none;max-width:440px;margin:0 auto}
+.ent-card.on{display:block}
+.ent-materia{font-size:12px;color:#64748b;margin-bottom:4px}
+.ent-nombre{font-size:20px;font-weight:800;color:#1e3a8a;margin-bottom:4px}
+.ent-label{font-size:12px;color:#64748b;margin-bottom:12px}
+.ent-score{font-size:60px;font-weight:900;color:#1e40af;line-height:1}
+.ent-max{font-size:15px;color:#64748b;margin-bottom:8px}
+.ent-fecha{font-size:11px;color:#94a3b8}
+</style>
+</head>
+<body>
+
+<div class="hdr">
+  <div>
+    <h1>Evaluación — Parcial II</h1>
+    <p>Desarrollo de aplicaciones para dispositivos inteligentes</p>
+  </div>
+  <div class="score-box">
+    <div class="score-num" id="score">0</div>
+    <div class="score-lbl">/ 100 pts</div>
+  </div>
+</div>
+<div class="barra-w"><div class="barra" id="barra" style="width:0%"></div></div>
+
+<div class="wrap">
+
+<!-- ═══════════════════ BLOQUE 1: V/F ═══════════════════ -->
+<div class="bc on" id="b1">
+  <div class="tags">
+    <span class="tag tag-n">Bloque 1 de 4</span>
+    <span class="tag tag-t">Verdadero / Falso</span>
+    <span class="tag tag-p">Preguntas 1–5 · 25 pts</span>
+  </div>
+  <div class="btitulo">Verdadero o Falso</div>
+  <div class="bdesc">Lee cada enunciado y selecciona V (verdadero) o F (falso). Tienes <strong>2 intentos</strong> — en el segundo intento se revelan las respuestas correctas.</div>
+  <div class="int-row">
+    <div class="int-dot" id="dot1-1"></div>
+    <div class="int-dot" id="dot1-2"></div>
+    <span class="int-lbl">intentos usados</span>
+  </div>
+  <div id="vf-cont"></div>
+  <div class="fb" id="fb1"></div>
+  <div class="bts">
+    <button class="btn-e" id="bs1" onclick="submitVF()">Entregar respuestas</button>
+    <button class="btn-sig" id="sig1" onclick="go(2)">Siguiente bloque →</button>
+  </div>
+</div>
+
+<!-- ═══════════════════ BLOQUE 2: MC ═══════════════════ -->
+<div class="bc" id="b2">
+  <div class="tags">
+    <span class="tag tag-n">Bloque 2 de 4</span>
+    <span class="tag tag-t">Opción múltiple</span>
+    <span class="tag tag-p">Preguntas 6–10 · 25 pts</span>
+  </div>
+  <div class="btitulo">Selecciona la respuesta correcta</div>
+  <div class="bdesc">Elige la opción que mejor responda cada pregunta. Tienes <strong>2 intentos</strong>.</div>
+  <div class="int-row">
+    <div class="int-dot" id="dot2-1"></div>
+    <div class="int-dot" id="dot2-2"></div>
+    <span class="int-lbl">intentos usados</span>
+  </div>
+  <div id="mc-cont"></div>
+  <div class="fb" id="fb2"></div>
+  <div class="bts">
+    <button class="btn-e" id="bs2" onclick="submitMC()">Entregar respuestas</button>
+    <button class="btn-sig" id="sig2" onclick="go(3)">Siguiente bloque →</button>
+  </div>
+</div>
+
+<!-- ═══════════════════ BLOQUE 3: CÓDIGO ═══════════════════ -->
+<div class="bc" id="b3">
+  <div class="tags">
+    <span class="tag tag-n">Bloque 3 de 4</span>
+    <span class="tag tag-t">Completar código</span>
+    <span class="tag tag-p">Preguntas 11–15 · 25 pts</span>
+  </div>
+  <div class="btitulo">Completa el código</div>
+  <div class="bdesc">Da clic en el bloque con la respuesta correcta y luego en el espacio azul donde va. Tienes <strong>2 intentos</strong>.</div>
+  <div class="int-row">
+    <div class="int-dot" id="dot3-1"></div>
+    <div class="int-dot" id="dot3-2"></div>
+    <span class="int-lbl">intentos usados</span>
+  </div>
+  <div id="code-cont"></div>
+  <div class="fb" id="fb3"></div>
+  <div class="bts">
+    <button class="btn-e" id="bs3" onclick="submitCode()">Entregar respuestas</button>
+    <button class="btn-sig" id="sig3" onclick="go(4)">Siguiente bloque →</button>
+  </div>
+</div>
+
+<!-- ═══════════════════ BLOQUE 4: CLASIFICAR ═══════════════════ -->
+<div class="bc" id="b4">
+  <div class="tags">
+    <span class="tag tag-n">Bloque 4 de 4</span>
+    <span class="tag tag-t">Clasificar</span>
+    <span class="tag tag-p">Preguntas 16–20 · 25 pts</span>
+  </div>
+  <div class="btitulo">¿A qué concepto pertenece?</div>
+  <div class="bdesc">Da clic en la descripción y luego en la categoría donde corresponde. Tienes <strong>2 intentos</strong>.</div>
+  <div class="int-row">
+    <div class="int-dot" id="dot4-1"></div>
+    <div class="int-dot" id="dot4-2"></div>
+    <span class="int-lbl">intentos usados</span>
+  </div>
+  <div class="cls-pool" id="cls-pool"></div>
+  <div class="cls-zonas" id="cls-zonas"></div>
+  <div class="fb" id="fb4"></div>
+  <div class="bts">
+    <button class="btn-e" id="bs4" onclick="submitCls()">Entregar respuestas</button>
+    <button class="btn-sig" id="sig4" onclick="showResult()">Ver resultado final</button>
+  </div>
+</div>
+
+<!-- ═══════════════════ RESULTADO ═══════════════════ -->
+<div class="result" id="resultado">
+  <div class="res-c" id="res-c">0</div>
+  <div class="res-title">¡Evaluación completada!</div>
+  <div class="res-sub">Desarrollo de aplicaciones para dispositivos inteligentes — Parcial II</div>
+  <table class="det-tbl" id="det-tbl"></table>
+  <p style="font-size:14px;color:#475569;margin-bottom:10px;">Escribe tu nombre completo para entregar al profesor:</p>
+  <input type="text" class="n-input" id="n-input" placeholder="Nombre completo del alumno" />
+  <button class="btn-ent" onclick="genEntrega()">Mostrar resultado al profesor</button>
+  <div class="ent-card" id="ent-card">
+    <div class="ent-materia">Desarrollo de aplicaciones para dispositivos inteligentes</div>
+    <div class="ent-nombre" id="ent-nombre">—</div>
+    <div class="ent-label">Calificación — Parcial II</div>
+    <div class="ent-score" id="ent-score">0</div>
+    <div class="ent-max">/ 100 puntos</div>
+    <div class="ent-fecha" id="ent-fecha"></div>
+  </div>
+</div>
+
+</div><!-- /wrap -->
+
+<script>
+'use strict';
+let SCORE = 0, b1p=0, b2p=0, b3p=0, b4p=0;
+
+function sh(arr){ const a=[...arr]; for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];} return a; }
+function upScore(){ document.getElementById('score').textContent=SCORE; }
+function dots(b,n){ for(let i=1;i<=2;i++) document.getElementById('dot'+b+'-'+i).className='int-dot'+(i<=n?' used':''); }
+function fb(id,t,msg){ const e=document.getElementById(id); e.className='fb '+t; e.textContent=msg; }
+function go(n){
+  document.getElementById('b'+(n-1)).classList.remove('on');
+  if(n<=4){ document.getElementById('b'+n).classList.add('on'); }
+  document.getElementById('barra').style.width=(((n-1)/4)*100)+'%';
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+
+/* ══════════════ BLOCK 1: V/F ══════════════ */
+const VF = sh([
+  {id:'v1', txt:'useState actualiza la variable de forma inmediata en la misma línea donde se llama al setter', ans:'F'},
+  {id:'v2', txt:'useEffect con dependencias vacías [] se ejecuta solo una vez cuando el componente se monta por primera vez', ans:'V'},
+  {id:'v3', txt:'FlatList necesita que escribas un ciclo for en el JSX para mostrar cada elemento de la lista', ans:'F'},
+  {id:'v4', txt:'Un componente hijo puede modificar directamente el estado del componente padre sin usar callbacks', ans:'F'},
+  {id:'v5', txt:'La URI que devuelve expo-image-picker apunta a la imagen guardada temporalmente en el dispositivo', ans:'V'},
+]);
+let vSel={}, vLock={}, vInt=0;
+
+(()=>{
+  const c=document.getElementById('vf-cont');
+  VF.forEach(item=>{
+    const d=document.createElement('div');
+    d.className='vfr'; d.id='vfr-'+item.id;
+    d.innerHTML=`<div class="vf-txt">${item.txt}</div>
+      <div class="vf-bts">
+        <button class="vf-b" id="vbV-${item.id}" onclick="pvf('${item.id}','V')">V</button>
+        <button class="vf-b" id="vbF-${item.id}" onclick="pvf('${item.id}','F')">F</button>
+      </div>`;
+    c.appendChild(d);
+  });
+})();
+
+function pvf(id,v){
+  if(vLock[id]) return;
+  ['V','F'].forEach(x=>document.getElementById('vb'+x+'-'+id).className='vf-b');
+  document.getElementById('vb'+v+'-'+id).className='vf-b s'+v;
+  vSel[id]=v;
+}
+
+function submitVF(){
+  if(VF.some(x=>!vLock[x.id]&&!vSel[x.id])){ fb('fb1','warn','Responde todos los enunciados antes de continuar.'); return; }
+  vInt++; dots(1,vInt);
+  let np=0, wrong=0;
+  VF.forEach(item=>{
+    if(vLock[item.id]) return;
+    const row=document.getElementById('vfr-'+item.id);
+    if(vSel[item.id]===item.ans){
+      const p=vInt===1?5:3; np+=p; b1p+=p; vLock[item.id]=true;
+      row.classList.add('ok');
+      ['V','F'].forEach(x=>{ document.getElementById('vb'+x+'-'+item.id).disabled=true; });
+    } else {
+      wrong++;
+      if(vInt>=2){
+        vLock[item.id]=true;
+        row.classList.add('err-flash');
+        ['V','F'].forEach(x=>{ document.getElementById('vb'+x+'-'+item.id).disabled=true; });
+        const lbl=document.createElement('div');
+        lbl.className='vf-reveal'; lbl.style.display='block';
+        lbl.textContent='✓ La respuesta correcta es: '+item.ans;
+        row.appendChild(lbl);
+      }
+    }
+  });
+  SCORE+=np; upScore();
+  const done=VF.every(x=>vLock[x.id]);
+  if(done||vInt>=2){
+    fb('fb1',wrong===0?'ok':'warn', wrong===0?`¡Excelente! Obtuviste ${b1p}/25 pts en este bloque.`:`Bloque terminado. Obtuviste ${b1p}/25 pts. Revisa las respuestas señaladas.`);
+    document.getElementById('sig1').style.display='inline-block';
+    document.getElementById('bs1').disabled=true;
+  } else {
+    VF.forEach(x=>{ if(!vLock[x.id]){ vSel[x.id]=null; ['V','F'].forEach(v=>{ document.getElementById('vb'+v+'-'+x.id).className='vf-b'; }); }});
+    fb('fb1','err',`${wrong} respuesta(s) incorrecta(s). Tienes 1 intento más — corrige antes de volver a entregar.`);
+  }
+}
+
+/* ══════════════ BLOCK 2: MC ══════════════ */
+const MC = sh([
+  { id:'mc1', num:6,
+    txt:'¿Qué hook usarías para ejecutar una función <strong>únicamente</strong> cuando el componente aparece por primera vez en pantalla?',
+    opts: sh([
+      {id:'a',txt:'useState — guarda el resultado de la función',correct:false},
+      {id:'b',txt:'useEffect(() => { }, []) — efecto con dependencias vacías',correct:true},
+      {id:'c',txt:'useCallback — memoriza la función para no recrearla',correct:false},
+      {id:'d',txt:'useRef — accede a un elemento sin re-render',correct:false},
+    ])
+  },
+  { id:'mc2', num:7,
+    txt:'¿Qué prop de FlatList le indica a React cómo identificar de forma <strong>única</strong> cada elemento de la lista?',
+    opts: sh([
+      {id:'a',txt:'data — el arreglo de elementos',correct:false},
+      {id:'b',txt:'renderItem — cómo se dibuja cada elemento',correct:false},
+      {id:'c',txt:'keyExtractor — extrae una clave única por elemento',correct:true},
+      {id:'d',txt:'numColumns — número de columnas',correct:false},
+    ])
+  },
+  { id:'mc3', num:8,
+    txt:'Tienes un componente <code style="background:#f1f5f9;padding:1px 5px;border-radius:4px">App.js</code> que llama a <code style="background:#f1f5f9;padding:1px 5px;border-radius:4px">&lt;LugarCard /&gt;</code>. ¿Cómo le envías el objeto <code style="background:#f1f5f9;padding:1px 5px;border-radius:4px">lugar</code> al componente hijo?',
+    opts: sh([
+      {id:'a',txt:'Con useState directamente en el hijo',correct:false},
+      {id:'b',txt:'A través de props: <LugarCard lugar={lugar} />',correct:true},
+      {id:'c',txt:'Con useEffect y una variable global compartida',correct:false},
+      {id:'d',txt:'Con navigation.navigate() pasando los datos',correct:false},
+    ])
+  },
+  { id:'mc4', num:9,
+    txt:'¿En qué propiedad del resultado de <code style="background:#f1f5f9;padding:1px 5px;border-radius:4px">Location.getCurrentPositionAsync()</code> se encuentran <code style="background:#f1f5f9;padding:1px 5px;border-radius:4px">latitude</code> y <code style="background:#f1f5f9;padding:1px 5px;border-radius:4px">longitude</code>?',
+    opts: sh([
+      {id:'a',txt:'result.gps',correct:false},
+      {id:'b',txt:'result.position',correct:false},
+      {id:'c',txt:'result.coords',correct:true},
+      {id:'d',txt:'result.location',correct:false},
+    ])
+  },
+  { id:'mc5', num:10,
+    txt:'¿Qué ocurre si el arreglo de dependencias de useEffect contiene una variable <code style="background:#f1f5f9;padding:1px 5px;border-radius:4px">[busqueda]</code>?',
+    opts: sh([
+      {id:'a',txt:'El efecto se ejecuta solo al montar el componente',correct:false},
+      {id:'b',txt:'El efecto se ejecuta cada vez que cambia el valor de busqueda',correct:true},
+      {id:'c',txt:'El efecto nunca se ejecuta mientras busqueda exista',correct:false},
+      {id:'d',txt:'El efecto se ejecuta en cada re-render sin importar cambios',correct:false},
+    ])
+  },
+]);
+let mSel={}, mLock={}, mInt=0;
+
+(()=>{
+  const c=document.getElementById('mc-cont');
+  const L=['A','B','C','D'];
+  MC.forEach(q=>{
+    const d=document.createElement('div');
+    d.className='mcq'; d.id='mcq-'+q.id;
+    const opts=q.opts.map((o,i)=>`
+      <div class="mc-opt" id="mo-${q.id}-${o.id}" onclick="pmc('${q.id}','${o.id}')">
+        <div class="mc-ltr">${L[i]}</div><div>${o.txt}</div>
+      </div>`).join('');
+    d.innerHTML=`<div class="mcq-txt">Pregunta ${q.num}. ${q.txt}</div><div class="mc-opts">${opts}</div>`;
+    c.appendChild(d);
+  });
+})();
+
+function pmc(qid,oid){
+  if(mLock[qid]) return;
+  const q=MC.find(x=>x.id===qid);
+  q.opts.forEach(o=>document.getElementById('mo-'+qid+'-'+o.id).classList.remove('sel'));
+  document.getElementById('mo-'+qid+'-'+oid).classList.add('sel');
+  mSel[qid]=oid;
+}
+
+function submitMC(){
+  if(MC.some(x=>!mLock[x.id]&&!mSel[x.id])){ fb('fb2','warn','Responde todas las preguntas antes de continuar.'); return; }
+  mInt++; dots(2,mInt);
+  let np=0, wrong=0;
+  MC.forEach(q=>{
+    if(mLock[q.id]) return;
+    const cor=q.opts.find(o=>o.correct);
+    if(mSel[q.id]===cor.id){
+      const p=mInt===1?5:3; np+=p; b2p+=p; mLock[q.id]=true;
+      q.opts.forEach(o=>document.getElementById('mo-'+q.id+'-'+o.id).classList.add('dis'));
+      document.getElementById('mo-'+q.id+'-'+cor.id).classList.add('ok');
+    } else {
+      wrong++;
+      document.getElementById('mo-'+q.id+'-'+mSel[q.id]).classList.add('err');
+      if(mInt>=2){
+        mLock[q.id]=true;
+        document.getElementById('mo-'+q.id+'-'+cor.id).classList.add('reveal');
+        q.opts.forEach(o=>document.getElementById('mo-'+q.id+'-'+o.id).classList.add('dis'));
+      } else {
+        setTimeout(()=>{
+          document.getElementById('mo-'+q.id+'-'+mSel[q.id]).classList.remove('err','sel');
+        },1000);
+      }
+    }
+  });
+  SCORE+=np; upScore();
+  const done=MC.every(x=>mLock[x.id]);
+  if(done||mInt>=2){
+    fb('fb2',wrong===0?'ok':'warn', wrong===0?`¡Muy bien! Obtuviste ${b2p}/25 pts.`:`Bloque terminado. Obtuviste ${b2p}/25 pts. Las respuestas correctas están en verde.`);
+    document.getElementById('sig2').style.display='inline-block';
+    document.getElementById('bs2').disabled=true;
+  } else {
+    MC.forEach(x=>{ if(!mLock[x.id]) mSel[x.id]=null; });
+    fb('fb2','err',`${wrong} respuesta(s) incorrecta(s). Tienes 1 intento más.`);
+  }
+}
+
+/* ══════════════ BLOCK 3: CODE GAPS ══════════════ */
+const CQ = sh([
+  { id:'cq1', num:11,
+    desc:'Pregunta 11 — Declara el estado para guardar una foto',
+    code:`<span class="kw">const</span> [foto, <span class="gap" id="g-cq1">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span>] = <span class="fc">useState</span>(<span class="st">null</span>);`,
+    opts: sh(['setFoto','foto','useState','null']),
+    ans:'setFoto'
+  },
+  { id:'cq2', num:12,
+    desc:'Pregunta 12 — useEffect que se ejecuta solo al montar el componente',
+    code:`<span class="fc">useEffect</span>(() => {<br>&nbsp;&nbsp;<span class="fc">cargarDatos</span>();<br>}, <span class="gap" id="g-cq2">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span>);`,
+    opts: sh(['[]','[datos]','[true]','{}']),
+    ans:'[]'
+  },
+  { id:'cq3', num:13,
+    desc:'Pregunta 13 — keyExtractor de FlatList usando el id único de cada elemento',
+    code:`&lt;FlatList<br>&nbsp;&nbsp;data={lugares}<br>&nbsp;&nbsp;<span class="kw">keyExtractor</span>={(item) => item.<span class="gap" id="g-cq3">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span>.toString()}<br>&nbsp;&nbsp;renderItem={...}<br>/&gt;`,
+    opts: sh(['id','nombre','index','key']),
+    ans:'id'
+  },
+  { id:'cq4', num:14,
+    desc:'Pregunta 14 — renderItem pasando el elemento como prop al componente hijo',
+    code:`<span class="kw">renderItem</span>={({ item }) =><br>&nbsp;&nbsp;&lt;<span class="fc">LugarCard</span> lugar={<span class="gap" id="g-cq4">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span>} /&gt;<br>}`,
+    opts: sh(['item','props','data','lugar']),
+    ans:'item'
+  },
+  { id:'cq5', num:15,
+    desc:'Pregunta 15 — Extraer latitude del resultado de expo-location',
+    code:`<span class="kw">const</span> ubicacion = <span class="kw">await</span> Location.<span class="fc">getCurrentPositionAsync</span>({});<br><span class="fc">setLat</span>(ubicacion.<span class="gap" id="g-cq5">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span>.latitude);`,
+    opts: sh(['coords','gps','location','position']),
+    ans:'coords'
+  },
+]);
+let cSel={}, cLock={}, cInt=0, cActive=null;
+
+(()=>{
+  const c=document.getElementById('code-cont');
+  CQ.forEach(q=>{
+    const d=document.createElement('div');
+    d.className='gq'; d.id='cqc-'+q.id;
+    const poolHtml=q.opts.map(opt=>
+      `<div class="blk" id="cp-${q.id}-${opt}" onclick="pCode('${q.id}','${opt}',this)">${opt}</div>`
+    ).join('');
+    d.innerHTML=`<div class="gq-lbl">${q.desc}</div>
+      <div class="pool" id="pool-${q.id}">${poolHtml}</div>
+      <div class="code">${q.code}</div>`;
+    c.appendChild(d);
+    const gap=document.getElementById('g-'+q.id);
+    if(gap) gap.addEventListener('click',()=>fillGap(q.id));
+  });
+})();
+
+function pCode(qid,val,el){
+  if(cLock[qid]) return;
+  document.querySelectorAll('#pool-'+qid+' .blk').forEach(b=>b.classList.remove('on'));
+  el.classList.add('on');
+  cActive={qid,val,el};
+}
+
+function fillGap(qid){
+  if(!cActive||cActive.qid!==qid||cLock[qid]) return;
+  const gap=document.getElementById('g-'+qid);
+  gap.textContent=cActive.val;
+  gap.classList.add('filled');
+  cSel[qid]=cActive.val;
+  cActive.el.classList.remove('on');
+  cActive=null;
+}
+
+function submitCode(){
+  if(CQ.some(x=>!cLock[x.id]&&!cSel[x.id])){ fb('fb3','warn','Completa todos los espacios antes de continuar.'); return; }
+  cInt++; dots(3,cInt);
+  let np=0, wrong=0;
+  CQ.forEach(q=>{
+    if(cLock[q.id]) return;
+    const gap=document.getElementById('g-'+q.id);
+    if(cSel[q.id]===q.ans){
+      const p=cInt===1?5:3; np+=p; b3p+=p; cLock[q.id]=true;
+      gap.classList.remove('filled','err'); gap.classList.add('ok');
+      document.querySelectorAll('#pool-'+q.id+' .blk').forEach(b=>b.classList.add('dim'));
+    } else {
+      wrong++;
+      gap.classList.add('err');
+      if(cInt>=2){
+        cLock[q.id]=true;
+        gap.textContent=q.ans; gap.classList.remove('err','filled'); gap.classList.add('ok');
+        document.querySelectorAll('#pool-'+q.id+' .blk').forEach(b=>b.classList.add('dim'));
+      } else {
+        setTimeout(()=>{
+          gap.classList.remove('err','filled');
+          gap.innerHTML='&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;';
+          cSel[q.id]=null;
+        },1200);
+      }
+    }
+  });
+  SCORE+=np; upScore();
+  const done=CQ.every(x=>cLock[x.id]);
+  if(done||cInt>=2){
+    fb('fb3',wrong===0?'ok':'warn', wrong===0?`¡Perfecto! Obtuviste ${b3p}/25 pts.`:`Bloque terminado. Obtuviste ${b3p}/25 pts. Las respuestas correctas están en verde.`);
+    document.getElementById('sig3').style.display='inline-block';
+    document.getElementById('bs3').disabled=true;
+  } else {
+    fb('fb3','err',`${wrong} espacio(s) incorrecto(s). Tienes 1 intento más — corrige y vuelve a entregar.`);
+  }
+}
+
+/* ══════════════ BLOCK 4: CLASSIFY ══════════════ */
+const CLS = sh([
+  {id:'ci1',txt:'Guarda el texto que el usuario escribe en un TextInput y actualiza la pantalla',zona:'useState',cls:''},
+  {id:'ci2',txt:'Llama a la API para cargar la lista de lugares cuando la pantalla se abre por primera vez',zona:'useEffect',cls:'g'},
+  {id:'ci3',txt:'Muestra 100 tarjetas de lugares sin necesidad de escribir un ciclo for en el JSX',zona:'FlatList',cls:'p'},
+  {id:'ci4',txt:'Mecanismo para enviar la función onGuardar() del componente padre al componente hijo',zona:'Props',cls:'o'},
+  {id:'ci5',txt:'Se vuelve a ejecutar automáticamente cuando cambia el valor de una variable en su arreglo de dependencias',zona:'useEffect',cls:'r'},
+]);
+const ZONES=['useState','useEffect','FlatList','Props'];
+let clsSel=null, clsUb={}, clsLock={}, clsInt=0;
+
+(()=>{
+  const pool=document.getElementById('cls-pool');
+  CLS.forEach(item=>{
+    const b=document.createElement('div');
+    b.className='cls-blk '+item.cls; b.id='cib-'+item.id;
+    b.textContent=item.txt;
+    b.addEventListener('click',()=>{
+      if(b.classList.contains('dim')) return;
+      document.querySelectorAll('.cls-blk').forEach(x=>x.classList.remove('on'));
+      clsSel=item.id; b.classList.add('on');
+    });
+    pool.appendChild(b);
+  });
+
+  const zc=document.getElementById('cls-zonas');
+  ZONES.forEach(z=>{
+    const zd=document.createElement('div');
+    zd.className='cls-zona'; zd.id='cz-'+z;
+    zd.innerHTML=`<div class="cls-zona-lbl">${z}</div><div class="cls-zona-items" id="czi-${z}"></div>`;
+    zd.addEventListener('click',()=>{
+      if(!clsSel) return;
+      const item=CLS.find(x=>x.id===clsSel);
+      const cont=document.getElementById('czi-'+z);
+      const tag=document.createElement('span');
+      tag.className='cls-blk '+item.cls;
+      tag.style.cssText='font-size:11px;padding:4px 8px;cursor:default;';
+      tag.dataset.item=item.id;
+      tag.textContent=item.txt;
+      cont.appendChild(tag);
+      clsUb[clsSel]=z;
+      document.getElementById('cib-'+clsSel).classList.remove('on');
+      document.getElementById('cib-'+clsSel).classList.add('dim');
+      clsSel=null;
+    });
+    zc.appendChild(zd);
+  });
+})();
+
+function submitCls(){
+  if(CLS.some(x=>!clsLock[x.id]&&!clsUb[x.id])){ fb('fb4','warn','Clasifica todos los elementos antes de continuar.'); return; }
+  clsInt++; dots(4,clsInt);
+  let np=0, wrong=0;
+  CLS.forEach(item=>{
+    if(clsLock[item.id]) return;
+    if(clsUb[item.id]===item.zona){
+      const p=clsInt===1?5:3; np+=p; b4p+=p; clsLock[item.id]=true;
+    } else { wrong++; }
+  });
+  // Color zones
+  ZONES.forEach(z=>{
+    const inZone=CLS.filter(x=>x.zona===z);
+    const zOk=inZone.every(x=>clsUb[x.id]===x.zona);
+    const zd=document.getElementById('cz-'+z);
+    zd.classList.remove('ok','err');
+    if(clsInt>=2||inZone.every(x=>clsLock[x.id])) zd.classList.add(zOk?'ok':'err');
+  });
+  SCORE+=np; upScore();
+  if(wrong===0||clsInt>=2){
+    if(wrong>0){
+      // Reveal correct placements
+      CLS.forEach(item=>{
+        if(clsUb[item.id]!==item.zona){
+          clsLock[item.id]=true;
+          const cont=document.getElementById('czi-'+item.zona);
+          const tag=document.createElement('span');
+          tag.className='cls-blk '+item.cls;
+          tag.style.cssText='font-size:11px;padding:4px 8px;cursor:default;border-color:#059669;background:#d1fae5;';
+          tag.textContent='✓ '+item.txt;
+          cont.appendChild(tag);
+        }
+      });
+    }
+    fb('fb4',wrong===0?'ok':'warn', wrong===0?`¡Correcto! Obtuviste ${b4p}/25 pts.`:`Bloque terminado. Obtuviste ${b4p}/25 pts. Los elementos en verde son las respuestas correctas.`);
+    document.getElementById('sig4').style.display='inline-block';
+    document.getElementById('bs4').disabled=true;
+  } else {
+    // Return wrong items to pool
+    CLS.forEach(item=>{
+      if(!clsLock[item.id]&&clsUb[item.id]){
+        const cont=document.getElementById('czi-'+clsUb[item.id]);
+        cont.querySelectorAll(`[data-item="${item.id}"]`).forEach(t=>cont.removeChild(t));
+        clsUb[item.id]=null;
+        document.getElementById('cib-'+item.id).classList.remove('dim','on');
+      }
+    });
+    fb('fb4','err',`${wrong} elemento(s) en la categoría incorrecta. Tienes 1 intento más.`);
+  }
+}
+
+/* ══════════════ RESULT ══════════════ */
+function showResult(){
+  document.getElementById('b4').classList.remove('on');
+  document.getElementById('barra').style.width='100%';
+  const r=document.getElementById('resultado');
+  r.classList.add('on');
+  const c=document.getElementById('res-c');
+  c.textContent=SCORE;
+  if(SCORE>=90) c.style.background='linear-gradient(135deg,#059669,#10b981)';
+  else if(SCORE>=70) c.style.background='linear-gradient(135deg,#d97706,#f59e0b)';
+  else if(SCORE<70) c.style.background='linear-gradient(135deg,#dc2626,#ef4444)';
+  document.getElementById('det-tbl').innerHTML=`
+    <tr><th>Bloque</th><th>Tipo</th><th>Pts obtenidos</th><th>Máximo</th></tr>
+    <tr><td>Bloque 1</td><td>Verdadero / Falso</td><td>${b1p}</td><td>25</td></tr>
+    <tr><td>Bloque 2</td><td>Opción múltiple</td><td>${b2p}</td><td>25</td></tr>
+    <tr><td>Bloque 3</td><td>Completar código</td><td>${b3p}</td><td>25</td></tr>
+    <tr><td>Bloque 4</td><td>Clasificar</td><td>${b4p}</td><td>25</td></tr>
+    <tr><td colspan="2">Total</td><td>${SCORE}</td><td>100</td></tr>`;
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+
+function genEntrega(){
+  const n=document.getElementById('n-input').value.trim();
+  if(!n){ alert('Escribe tu nombre completo.'); return; }
+  document.getElementById('ent-nombre').textContent=n;
+  document.getElementById('ent-score').textContent=SCORE;
+  const now=new Date();
+  document.getElementById('ent-fecha').textContent=
+    'Fecha: '+now.toLocaleDateString('es-MX',{weekday:'long',year:'numeric',month:'long',day:'numeric'})+
+    ' — '+now.toLocaleTimeString('es-MX');
+  const card=document.getElementById('ent-card');
+  card.classList.add('on');
+  card.scrollIntoView({behavior:'smooth'});
+}
+</script>
+</body>
+</html>
