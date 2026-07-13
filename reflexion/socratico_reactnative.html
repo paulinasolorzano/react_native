@@ -1,0 +1,628 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<title>Pensamiento Socrático — React Native</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap');
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  font-family: 'Inter', -apple-system, sans-serif;
+  background: #f0f4ff;
+  color: #1a1a1a;
+  padding: 2rem 1rem;
+}
+
+/* ── COVER ── */
+.cover {
+  max-width: 720px;
+  margin: 0 auto 2rem;
+  background: #fff;
+  border-radius: 16px;
+  padding: 40px 48px;
+  box-shadow: 0 2px 18px rgba(0,0,0,.08);
+  text-align: center;
+}
+.cover-badge {
+  display: inline-block;
+  background: #dbeafe;
+  color: #1d4ed8;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+  padding: 4px 14px;
+  border-radius: 20px;
+  margin-bottom: 14px;
+}
+.cover h1 {
+  font-size: 26px;
+  font-weight: 800;
+  color: #1e3a8a;
+  margin-bottom: 6px;
+}
+.cover .sub {
+  font-size: 13px;
+  color: #64748b;
+  margin-bottom: 24px;
+}
+.cover-intro {
+  background: #f8faff;
+  border-left: 4px solid #2563eb;
+  border-radius: 8px;
+  padding: 14px 18px;
+  font-size: 13px;
+  color: #334155;
+  line-height: 1.7;
+  text-align: left;
+}
+.cover-intro strong { color: #1d4ed8; }
+
+/* ── SHEET ── */
+.sheet {
+  max-width: 720px;
+  margin: 0 auto 2.5rem;
+  background: #fff;
+  border-radius: 16px;
+  padding: 36px 42px;
+  box-shadow: 0 2px 18px rgba(0,0,0,.08);
+  page-break-after: always;
+}
+
+/* Header strip */
+.sheet-header {
+  background: linear-gradient(135deg, #1e40af, #2563eb);
+  color: #fff;
+  border-radius: 10px;
+  padding: 14px 20px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 18px;
+}
+.sh-left .sh-num  { font-size: 11px; font-weight: 700; opacity: .75; text-transform: uppercase; letter-spacing: .06em; }
+.sh-left .sh-title { font-size: 17px; font-weight: 800; margin-top: 2px; }
+.sh-right { text-align: right; }
+.sh-right .sh-pts { font-size: 22px; font-weight: 800; line-height: 1; }
+.sh-right .sh-pts-lbl { font-size: 10px; opacity: .7; margin-top: 2px; }
+
+/* Meta row */
+.meta {
+  display: grid;
+  grid-template-columns: 2fr 1fr;
+  gap: 10px;
+  margin-bottom: 18px;
+}
+.meta { display: none; }
+.meta-field {
+  border-bottom: 1.5px solid #cbd5e1;
+  padding-bottom: 4px;
+}
+.meta-field label { font-size: 10px; font-weight: 700; color: #94a3b8; text-transform: uppercase; letter-spacing: .05em; display: block; margin-bottom: 6px; }
+
+/* Scenario box */
+.scenario {
+  background: #fef3c7;
+  border: 1.5px solid #fcd34d;
+  border-radius: 10px;
+  padding: 14px 18px;
+  margin-bottom: 22px;
+}
+.scenario-lbl {
+  font-size: 10px;
+  font-weight: 800;
+  color: #92400e;
+  text-transform: uppercase;
+  letter-spacing: .07em;
+  margin-bottom: 6px;
+}
+.scenario p {
+  font-size: 13.5px;
+  color: #78350f;
+  line-height: 1.6;
+  font-weight: 500;
+}
+.scenario .tip {
+  margin-top: 8px;
+  font-size: 11.5px;
+  color: #92400e;
+  font-style: italic;
+}
+
+/* Questions */
+.question {
+  margin-bottom: 20px;
+}
+.q-row {
+  display: flex;
+  gap: 12px;
+  align-items: flex-start;
+  margin-bottom: 6px;
+}
+.q-num {
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  background: #1e40af;
+  color: #fff;
+  font-size: 12px;
+  font-weight: 800;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  margin-top: 1px;
+}
+.q-txt {
+  font-size: 13.5px;
+  color: #1e293b;
+  line-height: 1.6;
+  flex: 1;
+}
+.q-txt em {
+  color: #1d4ed8;
+  font-style: normal;
+  font-weight: 600;
+}
+.q-hint {
+  font-size: 11px;
+  color: #94a3b8;
+  font-style: italic;
+  margin-left: 38px;
+  margin-bottom: 6px;
+}
+.lines { display: none; }
+.line { display: none; }
+
+/* Connector arrow */
+.connector {
+  text-align: center;
+  font-size: 11px;
+  color: #94a3b8;
+  margin: 4px 0 10px;
+  font-weight: 600;
+}
+
+/* Reflection box */
+.reflection {
+  background: #f0fdf4;
+  border: 1.5px solid #86efac;
+  border-radius: 10px;
+  padding: 14px 18px;
+  margin-top: 22px;
+}
+.reflection-lbl {
+  font-size: 10px;
+  font-weight: 800;
+  color: #065f46;
+  text-transform: uppercase;
+  letter-spacing: .07em;
+  margin-bottom: 8px;
+}
+.reflection p {
+  font-size: 13px;
+  color: #065f46;
+  font-weight: 600;
+  margin-bottom: 8px;
+}
+.r-line { display: none; }
+
+/* Footer */
+.sheet-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 20px;
+  padding-top: 12px;
+  border-top: 1px dashed #cbd5e1;
+  font-size: 11px;
+  color: #94a3b8;
+}
+.footer-score {
+  text-align: right;
+  font-weight: 700;
+  color: #1e3a8a;
+}
+.footer-score span { font-size: 10px; font-weight: 400; color: #94a3b8; display: block; }
+
+/* ── PRINT ── */
+@media print {
+  body { background: #fff; padding: 0; }
+  .cover { box-shadow: none; border-radius: 0; page-break-after: always; }
+  .sheet { box-shadow: none; border-radius: 0; margin: 0; padding: 28px 36px; }
+  .sheet-header { border-radius: 8px; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+  .scenario { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+  .q-num { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+  .reflection { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+  .no-print { display: none; }
+}
+
+/* Print button */
+.print-btn {
+  position: fixed;
+  bottom: 28px;
+  right: 28px;
+  background: linear-gradient(135deg, #1e40af, #2563eb);
+  color: #fff;
+  border: none;
+  border-radius: 50px;
+  padding: 14px 26px;
+  font-size: 14px;
+  font-weight: 700;
+  cursor: pointer;
+  box-shadow: 0 6px 20px rgba(37,99,235,.4);
+  transition: all .2s;
+  z-index: 99;
+}
+.print-btn:hover { transform: translateY(-2px); box-shadow: 0 10px 28px rgba(37,99,235,.5); }
+</style>
+</head>
+<body>
+
+<!-- ════════════ PORTADA ════════════ -->
+<div class="cover">
+  <div class="cover-badge">Actividad de reflexión</div>
+  <p class="sub" style="margin-bottom:20px;">Desarrollo de aplicaciones para dispositivos inteligentes</p>
+  <div class="cover-intro" style="color:#334155;">
+    <p>En estas hojas no encontrarás respuestas directas. Cada pregunta está diseñada para que tú mismo llegues a la solución a través de tu razonamiento.</p>
+    <br>
+    <p>Lee el escenario con atención — describe un problema real que puede ocurrirte al desarrollar tu app. Luego responde cada pregunta en orden: la respuesta de una te ayudará a contestar la siguiente.</p>
+    <br>
+    <p>Al terminar cada hoja, escribe tu conclusión y entrégala al profesor. No hay una sola respuesta correcta — lo importante es demostrar que entiendes el porqué.</p>
+  </div>
+</div>
+
+<!-- ════════════ HOJA 1: useState ════════════ -->
+<div class="sheet">
+  <div class="sheet-header">
+    <div class="sh-left">
+      <div class="sh-num">Hoja 1 de 4</div>
+      <div class="sh-title">El estado no se actualiza en pantalla</div>
+    </div>
+    <div class="sh-right">
+      <div class="sh-pts">___ / 10</div>
+      <div class="sh-pts-lbl">puntos</div>
+    </div>
+  </div>
+
+  <div class="meta">
+    <div class="meta-field"><label>Nombre del alumno</label></div>
+    <div class="meta-field"><label>Fecha</label></div>
+  </div>
+
+  <div class="scenario">
+    <div class="scenario-lbl">Escenario</div>
+    <p>Escribiste código para que el usuario ingrese su nombre en un campo de texto. Cuando el usuario escribe, <strong>la pantalla no cambia</strong> — el nombre no aparece en ningún lado. Tu compañero dice: <em>"Es que guardaste el nombre en una variable normal, no en un estado."</em></p>
+    <p class="tip">Reflexiona: ¿qué diferencia hace eso? ¿Por qué importa cómo guardas el dato?</p>
+  </div>
+
+  <div class="question">
+    <div class="q-row">
+      <div class="q-num">1</div>
+      <div class="q-txt">¿Qué hace React Native cada vez que <em>cambia un estado</em> en tu componente?</div>
+    </div>
+    <div class="lines"><div class="line"></div><div class="line"></div></div>
+  </div>
+  <div class="connector">↓ Ahora aplica eso al siguiente caso</div>
+
+  <div class="question">
+    <div class="q-row">
+      <div class="q-num">2</div>
+      <div class="q-txt">Si guardas el nombre con <em>let nombre = ""</em> y luego haces <em>nombre = "Carlos"</em>, ¿React Native se entera de ese cambio? ¿Por qué sí o por qué no?</div>
+    </div>
+    <div class="lines"><div class="line"></div><div class="line"></div><div class="line"></div></div>
+  </div>
+  <div class="connector">↓ Entonces, ¿qué herramienta debiste usar?</div>
+
+  <div class="question">
+    <div class="q-row">
+      <div class="q-num">3</div>
+      <div class="q-txt">¿Cómo declararías correctamente el estado para guardar el nombre? Escribe la línea de código y explica qué hace cada parte.</div>
+    </div>
+    <div class="q-hint">Pista: const [ ___ , ___ ] = useState( ___ )</div>
+    <div class="lines"><div class="line"></div><div class="line"></div><div class="line"></div></div>
+  </div>
+  <div class="connector">↓ Ya tienes el estado, ahora conéctalo al campo de texto</div>
+
+  <div class="question">
+    <div class="q-row">
+      <div class="q-num">4</div>
+      <div class="q-txt">¿Qué prop del componente <em>TextInput</em> debes usar para que cada vez que el usuario escriba, se actualice el estado? ¿Por qué ese prop y no otro?</div>
+    </div>
+    <div class="lines"><div class="line"></div><div class="line"></div><div class="line"></div></div>
+  </div>
+  <div class="connector">↓ Si ya funciona, ¿cómo lo mostrarías en pantalla?</div>
+
+  <div class="question">
+    <div class="q-row">
+      <div class="q-num">5</div>
+      <div class="q-txt">¿Cómo mostrarías el nombre guardado en pantalla dentro de un componente <em>Text</em>? ¿Qué pasa si el estado todavía está vacío al cargar la pantalla?</div>
+    </div>
+    <div class="lines"><div class="line"></div><div class="line"></div><div class="line"></div></div>
+  </div>
+
+  <div class="reflection">
+    <div class="reflection-lbl">Conclusión — ¿Qué aprendiste con este caso?</div>
+    <p>Resume en tus propias palabras para qué sirve useState y cuándo debes usarlo:</p>
+    <div class="r-line"></div><div class="r-line"></div><div class="r-line"></div>
+  </div>
+
+  <div class="sheet-footer">
+    <div>Desarrollo de aplicaciones para dispositivos inteligentes</div>
+    <div class="footer-score">___ / 10 pts<span>Firma del profesor</span></div>
+  </div>
+</div>
+
+<!-- ════════════ HOJA 2: PROPS / COMPONENTE PADRE-HIJO ════════════ -->
+<div class="sheet">
+  <div class="sheet-header">
+    <div class="sh-left">
+      <div class="sh-num">Hoja 2 de 4</div>
+      <div class="sh-title">El componente hijo no muestra la información</div>
+    </div>
+    <div class="sh-right">
+      <div class="sh-pts">___ / 10</div>
+      <div class="sh-pts-lbl">puntos</div>
+    </div>
+  </div>
+
+  <div class="meta">
+    <div class="meta-field"><label>Nombre del alumno</label></div>
+    <div class="meta-field"><label>Fecha</label></div>
+  </div>
+
+  <div class="scenario">
+    <div class="scenario-lbl">Escenario</div>
+    <p>Creaste un componente llamado <strong>LugarCard</strong> para mostrar la información de un lugar. Lo llamas desde <strong>HomeScreen</strong>, pero en la tarjeta <strong>no aparece ningún dato</strong> — ni el nombre, ni la descripción, ni la imagen. El componente se renderiza, pero está completamente vacío.</p>
+    <p class="tip">Reflexiona: ¿cómo le llega la información de un lugar a la tarjeta si los datos están en otra pantalla?</p>
+  </div>
+
+  <div class="question">
+    <div class="q-row">
+      <div class="q-num">1</div>
+      <div class="q-txt">¿Dónde están almacenados los datos de los lugares en tu proyecto? ¿En qué archivo? ¿Cómo los importas a HomeScreen?</div>
+    </div>
+    <div class="lines"><div class="line"></div><div class="line"></div><div class="line"></div></div>
+  </div>
+  <div class="connector">↓ Ya tienes los datos en HomeScreen, ahora ¿cómo se los envías a LugarCard?</div>
+
+  <div class="question">
+    <div class="q-row">
+      <div class="q-num">2</div>
+      <div class="q-txt">¿Qué son las <em>props</em> y cuál es su función en la comunicación entre componentes? ¿En qué dirección fluyen?</div>
+    </div>
+    <div class="lines"><div class="line"></div><div class="line"></div><div class="line"></div></div>
+  </div>
+  <div class="connector">↓ Ahora escribe cómo lo harías en código</div>
+
+  <div class="question">
+    <div class="q-row">
+      <div class="q-num">3</div>
+      <div class="q-txt">¿Cómo llamas a <em>LugarCard</em> desde HomeScreen pasándole el objeto <em>lugar</em>? Escribe la línea de JSX y explica qué significa cada parte.</div>
+    </div>
+    <div class="q-hint">Pista: &lt;LugarCard  ___={___}  /&gt;</div>
+    <div class="lines"><div class="line"></div><div class="line"></div><div class="line"></div></div>
+  </div>
+  <div class="connector">↓ Ya enviaste el dato, ¿cómo lo recibes dentro de LugarCard?</div>
+
+  <div class="question">
+    <div class="q-row">
+      <div class="q-num">4</div>
+      <div class="q-txt">¿Qué diferencia hay entre escribir <em>function LugarCard()</em> y <em>function LugarCard({ lugar })</em>? ¿Por qué importa esa diferencia?</div>
+    </div>
+    <div class="lines"><div class="line"></div><div class="line"></div><div class="line"></div></div>
+  </div>
+  <div class="connector">↓ Ahora que lo recibes, ¿cómo lo usas dentro del componente?</div>
+
+  <div class="question">
+    <div class="q-row">
+      <div class="q-num">5</div>
+      <div class="q-txt">Dentro de LugarCard, ¿cómo mostrarías el nombre del lugar en un <em>Text</em> y su imagen en un <em>Image</em>? ¿Qué pasa si lugar llega como <em>undefined</em>?</div>
+    </div>
+    <div class="lines"><div class="line"></div><div class="line"></div><div class="line"></div></div>
+  </div>
+
+  <div class="question">
+    <div class="q-row">
+      <div class="q-num">6</div>
+      <div class="q-txt">¿Puede LugarCard modificar directamente los datos del objeto que recibió? ¿Por qué sí o por qué no?</div>
+    </div>
+    <div class="lines"><div class="line"></div><div class="line"></div></div>
+  </div>
+
+  <div class="reflection">
+    <div class="reflection-lbl">Conclusión — ¿Qué aprendiste con este caso?</div>
+    <p>Explica con tus palabras qué son las props y por qué son necesarias para crear componentes reutilizables:</p>
+    <div class="r-line"></div><div class="r-line"></div><div class="r-line"></div>
+  </div>
+
+  <div class="sheet-footer">
+    <div>Desarrollo de aplicaciones para dispositivos inteligentes</div>
+    <div class="footer-score">___ / 10 pts<span>Firma del profesor</span></div>
+  </div>
+</div>
+
+<!-- ════════════ HOJA 3: FlatList ════════════ -->
+<div class="sheet">
+  <div class="sheet-header">
+    <div class="sh-left">
+      <div class="sh-num">Hoja 3 de 4</div>
+      <div class="sh-title">La lista FlatList aparece vacía</div>
+    </div>
+    <div class="sh-right">
+      <div class="sh-pts">___ / 10</div>
+      <div class="sh-pts-lbl">puntos</div>
+    </div>
+  </div>
+
+  <div class="meta">
+    <div class="meta-field"><label>Nombre del alumno</label></div>
+    <div class="meta-field"><label>Fecha</label></div>
+  </div>
+
+  <div class="scenario">
+    <div class="scenario-lbl">Escenario</div>
+    <p>Tienes 8 lugares guardados en tu archivo <strong>data.js</strong>. Pusiste un componente <strong>FlatList</strong> en HomeScreen, pero al correr la app <strong>la pantalla aparece en blanco</strong> — no muestra ninguna tarjeta. No hay error en la consola.</p>
+    <p class="tip">Reflexiona: FlatList necesita información específica para saber qué mostrar y cómo mostrarlo. ¿Le estás dando todo lo que necesita?</p>
+  </div>
+
+  <div class="question">
+    <div class="q-row">
+      <div class="q-num">1</div>
+      <div class="q-txt">¿Qué ventaja tiene usar <em>FlatList</em> en lugar de escribir los componentes uno por uno manualmente en el JSX?</div>
+    </div>
+    <div class="lines"><div class="line"></div><div class="line"></div><div class="line"></div></div>
+  </div>
+  <div class="connector">↓ Para aprovechar esa ventaja, FlatList necesita ciertos props obligatorios</div>
+
+  <div class="question">
+    <div class="q-row">
+      <div class="q-num">2</div>
+      <div class="q-txt">¿Qué prop le indica a FlatList <em>cuáles son los datos</em> que debe mostrar? ¿Qué tipo de valor debe recibir ese prop?</div>
+    </div>
+    <div class="lines"><div class="line"></div><div class="line"></div></div>
+  </div>
+  <div class="connector">↓ Ya sabe qué datos tiene, pero ¿cómo sabe cómo dibujar cada uno?</div>
+
+  <div class="question">
+    <div class="q-row">
+      <div class="q-num">3</div>
+      <div class="q-txt">¿Qué prop le dice a FlatList <em>cómo dibujar</em> cada elemento? ¿Qué debe retornar esa función? Si esa función no retorna nada, ¿qué crees que pasaría?</div>
+    </div>
+    <div class="q-hint">Pista: renderItem={({ item }) =>  ___  }</div>
+    <div class="lines"><div class="line"></div><div class="line"></div><div class="line"></div></div>
+  </div>
+  <div class="connector">↓ Hay un tercer prop que React necesita para organizar la lista internamente</div>
+
+  <div class="question">
+    <div class="q-row">
+      <div class="q-num">4</div>
+      <div class="q-txt">¿Para qué sirve <em>keyExtractor</em>? ¿Qué problema podría ocurrir si no lo incluyes o si dos elementos tienen la misma clave?</div>
+    </div>
+    <div class="lines"><div class="line"></div><div class="line"></div><div class="line"></div></div>
+  </div>
+  <div class="connector">↓ Ahora revisemos el flujo de datos completo</div>
+
+  <div class="question">
+    <div class="q-row">
+      <div class="q-num">5</div>
+      <div class="q-txt">Imagina que importaste los datos de data.js pero los guardaste en un estado con <em>useState([])</em> y olvidaste actualizar ese estado. ¿Qué mostraría FlatList? ¿Por qué?</div>
+    </div>
+    <div class="lines"><div class="line"></div><div class="line"></div><div class="line"></div></div>
+  </div>
+
+  <div class="question">
+    <div class="q-row">
+      <div class="q-num">6</div>
+      <div class="q-txt">Si usas <em>useEffect</em> para cargar los datos al montarse el componente, ¿qué debe contener su arreglo de dependencias para que se ejecute solo una vez? ¿Por qué?</div>
+    </div>
+    <div class="lines"><div class="line"></div><div class="line"></div><div class="line"></div></div>
+  </div>
+
+  <div class="reflection">
+    <div class="reflection-lbl">Conclusión — ¿Qué aprendiste con este caso?</div>
+    <p>Describe el flujo completo: desde los datos en data.js hasta que aparecen en pantalla con FlatList:</p>
+    <div class="r-line"></div><div class="r-line"></div><div class="r-line"></div>
+  </div>
+
+  <div class="sheet-footer">
+    <div>Desarrollo de aplicaciones para dispositivos inteligentes</div>
+    <div class="footer-score">___ / 10 pts<span>Firma del profesor</span></div>
+  </div>
+</div>
+
+<!-- ════════════ HOJA 4: CÁMARA / GPS / PERMISOS ════════════ -->
+<div class="sheet">
+  <div class="sheet-header">
+    <div class="sh-left">
+      <div class="sh-num">Hoja 4 de 4</div>
+      <div class="sh-title">La cámara y el GPS no funcionan</div>
+    </div>
+    <div class="sh-right">
+      <div class="sh-pts">___ / 10</div>
+      <div class="sh-pts-lbl">puntos</div>
+    </div>
+  </div>
+
+  <div class="meta">
+    <div class="meta-field"><label>Nombre del alumno</label></div>
+    <div class="meta-field"><label>Fecha</label></div>
+  </div>
+
+  <div class="scenario">
+    <div class="scenario-lbl">Escenario</div>
+    <p>Tu app tiene un botón para <strong>tomar una foto</strong> y otro para <strong>registrar la ubicación GPS</strong>. Cuando el usuario presiona cualquiera de los dos, la app <strong>se cierra inesperadamente</strong> o simplemente no hace nada. Instalaste las librerías correctamente y el código parece estar bien.</p>
+    <p class="tip">Reflexiona: ¿qué le falta al código antes de intentar acceder al hardware del dispositivo?</p>
+  </div>
+
+  <div class="question">
+    <div class="q-row">
+      <div class="q-num">1</div>
+      <div class="q-txt">¿Por qué crees que una app necesita <em>pedir permiso</em> al usuario antes de usar la cámara o el GPS? ¿Qué pasaría si cualquier app pudiera acceder sin pedirlo?</div>
+    </div>
+    <div class="lines"><div class="line"></div><div class="line"></div><div class="line"></div></div>
+  </div>
+  <div class="connector">↓ Entonces, ¿cuándo y cómo se pide ese permiso en el código?</div>
+
+  <div class="question">
+    <div class="q-row">
+      <div class="q-num">2</div>
+      <div class="q-txt">¿Qué función debes llamar <em>antes</em> de abrir la cámara o activar el GPS para solicitar el permiso? ¿De qué librería viene esa función?</div>
+    </div>
+    <div class="q-hint">Piensa: expo-image-picker y expo-location tienen funciones para esto</div>
+    <div class="lines"><div class="line"></div><div class="line"></div><div class="line"></div></div>
+  </div>
+  <div class="connector">↓ El usuario podría aceptar o rechazar el permiso</div>
+
+  <div class="question">
+    <div class="q-row">
+      <div class="q-num">3</div>
+      <div class="q-txt">¿Qué debe hacer tu código si el usuario <em>niega</em> el permiso? ¿Qué le mostrarías al usuario? ¿Es un error que deba "crashear" la app?</div>
+    </div>
+    <div class="lines"><div class="line"></div><div class="line"></div><div class="line"></div></div>
+  </div>
+  <div class="connector">↓ Supón que el usuario ya aceptó el permiso</div>
+
+  <div class="question">
+    <div class="q-row">
+      <div class="q-num">4</div>
+      <div class="q-txt">Para la <em>cámara o galería</em>: ¿qué función usas para abrirla? ¿Qué te devuelve esa función? ¿Cómo guardas la imagen obtenida para mostrarla en pantalla?</div>
+    </div>
+    <div class="lines"><div class="line"></div><div class="line"></div><div class="line"></div></div>
+  </div>
+  <div class="connector">↓ Ahora el GPS</div>
+
+  <div class="question">
+    <div class="q-row">
+      <div class="q-num">5</div>
+      <div class="q-txt">Para el <em>GPS</em>: ¿qué función usas para obtener la ubicación actual? ¿En qué propiedad del resultado encuentras la latitud y longitud? ¿Cómo las guardas en un estado?</div>
+    </div>
+    <div class="lines"><div class="line"></div><div class="line"></div><div class="line"></div></div>
+  </div>
+
+  <div class="question">
+    <div class="q-row">
+      <div class="q-num">6</div>
+      <div class="q-txt">¿Tiene sentido pedir el permiso cada vez que el usuario presiona el botón, o sería mejor pedirlo <em>una sola vez al cargar la pantalla</em>? ¿Qué hook usarías para eso y por qué?</div>
+    </div>
+    <div class="lines"><div class="line"></div><div class="line"></div><div class="line"></div></div>
+  </div>
+
+  <div class="reflection">
+    <div class="reflection-lbl">Conclusión — ¿Qué aprendiste con este caso?</div>
+    <p>Escribe los pasos en orden que seguirías para implementar correctamente la cámara o el GPS en tu app:</p>
+    <div class="r-line"></div><div class="r-line"></div><div class="r-line"></div><div class="r-line"></div>
+  </div>
+
+  <div class="sheet-footer">
+    <div>Desarrollo de aplicaciones para dispositivos inteligentes</div>
+    <div class="footer-score">___ / 10 pts<span>Firma del profesor</span></div>
+  </div>
+</div>
+
+<button class="print-btn no-print" onclick="window.print()">Imprimir hojas</button>
+
+</body>
+</html>
