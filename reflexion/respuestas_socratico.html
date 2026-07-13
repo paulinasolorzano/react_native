@@ -1,0 +1,493 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<title>Respuestas — Pensamiento Socrático React Native</title>
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body {
+  font-family: -apple-system, 'Segoe UI', sans-serif;
+  background: #f0f4ff;
+  color: #1a1a1a;
+  padding: 2rem 1rem;
+}
+.header {
+  max-width: 760px;
+  margin: 0 auto 1.5rem;
+  background: linear-gradient(135deg,#1e40af,#2563eb);
+  border-radius: 14px;
+  padding: 28px 36px;
+  color: #fff;
+}
+.header h1 { font-size: 22px; font-weight: 800; margin-bottom: 4px; }
+.header p  { font-size: 13px; opacity: .8; }
+.badge {
+  display: inline-block;
+  background: rgba(255,255,255,.2);
+  font-size: 11px; font-weight: 700;
+  letter-spacing: .06em; text-transform: uppercase;
+  padding: 3px 12px; border-radius: 20px; margin-bottom: 10px;
+}
+
+.sheet {
+  max-width: 760px;
+  margin: 0 auto 2rem;
+  background: #fff;
+  border-radius: 14px;
+  padding: 28px 36px;
+  box-shadow: 0 2px 16px rgba(0,0,0,.07);
+  page-break-after: always;
+}
+.sheet-title {
+  display: flex; align-items: center; gap: 12px;
+  margin-bottom: 16px;
+  padding-bottom: 12px;
+  border-bottom: 2px solid #e2e8f0;
+}
+.sheet-num {
+  background: #1e40af; color: #fff;
+  font-size: 11px; font-weight: 700;
+  padding: 3px 10px; border-radius: 20px;
+  text-transform: uppercase; letter-spacing: .05em;
+  white-space: nowrap;
+}
+.sheet-name { font-size: 16px; font-weight: 800; color: #1e3a8a; }
+
+.scenario {
+  background: #fef3c7;
+  border-left: 4px solid #f59e0b;
+  border-radius: 8px;
+  padding: 12px 16px;
+  margin-bottom: 20px;
+  font-size: 13px;
+  color: #78350f;
+  line-height: 1.6;
+}
+.scenario strong { font-weight: 700; }
+
+.qa {
+  margin-bottom: 18px;
+  border: 1px solid #e2e8f0;
+  border-radius: 10px;
+  overflow: hidden;
+}
+.q {
+  display: flex; gap: 10px; align-items: flex-start;
+  padding: 12px 16px;
+  background: #f8fafc;
+  border-bottom: 1px solid #e2e8f0;
+}
+.q-num {
+  width: 24px; height: 24px; border-radius: 50%;
+  background: #1e40af; color: #fff;
+  font-size: 12px; font-weight: 800;
+  display: flex; align-items: center; justify-content: center;
+  flex-shrink: 0; margin-top: 1px;
+}
+.q-txt { font-size: 13.5px; color: #1e293b; line-height: 1.6; flex: 1; }
+.q-txt em { color: #1d4ed8; font-style: normal; font-weight: 600; }
+
+.a {
+  padding: 12px 16px;
+  background: #f0fdf4;
+  font-size: 13px;
+  color: #064e3b;
+  line-height: 1.7;
+}
+.a-lbl {
+  font-size: 10px; font-weight: 800; color: #059669;
+  text-transform: uppercase; letter-spacing: .06em;
+  margin-bottom: 5px;
+}
+.a code {
+  background: #d1fae5; border-radius: 4px;
+  padding: 1px 5px; font-family: 'Courier New', monospace;
+  font-size: 12px; color: #065f46;
+}
+
+.conclusion {
+  background: #eff6ff;
+  border: 1.5px solid #93c5fd;
+  border-radius: 10px;
+  padding: 14px 18px;
+  margin-top: 6px;
+}
+.conclusion-lbl {
+  font-size: 10px; font-weight: 800; color: #1d4ed8;
+  text-transform: uppercase; letter-spacing: .06em; margin-bottom: 6px;
+}
+.conclusion p { font-size: 13px; color: #1e3a8a; line-height: 1.7; }
+
+@media print {
+  body { background: #fff; padding: 0; }
+  .sheet { box-shadow: none; border-radius: 0; }
+  .header { border-radius: 0; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+  .scenario { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+  .q-num { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+  .a { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+  .conclusion { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+}
+</style>
+</head>
+<body>
+
+<!-- ENCABEZADO -->
+<div class="header">
+  <div class="badge">Uso exclusivo del profesor</div>
+  <h1>Guía de Respuestas — Pensamiento Socrático</h1>
+  <p>Desarrollo de aplicaciones para dispositivos inteligentes &nbsp;·&nbsp; Las respuestas son orientativas; el alumno puede expresarlas con sus propias palabras.</p>
+</div>
+
+<!-- ════════════ HOJA 1 ════════════ -->
+<div class="sheet">
+  <div class="sheet-title">
+    <span class="sheet-num">Hoja 1 de 4</span>
+    <span class="sheet-name">El estado no se actualiza en pantalla (useState)</span>
+  </div>
+  <div class="scenario">
+    <strong>Escenario:</strong> El usuario escribe su nombre en un TextInput pero la pantalla no cambia porque el dato se guardó en una variable normal en lugar de un estado con useState.
+  </div>
+
+  <div class="qa">
+    <div class="q">
+      <div class="q-num">1</div>
+      <div class="q-txt">¿Qué hace React Native cada vez que <em>cambia un estado</em> en tu componente?</div>
+    </div>
+    <div class="a">
+      <div class="a-lbl">Respuesta esperada</div>
+      React Native vuelve a renderizar (redibujar) el componente automáticamente. Cuando un estado cambia, React detecta el cambio y actualiza la pantalla con el nuevo valor sin que el programador tenga que hacer nada extra.
+    </div>
+  </div>
+
+  <div class="qa">
+    <div class="q">
+      <div class="q-num">2</div>
+      <div class="q-txt">Si guardas el nombre con <em>let nombre = ""</em> y luego haces <em>nombre = "Carlos"</em>, ¿React Native se entera? ¿Por qué sí o por qué no?</div>
+    </div>
+    <div class="a">
+      <div class="a-lbl">Respuesta esperada</div>
+      No. Una variable normal no está conectada al sistema de reactividad de React. Aunque el valor cambie en memoria, React no sabe que ocurrió ningún cambio y no redibuja la pantalla. La variable cambia "en silencio".
+    </div>
+  </div>
+
+  <div class="qa">
+    <div class="q">
+      <div class="q-num">3</div>
+      <div class="q-txt">¿Cómo declararías correctamente el estado para guardar el nombre? Escribe la línea y explica qué hace cada parte.</div>
+    </div>
+    <div class="a">
+      <div class="a-lbl">Respuesta esperada</div>
+      <code>const [nombre, setNombre] = useState("")</code><br>
+      • <strong>nombre</strong> → el valor actual del estado<br>
+      • <strong>setNombre</strong> → la función para actualizarlo (dispara el re-render)<br>
+      • <strong>""</strong> → el valor inicial (cadena vacía al arrancar)
+    </div>
+  </div>
+
+  <div class="qa">
+    <div class="q">
+      <div class="q-num">4</div>
+      <div class="q-txt">¿Qué prop del componente <em>TextInput</em> debes usar para actualizar el estado?</div>
+    </div>
+    <div class="a">
+      <div class="a-lbl">Respuesta esperada</div>
+      <code>onChangeText</code>. Se ejecuta cada vez que el usuario escribe un carácter.<br>
+      Uso: <code>onChangeText={setNombre}</code> o <code>onChangeText={(texto) =&gt; setNombre(texto)}</code><br>
+      Este prop "escucha" los cambios y los conecta al estado.
+    </div>
+  </div>
+
+  <div class="qa">
+    <div class="q">
+      <div class="q-num">5</div>
+      <div class="q-txt">¿Cómo mostrarías el nombre en un componente <em>Text</em>? ¿Qué pasa si el estado está vacío?</div>
+    </div>
+    <div class="a">
+      <div class="a-lbl">Respuesta esperada</div>
+      <code>&lt;Text&gt;{nombre}&lt;/Text&gt;</code><br>
+      Si el estado está vacío (<code>""</code>), el componente Text simplemente no mostrará nada — no genera error. Es buena práctica poner un texto por defecto o un placeholder.
+    </div>
+  </div>
+
+  <div class="conclusion">
+    <div class="conclusion-lbl">Conclusión esperada</div>
+    <p>useState es necesario porque React necesita "enterarse" de los cambios para actualizar la pantalla. Una variable normal no tiene esa capacidad — cambia en memoria pero la pantalla no se actualiza.</p>
+  </div>
+</div>
+
+<!-- ════════════ HOJA 2 ════════════ -->
+<div class="sheet">
+  <div class="sheet-title">
+    <span class="sheet-num">Hoja 2 de 4</span>
+    <span class="sheet-name">El componente hijo no muestra la información (Props)</span>
+  </div>
+  <div class="scenario">
+    <strong>Escenario:</strong> Se creó un componente LugarCard pero aparece vacío porque los datos del lugar no se están enviando correctamente desde HomeScreen.
+  </div>
+
+  <div class="qa">
+    <div class="q">
+      <div class="q-num">1</div>
+      <div class="q-txt">¿Dónde están los datos de los lugares y cómo los importas a HomeScreen?</div>
+    </div>
+    <div class="a">
+      <div class="a-lbl">Respuesta esperada</div>
+      Los datos están en <code>data.js</code> (o similar). Se importan con:<br>
+      <code>import { lugares } from "../data";</code><br>
+      Esta instrucción trae el arreglo de objetos para usarlo dentro de HomeScreen.
+    </div>
+  </div>
+
+  <div class="qa">
+    <div class="q">
+      <div class="q-num">2</div>
+      <div class="q-txt">¿Qué son las <em>props</em> y en qué dirección fluyen?</div>
+    </div>
+    <div class="a">
+      <div class="a-lbl">Respuesta esperada</div>
+      Las props son valores que un componente padre envía a un componente hijo al llamarlo. Fluyen en una sola dirección: <strong>de padre → hijo</strong>. El hijo recibe la información pero no puede modificarla directamente.
+    </div>
+  </div>
+
+  <div class="qa">
+    <div class="q">
+      <div class="q-num">3</div>
+      <div class="q-txt">¿Cómo llamas a <em>LugarCard</em> desde HomeScreen pasándole el objeto lugar?</div>
+    </div>
+    <div class="a">
+      <div class="a-lbl">Respuesta esperada</div>
+      <code>&lt;LugarCard lugar={item} /&gt;</code><br>
+      • <strong>lugar</strong> → nombre de la prop (el "nombre del paquete")<br>
+      • <strong>item</strong> → el objeto con los datos que se está enviando
+    </div>
+  </div>
+
+  <div class="qa">
+    <div class="q">
+      <div class="q-num">4</div>
+      <div class="q-txt">¿Qué diferencia hay entre <em>function LugarCard()</em> y <em>function LugarCard({ lugar })</em>?</div>
+    </div>
+    <div class="a">
+      <div class="a-lbl">Respuesta esperada</div>
+      <code>function LugarCard()</code> no recibe nada — aunque el padre envíe datos, el componente no puede acceder a ellos.<br>
+      <code>function LugarCard({ lugar })</code> desestructura las props y permite usar el objeto <code>lugar</code> directamente dentro del componente.
+    </div>
+  </div>
+
+  <div class="qa">
+    <div class="q">
+      <div class="q-num">5</div>
+      <div class="q-txt">Dentro de LugarCard, ¿cómo mostrarías el nombre e imagen? ¿Qué pasa si lugar llega como <em>undefined</em>?</div>
+    </div>
+    <div class="a">
+      <div class="a-lbl">Respuesta esperada</div>
+      <code>&lt;Text&gt;{lugar.nombre}&lt;/Text&gt;</code><br>
+      <code>&lt;Image source={{ uri: lugar.imagen }} /&gt;</code><br>
+      Si <code>lugar</code> llega undefined, la app arrojará un error al intentar acceder a <code>.nombre</code>. Se puede proteger con: <code>lugar?.nombre</code>
+    </div>
+  </div>
+
+  <div class="qa">
+    <div class="q">
+      <div class="q-num">6</div>
+      <div class="q-txt">¿Puede LugarCard modificar directamente los datos que recibió por props?</div>
+    </div>
+    <div class="a">
+      <div class="a-lbl">Respuesta esperada</div>
+      No. Las props son de <strong>solo lectura</strong> (inmutables) dentro del componente hijo. Si el hijo necesita provocar un cambio en el padre, el padre debe enviarle una función (callback) como prop para que el hijo la llame.
+    </div>
+  </div>
+
+  <div class="conclusion">
+    <div class="conclusion-lbl">Conclusión esperada</div>
+    <p>Las props son el mecanismo de comunicación unidireccional entre componentes. Un componente reutilizable como LugarCard depende de recibir sus datos desde afuera para funcionar en distintos contextos sin repetir código.</p>
+  </div>
+</div>
+
+<!-- ════════════ HOJA 3 ════════════ -->
+<div class="sheet">
+  <div class="sheet-title">
+    <span class="sheet-num">Hoja 3 de 4</span>
+    <span class="sheet-name">La lista FlatList aparece vacía</span>
+  </div>
+  <div class="scenario">
+    <strong>Escenario:</strong> Hay 8 lugares en data.js y se usó FlatList en HomeScreen, pero la pantalla aparece en blanco sin ningún error en consola.
+  </div>
+
+  <div class="qa">
+    <div class="q">
+      <div class="q-num">1</div>
+      <div class="q-txt">¿Qué ventaja tiene <em>FlatList</em> sobre escribir componentes uno por uno manualmente?</div>
+    </div>
+    <div class="a">
+      <div class="a-lbl">Respuesta esperada</div>
+      FlatList renderiza únicamente los elementos visibles en pantalla en cada momento (virtualización). Con listas grandes evita cargar todo de golpe, haciendo la app más fluida y eficiente en memoria. Escribir componentes manualmente implica repetir código y cargarlos todos al mismo tiempo.
+    </div>
+  </div>
+
+  <div class="qa">
+    <div class="q">
+      <div class="q-num">2</div>
+      <div class="q-txt">¿Qué prop le indica a FlatList <em>cuáles son los datos</em>? ¿Qué tipo de valor recibe?</div>
+    </div>
+    <div class="a">
+      <div class="a-lbl">Respuesta esperada</div>
+      El prop <code>data</code>. Debe recibir un <strong>arreglo (Array)</strong> de objetos:<br>
+      <code>data={lugares}</code><br>
+      Si este prop está vacío <code>[]</code> o no se le pasa, FlatList no tiene qué mostrar.
+    </div>
+  </div>
+
+  <div class="qa">
+    <div class="q">
+      <div class="q-num">3</div>
+      <div class="q-txt">¿Qué prop le dice cómo <em>dibujar</em> cada elemento? ¿Qué pasa si esa función no retorna nada?</div>
+    </div>
+    <div class="a">
+      <div class="a-lbl">Respuesta esperada</div>
+      El prop <code>renderItem</code>. Debe retornar el componente visual de cada elemento:<br>
+      <code>renderItem={({ item }) =&gt; &lt;LugarCard lugar={item} /&gt;}</code><br>
+      Si la función no retorna nada, FlatList muestra filas vacías — no lanza error pero la lista se ve en blanco.
+    </div>
+  </div>
+
+  <div class="qa">
+    <div class="q">
+      <div class="q-num">4</div>
+      <div class="q-txt">¿Para qué sirve <em>keyExtractor</em>? ¿Qué pasa sin él o con claves duplicadas?</div>
+    </div>
+    <div class="a">
+      <div class="a-lbl">Respuesta esperada</div>
+      Asigna un identificador único a cada elemento para que React pueda rastrear cambios eficientemente:<br>
+      <code>keyExtractor={(item) =&gt; item.id.toString()}</code><br>
+      Sin él o con claves duplicadas, React muestra advertencias en consola y puede renderizar mal los elementos al actualizar la lista.
+    </div>
+  </div>
+
+  <div class="qa">
+    <div class="q">
+      <div class="q-num">5</div>
+      <div class="q-txt">Si los datos están en <em>useState([])</em> y olvidaste actualizar el estado, ¿qué mostraría FlatList?</div>
+    </div>
+    <div class="a">
+      <div class="a-lbl">Respuesta esperada</div>
+      Mostraría una lista vacía. FlatList solo ve el valor del estado (<code>[]</code> inicial) y no los datos de data.js, porque data.js no está conectado automáticamente al estado. Hay que cargar los datos con <code>setLugares(datos)</code>.
+    </div>
+  </div>
+
+  <div class="qa">
+    <div class="q">
+      <div class="q-num">6</div>
+      <div class="q-txt">¿Qué debe contener el arreglo de dependencias de <em>useEffect</em> para ejecutarse solo una vez?</div>
+    </div>
+    <div class="a">
+      <div class="a-lbl">Respuesta esperada</div>
+      Debe estar <strong>vacío</strong>: <code>useEffect(() =&gt; { setLugares(datos); }, [])</code><br>
+      El arreglo vacío <code>[]</code> le indica a useEffect que solo debe ejecutarse cuando el componente se monta por primera vez — equivalente a "cargar al inicio".
+    </div>
+  </div>
+
+  <div class="conclusion">
+    <div class="conclusion-lbl">Conclusión esperada</div>
+    <p>Flujo completo: datos en data.js → importar en HomeScreen → guardar en estado con useState → pasar al prop <code>data</code> de FlatList → FlatList dibuja cada elemento con <code>renderItem</code> → cada elemento recibe sus datos por props.</p>
+  </div>
+</div>
+
+<!-- ════════════ HOJA 4 ════════════ -->
+<div class="sheet">
+  <div class="sheet-title">
+    <span class="sheet-num">Hoja 4 de 4</span>
+    <span class="sheet-name">La cámara y el GPS no funcionan (Permisos)</span>
+  </div>
+  <div class="scenario">
+    <strong>Escenario:</strong> Al presionar el botón de cámara o GPS la app se cierra inesperadamente o no hace nada, aunque las librerías están instaladas y el código parece correcto.
+  </div>
+
+  <div class="qa">
+    <div class="q">
+      <div class="q-num">1</div>
+      <div class="q-txt">¿Por qué una app necesita <em>pedir permiso</em> antes de usar la cámara o el GPS?</div>
+    </div>
+    <div class="a">
+      <div class="a-lbl">Respuesta esperada</div>
+      Por privacidad y seguridad del usuario. Sin ese control, cualquier app podría acceder al hardware del dispositivo sin que el usuario lo sepa — tomando fotos, grabando o rastreando su ubicación de forma silenciosa. El sistema operativo exige que el usuario autorice explícitamente cada acceso.
+    </div>
+  </div>
+
+  <div class="qa">
+    <div class="q">
+      <div class="q-num">2</div>
+      <div class="q-txt">¿Qué función se llama para solicitar el permiso y de qué librería viene?</div>
+    </div>
+    <div class="a">
+      <div class="a-lbl">Respuesta esperada</div>
+      Para imágenes/cámara (<strong>expo-image-picker</strong>):<br>
+      <code>await ImagePicker.requestMediaLibraryPermissionsAsync()</code><br>
+      <code>await ImagePicker.requestCameraPermissionsAsync()</code><br><br>
+      Para GPS (<strong>expo-location</strong>):<br>
+      <code>await Location.requestForegroundPermissionsAsync()</code><br><br>
+      Ambas devuelven un objeto con <code>status: "granted"</code> o <code>"denied"</code>.
+    </div>
+  </div>
+
+  <div class="qa">
+    <div class="q">
+      <div class="q-num">3</div>
+      <div class="q-txt">¿Qué debe hacer el código si el usuario <em>niega</em> el permiso?</div>
+    </div>
+    <div class="a">
+      <div class="a-lbl">Respuesta esperada</div>
+      Mostrar un mensaje amigable explicando por qué la app lo necesita, <strong>sin crashear</strong>.<br>
+      Ejemplo: <code>Alert.alert("Permiso requerido", "Necesitamos acceso a la cámara...")</code><br>
+      Nunca intentar usar la cámara o GPS si el permiso fue denegado — eso es lo que causa el cierre inesperado.
+    </div>
+  </div>
+
+  <div class="qa">
+    <div class="q">
+      <div class="q-num">4</div>
+      <div class="q-txt">Para la <em>cámara o galería</em>: ¿qué función usas y cómo guardas la imagen?</div>
+    </div>
+    <div class="a">
+      <div class="a-lbl">Respuesta esperada</div>
+      <code>const result = await ImagePicker.launchImageLibraryAsync({ mediaTypes: "Images" });</code><br>
+      <code>if (!result.canceled) { setFoto(result.assets[0].uri); }</code><br>
+      La URI apunta a la imagen en el dispositivo. Se guarda en estado para mostrarla con <code>&lt;Image source={{ uri: foto }} /&gt;</code>.
+    </div>
+  </div>
+
+  <div class="qa">
+    <div class="q">
+      <div class="q-num">5</div>
+      <div class="q-txt">Para el <em>GPS</em>: ¿qué función usas y dónde encuentras la latitud y longitud?</div>
+    </div>
+    <div class="a">
+      <div class="a-lbl">Respuesta esperada</div>
+      <code>const ubicacion = await Location.getCurrentPositionAsync({});</code><br>
+      <code>setLatitud(ubicacion.coords.latitude);</code><br>
+      <code>setLongitud(ubicacion.coords.longitude);</code><br>
+      Las coordenadas están dentro de la propiedad <code>coords</code> del resultado.
+    </div>
+  </div>
+
+  <div class="qa">
+    <div class="q">
+      <div class="q-num">6</div>
+      <div class="q-txt">¿Es mejor pedir el permiso en cada clic o <em>una sola vez al cargar la pantalla</em>? ¿Qué hook usarías?</div>
+    </div>
+    <div class="a">
+      <div class="a-lbl">Respuesta esperada</div>
+      Una sola vez al cargar, usando <strong>useEffect</strong> con arreglo vacío:<br>
+      <code>useEffect(() =&gt; { solicitarPermisos(); }, [])</code><br>
+      Así el usuario ve el diálogo de permiso solo al entrar a la pantalla por primera vez. Pedirlo en cada clic es mala experiencia de usuario y completamente innecesario.
+    </div>
+  </div>
+
+  <div class="conclusion">
+    <div class="conclusion-lbl">Conclusión esperada</div>
+    <p>Pasos en orden: 1) Solicitar permiso al montar el componente (useEffect). 2) Verificar si fue concedido. 3) Si no → mostrar mensaje, no continuar. 4) Si sí → llamar a la función de cámara o GPS. 5) Guardar el resultado en un estado para mostrarlo en pantalla.</p>
+  </div>
+</div>
+
+</body>
+</html>
