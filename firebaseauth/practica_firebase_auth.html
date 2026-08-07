@@ -1,0 +1,1015 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Práctica — Firebase Authentication en React Native</title>
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: -apple-system,'Segoe UI',sans-serif; background: #f4f7f8; color: #1a1a1a; }
+
+.cover {
+  background:#263f4d;
+  color:#fff; padding:24px 40px 22px; text-align:left;
+  border-bottom:5px solid #d8a53f;
+}
+.cover-inner { max-width:980px; margin:0 auto; }
+.cover-top { display:flex; justify-content:space-between; align-items:flex-start; gap:18px; margin-bottom:16px; }
+.cover-badge { background:#fff; color:#263f4d; border-radius:20px; padding:6px 16px; font-size:11px; font-weight:800; letter-spacing:.08em; text-transform:uppercase; white-space:nowrap; }
+.cover h1 { font-size:28px; font-weight:900; line-height:1.2; margin-bottom:6px; }
+.cover h2 { font-size:14px; font-weight:500; opacity:.82; }
+.cover-intro { font-size:13px; line-height:1.6; color:rgba(255,255,255,.88); max-width:760px; margin-bottom:14px; }
+.cover-chips { display:flex; gap:8px; flex-wrap:wrap; margin-bottom:16px; }
+.chip { background:rgba(255,255,255,.13); border:1px solid rgba(255,255,255,.22); border-radius:20px; padding:5px 12px; font-size:11px; font-weight:700; }
+.cover-menu { display:grid; grid-template-columns:repeat(4,1fr); gap:8px; }
+.cover-menu a { background:rgba(255,255,255,.10); border:1px solid rgba(255,255,255,.18); border-radius:8px; color:#fff; text-decoration:none; padding:9px 12px; font-size:12px; font-weight:700; }
+.cover-menu a span { display:block; color:#d8a53f; font-size:10px; letter-spacing:.06em; text-transform:uppercase; margin-bottom:2px; }
+.cover-box { background:#fff; border:1.5px solid #dce6ea; border-radius:12px; padding:20px 24px; text-align:left; margin-top:16px; color:#334155; }
+.cover-box h3 { font-size:12px; font-weight:800; color:#315567; text-transform:uppercase; letter-spacing:.07em; margin-bottom:14px; }
+.cobj { display:flex; gap:10px; align-items:flex-start; margin-bottom:10px; font-size:13px; line-height:1.5; color:#334155; }
+.cobj-n { width:22px; height:22px; border-radius:50%; background:#e8f0f2; color:#315567; font-size:11px; font-weight:800; display:flex; align-items:center; justify-content:center; flex-shrink:0; margin-top:1px; }
+
+.wrap { max-width:900px; margin:0 auto; padding:2rem 1rem 4rem; }
+
+.section { background:#fff; border-radius:16px; padding:32px 36px; box-shadow:0 2px 14px rgba(0,0,0,.07); margin-bottom:2rem; }
+.sec-hdr { display:flex; align-items:center; gap:14px; margin-bottom:22px; padding-bottom:14px; border-bottom:2px solid #e2e8f0; }
+.sec-num { width:38px; height:38px; border-radius:50%; background:#315567; color:#fff; font-size:16px; font-weight:800; display:flex; align-items:center; justify-content:center; flex-shrink:0; }
+.sec-title { font-size:18px; font-weight:800; color:#263f4d; }
+.sec-sub { font-size:12px; color:#94a3b8; margin-top:2px; }
+
+.bwarn { background:#fef3c7; border-left:4px solid #f59e0b; border-radius:8px; padding:12px 16px; font-size:13px; color:#78350f; line-height:1.6; margin:12px 0; }
+.btip  { background:#f0fdf4; border-left:4px solid #059669; border-radius:8px; padding:12px 16px; font-size:13px; color:#065f46; line-height:1.6; margin:12px 0; }
+.binfo { background:#edf5f6; border-left:4px solid #4f7f8a; border-radius:8px; padding:12px 16px; font-size:13px; color:#263f4d; line-height:1.6; margin:12px 0; }
+.blbl  { font-size:10px; font-weight:800; text-transform:uppercase; letter-spacing:.06em; margin-bottom:4px; }
+
+.code-wrap { margin:12px 0; border-radius:12px; overflow:hidden; box-shadow:0 2px 12px rgba(0,0,0,.10); -webkit-user-select:none; user-select:none; pointer-events:none; }
+.code-titlebar { background:#e8e8e8; padding:8px 14px; display:flex; align-items:center; gap:7px; }
+.code-titlebar .dot { width:12px; height:12px; border-radius:50%; }
+.dot-r{background:#ff5f57;} .dot-y{background:#febc2e;} .dot-g{background:#28c840;}
+.code-filename { font-size:11px; color:#666; margin-left:8px; font-family:'Courier New',monospace; font-weight:700; }
+.code-body { background:#fff; padding:20px 22px; font-family:'Courier New',monospace; font-size:13px; line-height:2; color:#1a1a1a; overflow-x:auto; border:1px solid #e8e8e8; border-top:none; }
+.kw{color:#7c3aed;font-weight:700;}
+.fn{color:#0369a1;font-weight:600;}
+.st{color:#059669;}
+.cm{color:#94a3b8;font-style:italic;}
+.nr{color:#d97706;}
+.at{color:#0f172a;}
+.imp{color:#dc2626;font-weight:700;}
+.vs{color:#7c3aed;}
+
+.cmd { background:#0f172a; border-radius:10px; padding:12px 18px; font-family:'Courier New',monospace; font-size:13px; color:#34d399; margin:10px 0; display:flex; align-items:center; gap:10px; -webkit-user-select:text; user-select:text; cursor:text; }
+.cmd::before { content:"$"; color:#475569; flex-shrink:0; }
+
+.step { display:flex; gap:16px; margin-bottom:20px; align-items:flex-start; }
+.sn { width:30px; height:30px; border-radius:50%; background:#315567; color:#fff; font-size:13px; font-weight:800; display:flex; align-items:center; justify-content:center; flex-shrink:0; margin-top:2px; }
+.sb { flex:1; }
+.st2 { font-size:14px; font-weight:700; color:#1e293b; margin-bottom:4px; }
+.sd { font-size:13px; color:#475569; line-height:1.6; margin-bottom:6px; }
+
+.ftree { background:#f8faff; border:1.5px solid #e2e8f0; border-radius:10px; padding:16px 20px; font-family:'Courier New',monospace; font-size:13px; line-height:2.1; color:#334155; -webkit-user-select:text; user-select:text; cursor:text; }
+.ftd{color:#315567;font-weight:700;} .ftf{color:#475569;} .ftn{color:#059669;font-weight:700;} .ftnote{color:#94a3b8;font-size:11px;font-style:italic;}
+
+/* Firebase mockup */
+.fb-mockup { border-radius:12px; overflow:hidden; box-shadow:0 4px 20px rgba(0,0,0,.15); margin:16px auto; max-width:660px; -webkit-user-select:none; user-select:none; pointer-events:none; border:1px solid #d1d5db; }
+.fb-topbar { background:#fff; border-bottom:1px solid #e5e7eb; padding:8px 16px; display:flex; align-items:center; gap:12px; }
+.fb-logo { display:flex; align-items:center; gap:6px; }
+.fb-logo-icon { font-size:18px; }
+.fb-logo-text { font-size:14px; font-weight:700; color:#1f2937; }
+.fb-nav-links { display:flex; gap:16px; margin-left:20px; }
+.fb-nav-link { font-size:12px; color:#6b7280; }
+.fb-nav-link.active { color:#ff6d00; border-bottom:2px solid #ff6d00; padding-bottom:2px; font-weight:600; }
+.fb-layout { display:flex; }
+.fb-sidebar { background:#202124; width:210px; flex-shrink:0; padding:0; min-height:320px; }
+.fb-sidebar-logo { padding:14px 16px; display:flex; align-items:center; gap:8px; border-bottom:1px solid #3c3f43; }
+.fb-sidebar-logo span:last-child { font-size:13px; font-weight:700; color:#fff; }
+.fb-sidebar-proj { padding:10px 16px; font-size:11px; color:#9aa0a6; text-transform:uppercase; letter-spacing:.06em; }
+.fb-sidebar-item { padding:9px 16px; font-size:13px; color:#9aa0a6; display:flex; align-items:center; gap:10px; cursor:default; }
+.fb-sidebar-item.active { color:#8ab4f8; background:rgba(138,180,248,.1); border-left:3px solid #8ab4f8; }
+.fb-sidebar-item .icon { font-size:15px; }
+.fb-content { flex:1; background:#f9fafb; padding:20px 24px; }
+
+/* Auth mockup específico */
+.auth-section-hdr { font-size:20px; font-weight:700; color:#1f2937; margin-bottom:4px; }
+.auth-sub { font-size:12px; color:#6b7280; margin-bottom:16px; }
+.auth-tabs { display:flex; gap:0; border-bottom:1px solid #e5e7eb; margin-bottom:16px; }
+.auth-tab { font-size:13px; padding:8px 16px; color:#6b7280; cursor:default; }
+.auth-tab.active { color:#1967d2; border-bottom:2px solid #1967d2; font-weight:600; }
+.auth-provider-list { display:flex; flex-direction:column; gap:8px; }
+.auth-provider { background:#fff; border:1px solid #e5e7eb; border-radius:8px; padding:10px 14px; display:flex; align-items:center; justify-content:space-between; font-size:13px; color:#374151; }
+.auth-provider-name { display:flex; align-items:center; gap:10px; font-weight:600; }
+.auth-provider-icon { font-size:18px; }
+.auth-badge { font-size:11px; padding:3px 10px; border-radius:20px; font-weight:700; }
+.auth-badge.enabled { background:#d1fae5; color:#065f46; }
+.auth-badge.disabled { background:#f1f5f9; color:#94a3b8; }
+.auth-enable-btn { background:#1967d2; color:#fff; border-radius:6px; padding:5px 12px; font-size:12px; font-weight:700; }
+
+/* Users table mockup */
+.users-table { width:100%; border-collapse:collapse; font-size:12px; }
+.users-table th { background:#f3f4f6; padding:8px 12px; text-align:left; color:#374151; font-weight:700; border-bottom:2px solid #e5e7eb; }
+.users-table td { padding:8px 12px; border-bottom:1px solid #f3f4f6; color:#374151; }
+.users-table tr:last-child td { border:none; }
+.user-avatar { width:26px; height:26px; border-radius:50%; background:#e0e7ff; color:#4338ca; font-size:11px; font-weight:800; display:inline-flex; align-items:center; justify-content:center; margin-right:8px; }
+
+/* Pantallas mockup */
+.app-mocks { display:grid; grid-template-columns:1fr 1fr 1fr; gap:16px; margin-top:16px; }
+.mock-phone { border:2px solid #cbd5e1; border-radius:12px; overflow:hidden; box-shadow:0 4px 14px rgba(0,0,0,.1); -webkit-user-select:none; user-select:none; pointer-events:none; }
+.mock-bar { background:#315567; color:#fff; font-size:11px; font-weight:700; padding:9px 14px; display:flex; align-items:center; justify-content:space-between; }
+.mock-body { background:#f4f7f8; padding:18px 14px; min-height:220px; }
+.mock-lbl { font-size:9px; font-weight:700; color:#94a3b8; text-transform:uppercase; margin-bottom:3px; margin-top:10px; }
+.mock-field { background:#fff; border:1.5px solid #e2e8f0; border-radius:7px; padding:8px 10px; font-size:11px; color:#94a3b8; }
+.mock-btn { background:#315567; color:#fff; border-radius:8px; padding:10px; text-align:center; font-size:12px; font-weight:700; margin-top:12px; }
+.mock-link { color:#315567; font-size:11px; text-align:center; margin-top:8px; text-decoration:underline; }
+.mock-title { font-size:15px; font-weight:800; color:#263f4d; margin-bottom:4px; }
+.mock-sub { font-size:10px; color:#94a3b8; margin-bottom:14px; }
+.mock-home-body { background:#edf5f6; padding:18px 14px; min-height:220px; }
+.mock-avatar { width:48px; height:48px; border-radius:50%; background:#315567; color:#fff; font-size:18px; font-weight:800; display:flex; align-items:center; justify-content:center; margin:0 auto 10px; }
+.mock-greeting { font-size:13px; font-weight:700; color:#263f4d; text-align:center; margin-bottom:4px; }
+.mock-email-chip { background:#fff; border:1px solid #d6e3e7; border-radius:20px; padding:4px 12px; font-size:10px; color:#94a3b8; display:inline-block; margin-bottom:14px; }
+.mock-logout-btn { background:#fff; border:2px solid #dc2626; color:#dc2626; border-radius:8px; padding:9px; text-align:center; font-size:11px; font-weight:700; }
+
+/* Flujo diagrama */
+.flow { display:flex; flex-direction:column; gap:0; }
+.flow-row { display:flex; align-items:center; gap:0; }
+.flow-box { background:#edf5f6; border:2px solid #b0cdd5; border-radius:10px; padding:10px 16px; font-size:12px; font-weight:700; color:#263f4d; text-align:center; min-width:130px; }
+.flow-box.decision { background:#fef3c7; border-color:#f59e0b; transform:rotate(0deg); border-radius:6px; }
+.flow-box.action { background:#f0fdf4; border-color:#059669; }
+.flow-box.screen { background:#e0e7ff; border-color:#4338ca; }
+.flow-box.error { background:#fef2f2; border-color:#dc2626; }
+.flow-arrow { font-size:20px; color:#94a3b8; padding:0 6px; }
+.flow-label { font-size:10px; color:#94a3b8; font-weight:700; text-transform:uppercase; margin:0 4px; }
+
+/* Auth state diagram */
+.state-diagram { display:grid; grid-template-columns:1fr auto 1fr; gap:16px; align-items:center; margin:16px 0; }
+.state-box { border-radius:12px; padding:16px; text-align:center; }
+.state-box.logged-out { background:#fef2f2; border:2px solid #dc2626; }
+.state-box.logged-in  { background:#f0fdf4; border:2px solid #059669; }
+.state-box h4 { font-size:13px; font-weight:800; margin-bottom:6px; }
+.state-box p  { font-size:11px; line-height:1.6; color:#475569; }
+.state-arrows { text-align:center; }
+.state-arrow { display:block; font-size:12px; font-weight:700; color:#315567; margin:4px 0; }
+
+/* Checklist */
+.chk-item { display:flex; gap:12px; align-items:flex-start; padding:10px 0; border-bottom:1px solid #f1f5f9; font-size:13px; color:#334155; line-height:1.5; }
+.chk-item:last-child { border:none; }
+.chk-box { width:20px; height:20px; border:2px solid #cbd5e1; border-radius:5px; flex-shrink:0; margin-top:1px; }
+
+.fb-step { border:1.5px solid #e2e8f0; border-radius:12px; overflow:hidden; margin:14px 0; }
+.fb-step-hdr { background:#f8fbfc; padding:10px 16px; font-size:13px; font-weight:700; color:#263f4d; border-bottom:1.5px solid #e2e8f0; display:flex; align-items:center; gap:10px; }
+.fb-step-n { width:22px; height:22px; border-radius:50%; background:#315567; color:#fff; font-size:10px; font-weight:800; display:flex; align-items:center; justify-content:center; flex-shrink:0; }
+.fb-step-body { padding:14px 16px; font-size:13px; color:#475569; line-height:1.7; }
+.fb-step-body strong { color:#1e293b; }
+.path { background:#edf5f6; border:1px solid #c8dde2; border-radius:5px; padding:1px 7px; font-family:'Courier New',monospace; font-size:12px; color:#315567; }
+
+.two-col { display:grid; grid-template-columns:1fr 1fr; gap:16px; margin:12px 0; }
+
+@media print {
+  body{background:#fff;} .section{box-shadow:none; page-break-inside:avoid;}
+  .code-wrap{page-break-inside:avoid;} .fb-mockup{page-break-inside:avoid;}
+}
+@media(max-width:640px){
+  .cover{padding:18px 20px;} .cover-menu{grid-template-columns:1fr 1fr;}
+  .wrap{padding:1rem .75rem 3rem;} .section{padding:20px 18px;}
+  .app-mocks{grid-template-columns:1fr;} .two-col{grid-template-columns:1fr;}
+  .state-diagram{grid-template-columns:1fr; text-align:center;}
+}
+</style>
+</head>
+<body>
+
+<!-- ═══════════════ PORTADA ═══════════════ -->
+<div class="cover">
+  <div class="cover-inner">
+    <div class="cover-top">
+      <div>
+        <h1>Firebase Authentication<br>en React Native</h1>
+        <h2>Práctica guiada — Correo y contraseña · Sesión persistente · Pantallas protegidas</h2>
+      </div>
+      <div class="cover-badge">Práctica 3 · Firebase</div>
+    </div>
+    <p class="cover-intro">
+      En la práctica anterior guardaste datos en Firestore. Ahora agregarás autenticación real: los usuarios podrán
+      registrarse, iniciar sesión y cerrar sesión. Firebase Authentication guarda las credenciales de forma segura y
+      te avisa automáticamente cuándo el estado de sesión cambia.
+    </p>
+    <div class="cover-chips">
+      <span class="chip">createUserWithEmailAndPassword</span>
+      <span class="chip">signInWithEmailAndPassword</span>
+      <span class="chip">signOut</span>
+      <span class="chip">onAuthStateChanged</span>
+      <span class="chip">Stack Navigator</span>
+      <span class="chip">Context API</span>
+    </div>
+    <div class="cover-menu">
+      <a href="#s1"><span>Sección 1</span>¿Qué es Auth?</a>
+      <a href="#s2"><span>Sección 2</span>Activar en Firebase</a>
+      <a href="#s3"><span>Sección 3</span>Las 3 pantallas</a>
+      <a href="#s4"><span>Sección 4</span>firebase.js</a>
+      <a href="#s5"><span>Sección 5</span>AuthContext</a>
+      <a href="#s6"><span>Sección 6</span>Registro</a>
+      <a href="#s7"><span>Sección 7</span>Login</a>
+      <a href="#s8"><span>Sección 8</span>Home + logout</a>
+    </div>
+
+    <div class="cover-box">
+      <h3>Lo que aprenderás</h3>
+      <div class="cobj"><div class="cobj-n">1</div><div>Activar el proveedor de <strong>correo/contraseña</strong> en la consola de Firebase.</div></div>
+      <div class="cobj"><div class="cobj-n">2</div><div>Crear un <strong>AuthContext</strong> para compartir el usuario en toda la app sin pasar props.</div></div>
+      <div class="cobj"><div class="cobj-n">3</div><div>Registrar usuarios nuevos con <strong>createUserWithEmailAndPassword</strong> y capturar errores.</div></div>
+      <div class="cobj"><div class="cobj-n">4</div><div>Iniciar sesión con <strong>signInWithEmailAndPassword</strong> y redirigir al home.</div></div>
+      <div class="cobj"><div class="cobj-n">5</div><div>Escuchar cambios de sesión con <strong>onAuthStateChanged</strong> para sesión persistente.</div></div>
+      <div class="cobj"><div class="cobj-n">6</div><div>Cerrar sesión con <strong>signOut</strong> y limpiar el estado de la app.</div></div>
+    </div>
+  </div>
+</div>
+
+<div class="wrap">
+
+<!-- ═══════════════ S1: ¿QUÉ ES AUTH? ═══════════════ -->
+<div class="section" id="s1">
+  <div class="sec-hdr">
+    <div class="sec-num">1</div>
+    <div>
+      <div class="sec-title">¿Qué hace Firebase Authentication?</div>
+      <div class="sec-sub">Conceptos antes de escribir código</div>
+    </div>
+  </div>
+
+  <p style="font-size:13px;color:#475569;line-height:1.7;margin-bottom:16px;">
+    Firebase Authentication es un servicio que guarda usuarios, contraseñas (encriptadas) y sesiones en la nube.
+    Tú <strong>nunca guardas contraseñas en tu código</strong> — Firebase lo hace por ti de forma segura.
+    Solo necesitas llamar a sus funciones y Firebase hace el resto.
+  </p>
+
+  <div class="state-diagram">
+    <div class="state-box logged-out">
+      <h4 style="color:#dc2626;">🔴 Sin sesión</h4>
+      <p><code>user = null</code><br>Muestra pantallas de Login y Registro</p>
+    </div>
+    <div class="state-arrows">
+      <span class="state-arrow">→ signIn / register →</span>
+      <span class="state-arrow" style="color:#94a3b8;font-size:10px;">← signOut ←</span>
+    </div>
+    <div class="state-box logged-in">
+      <h4 style="color:#059669;">🟢 Con sesión</h4>
+      <p><code>user = { email, uid }</code><br>Muestra pantalla Home protegida</p>
+    </div>
+  </div>
+
+  <div class="binfo">
+    <div class="blbl">📌 Punto clave</div>
+    Firebase recuerda la sesión automáticamente. Si el usuario cierra la app y la vuelve a abrir,
+    sigue con sesión iniciada. Tú solo tienes que escuchar con <code>onAuthStateChanged</code>.
+  </div>
+
+  <div class="two-col">
+    <div style="background:#f8faff;border:1.5px solid #e2e8f0;border-radius:10px;padding:14px 16px;">
+      <div style="font-size:12px;font-weight:800;color:#315567;text-transform:uppercase;letter-spacing:.06em;margin-bottom:10px;">Funciones que usarás</div>
+      <div style="font-size:12px;color:#475569;line-height:2;">
+        <code style="color:#7c3aed;font-weight:700;">createUserWithEmailAndPassword</code><br>
+        → Crea una cuenta nueva<br>
+        <code style="color:#7c3aed;font-weight:700;">signInWithEmailAndPassword</code><br>
+        → Inicia sesión<br>
+        <code style="color:#7c3aed;font-weight:700;">signOut</code><br>
+        → Cierra sesión<br>
+        <code style="color:#7c3aed;font-weight:700;">onAuthStateChanged</code><br>
+        → Escucha cambios de sesión
+      </div>
+    </div>
+    <div style="background:#f8faff;border:1.5px solid #e2e8f0;border-radius:10px;padding:14px 16px;">
+      <div style="font-size:12px;font-weight:800;color:#315567;text-transform:uppercase;letter-spacing:.06em;margin-bottom:10px;">Lo que Firebase devuelve</div>
+      <div style="font-size:12px;color:#475569;line-height:2;">
+        <code style="color:#059669;">user.email</code> — correo del usuario<br>
+        <code style="color:#059669;">user.uid</code> — ID único en Firebase<br>
+        <code style="color:#059669;">user.displayName</code> — nombre (si lo pones)<br>
+        <code style="color:#059669;">user.emailVerified</code> — si verificó su correo<br>
+        <code style="color:#059669;">null</code> — si no hay sesión activa
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════ S2: ACTIVAR EN FIREBASE ═══════════════ -->
+<div class="section" id="s2">
+  <div class="sec-hdr">
+    <div class="sec-num">2</div>
+    <div>
+      <div class="sec-title">Activar Authentication en la consola</div>
+      <div class="sec-sub">Solo se hace una vez, desde el navegador</div>
+    </div>
+  </div>
+
+  <div class="bwarn">
+    <div class="blbl">⚠️ Antes de continuar</div>
+    Este paso se hace en <strong>console.firebase.google.com</strong>, no en el código.
+    Sigue exactamente los pasos con imágenes de abajo.
+  </div>
+
+  <!-- Paso 1: ir a Authentication -->
+  <div class="fb-step">
+    <div class="fb-step-hdr"><div class="fb-step-n">1</div> En la consola de Firebase, haz clic en <strong>Authentication</strong> en el menú izquierdo</div>
+    <div class="fb-step-body">
+      <div class="fb-mockup">
+        <div class="fb-topbar">
+          <div class="fb-logo"><span class="fb-logo-icon">🔥</span><span class="fb-logo-text">Firebase</span></div>
+          <div class="fb-nav-links">
+            <span class="fb-nav-link active">Console</span>
+            <span class="fb-nav-link">Documentation</span>
+          </div>
+        </div>
+        <div class="fb-layout">
+          <div class="fb-sidebar">
+            <div class="fb-sidebar-logo"><span>🔥</span><span>MiProyectoApp</span></div>
+            <div class="fb-sidebar-proj">Producto</div>
+            <div class="fb-sidebar-item active"><span class="icon">🔐</span> Authentication</div>
+            <div class="fb-sidebar-item"><span class="icon">📦</span> Firestore Database</div>
+            <div class="fb-sidebar-item"><span class="icon">🗂️</span> Storage</div>
+            <div class="fb-sidebar-item"><span class="icon">⚡</span> Functions</div>
+            <div class="fb-sidebar-item"><span class="icon">📊</span> Analytics</div>
+          </div>
+          <div class="fb-content">
+            <div class="auth-section-hdr">Authentication</div>
+            <div class="auth-sub">Gestiona el acceso de usuarios a tu aplicación</div>
+            <div style="text-align:center;padding:30px 0;">
+              <div style="font-size:40px;margin-bottom:12px;">🔐</div>
+              <div style="font-size:14px;font-weight:700;color:#1f2937;margin-bottom:8px;">Empieza a usar Authentication</div>
+              <div style="font-size:12px;color:#6b7280;margin-bottom:16px;">Agrega métodos de acceso para permitir que los usuarios accedan a tu app</div>
+              <div style="background:#1967d2;color:#fff;border-radius:6px;padding:8px 20px;font-size:13px;font-weight:700;display:inline-block;">Comenzar</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Paso 2: Sign-in method -->
+  <div class="fb-step">
+    <div class="fb-step-hdr"><div class="fb-step-n">2</div> Ve a la pestaña <strong>"Sign-in method"</strong> y busca <strong>"Correo electrónico/contraseña"</strong></div>
+    <div class="fb-step-body">
+      <div class="fb-mockup">
+        <div class="fb-layout">
+          <div class="fb-sidebar">
+            <div class="fb-sidebar-logo"><span>🔥</span><span>MiProyectoApp</span></div>
+            <div class="fb-sidebar-item active"><span class="icon">🔐</span> Authentication</div>
+            <div class="fb-sidebar-item"><span class="icon">📦</span> Firestore Database</div>
+          </div>
+          <div class="fb-content">
+            <div class="auth-section-hdr">Authentication</div>
+            <div class="auth-tabs">
+              <div class="auth-tab">Usuarios</div>
+              <div class="auth-tab active">Sign-in method</div>
+              <div class="auth-tab">Templates</div>
+              <div class="auth-tab">Uso</div>
+            </div>
+            <div style="font-size:13px;font-weight:700;color:#374151;margin-bottom:12px;">Proveedores de acceso</div>
+            <div class="auth-provider-list">
+              <div class="auth-provider">
+                <div class="auth-provider-name"><span class="auth-provider-icon">✉️</span> Correo electrónico/Contraseña</div>
+                <div style="display:flex;align-items:center;gap:10px;">
+                  <span class="auth-badge disabled">No habilitado</span>
+                  <span class="auth-enable-btn">Habilitar</span>
+                </div>
+              </div>
+              <div class="auth-provider">
+                <div class="auth-provider-name"><span class="auth-provider-icon">📱</span> Teléfono</div>
+                <span class="auth-badge disabled">No habilitado</span>
+              </div>
+              <div class="auth-provider">
+                <div class="auth-provider-name"><span class="auth-provider-icon">G</span> Google</div>
+                <span class="auth-badge disabled">No habilitado</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Paso 3: Habilitar -->
+  <div class="fb-step">
+    <div class="fb-step-hdr"><div class="fb-step-n">3</div> Activa el toggle y guarda — ahora verás el proveedor como <strong>Habilitado</strong></div>
+    <div class="fb-step-body">
+      <div class="fb-mockup">
+        <div class="fb-layout">
+          <div class="fb-sidebar">
+            <div class="fb-sidebar-logo"><span>🔥</span><span>MiProyectoApp</span></div>
+            <div class="fb-sidebar-item active"><span class="icon">🔐</span> Authentication</div>
+            <div class="fb-sidebar-item"><span class="icon">📦</span> Firestore Database</div>
+          </div>
+          <div class="fb-content">
+            <div class="auth-section-hdr">Authentication</div>
+            <div class="auth-tabs">
+              <div class="auth-tab">Usuarios</div>
+              <div class="auth-tab active">Sign-in method</div>
+              <div class="auth-tab">Templates</div>
+            </div>
+            <div class="auth-provider-list">
+              <div class="auth-provider" style="border-color:#059669;background:#f0fdf4;">
+                <div class="auth-provider-name"><span class="auth-provider-icon">✉️</span> Correo electrónico/Contraseña</div>
+                <span class="auth-badge enabled">✓ Habilitado</span>
+              </div>
+              <div class="auth-provider">
+                <div class="auth-provider-name"><span class="auth-provider-icon">📱</span> Teléfono</div>
+                <span class="auth-badge disabled">No habilitado</span>
+              </div>
+              <div class="auth-provider">
+                <div class="auth-provider-name"><span class="auth-provider-icon">G</span> Google</div>
+                <span class="auth-badge disabled">No habilitado</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="btip" style="margin-top:12px;"><div class="blbl">✅ Listo</div>Firebase ya puede crear usuarios y verificar contraseñas. No necesitas hacer nada más en la consola.</div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════ S3: LAS 3 PANTALLAS ═══════════════ -->
+<div class="section" id="s3">
+  <div class="sec-hdr">
+    <div class="sec-num">3</div>
+    <div>
+      <div class="sec-title">Diseño de la app — 3 pantallas</div>
+      <div class="sec-sub">Qué verá el usuario en cada estado</div>
+    </div>
+  </div>
+
+  <p style="font-size:13px;color:#475569;line-height:1.7;margin-bottom:16px;">
+    La app tendrá <strong>3 pantallas</strong>. Las dos primeras son públicas (no necesitan sesión) y la tercera
+    solo se muestra si el usuario ya inició sesión.
+  </p>
+
+  <div class="app-mocks">
+    <!-- Registro -->
+    <div class="mock-phone">
+      <div class="mock-bar">Registro <span>9:41</span></div>
+      <div class="mock-body">
+        <div class="mock-title">Crear cuenta</div>
+        <div class="mock-sub">Ingresa tu correo y contraseña</div>
+        <div class="mock-lbl">Correo electrónico</div>
+        <div class="mock-field">usuario@correo.com</div>
+        <div class="mock-lbl">Contraseña</div>
+        <div class="mock-field">••••••••</div>
+        <div class="mock-btn">Registrarse</div>
+        <div class="mock-link">¿Ya tienes cuenta? Inicia sesión</div>
+      </div>
+    </div>
+    <!-- Login -->
+    <div class="mock-phone">
+      <div class="mock-bar">Iniciar sesión <span>9:41</span></div>
+      <div class="mock-body">
+        <div class="mock-title">Bienvenido</div>
+        <div class="mock-sub">Ingresa tus credenciales</div>
+        <div class="mock-lbl">Correo electrónico</div>
+        <div class="mock-field">usuario@correo.com</div>
+        <div class="mock-lbl">Contraseña</div>
+        <div class="mock-field">••••••••</div>
+        <div class="mock-btn">Iniciar sesión</div>
+        <div class="mock-link">¿No tienes cuenta? Regístrate</div>
+      </div>
+    </div>
+    <!-- Home -->
+    <div class="mock-phone">
+      <div class="mock-bar">Home <span>9:41</span></div>
+      <div class="mock-home-body" style="padding-top:30px;text-align:center;">
+        <div class="mock-avatar">P</div>
+        <div class="mock-greeting">¡Hola, usuario!</div>
+        <div class="mock-email-chip">paula@ejemplo.com</div>
+        <div style="font-size:11px;color:#94a3b8;margin-bottom:20px;line-height:1.6;">Sesión iniciada correctamente.<br>Solo los usuarios autenticados<br>pueden ver esta pantalla.</div>
+        <div class="mock-logout-btn">Cerrar sesión</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="binfo" style="margin-top:16px;">
+    <div class="blbl">🗂️ Estructura de archivos que crearás</div>
+  </div>
+
+  <div class="ftree">
+    <span class="ftd">src/</span><br>
+    &nbsp;&nbsp;<span class="ftd">context/</span><br>
+    &nbsp;&nbsp;&nbsp;&nbsp;<span class="ftn">AuthContext.jsx</span>&nbsp;&nbsp;<span class="ftnote">← nuevo: comparte el usuario en toda la app</span><br>
+    &nbsp;&nbsp;<span class="ftd">screens/</span><br>
+    &nbsp;&nbsp;&nbsp;&nbsp;<span class="ftn">RegistroScreen.jsx</span>&nbsp;&nbsp;<span class="ftnote">← nuevo: formulario de registro</span><br>
+    &nbsp;&nbsp;&nbsp;&nbsp;<span class="ftn">LoginScreen.jsx</span>&nbsp;&nbsp;<span class="ftnote">← nuevo: formulario de login</span><br>
+    &nbsp;&nbsp;&nbsp;&nbsp;<span class="ftn">HomeScreen.jsx</span>&nbsp;&nbsp;<span class="ftnote">← nuevo: pantalla protegida</span><br>
+    &nbsp;&nbsp;<span class="ftf">firebase.js</span>&nbsp;&nbsp;<span class="ftnote">← ya existe, agregar auth</span><br>
+    &nbsp;&nbsp;<span class="ftf">App.js</span>&nbsp;&nbsp;<span class="ftnote">← modificar: navegación según sesión</span><br>
+  </div>
+</div>
+
+<!-- ═══════════════ S4: FIREBASE.JS ═══════════════ -->
+<div class="section" id="s4">
+  <div class="sec-hdr">
+    <div class="sec-num">4</div>
+    <div>
+      <div class="sec-title">Instalar y configurar Authentication</div>
+      <div class="sec-sub">Agregar auth a firebase.js</div>
+    </div>
+  </div>
+
+  <div class="sd" style="font-size:13px;color:#475569;margin-bottom:8px;">Instala Firebase. <strong>En Expo siempre usa <code>npx expo install</code></strong> en lugar de <code>npm install</code> — así Expo elige la versión compatible con tu SDK:</div>
+
+  <div class="cmd">npx expo install firebase</div>
+
+  <div class="bwarn"><div class="blbl">⚠️ Importante — no uses npm install directamente</div>
+    <code>npm install firebase</code> puede instalar una versión incompatible con tu versión de Expo SDK.
+    <code>npx expo install</code> siempre elige la versión correcta automáticamente.
+  </div>
+
+  <div class="sd" style="font-size:13px;color:#475569;margin:12px 0 8px;">Actualiza tu <code>firebase.js</code> para exportar también <code>auth</code>:</div>
+
+  <div class="code-wrap">
+    <div class="code-titlebar">
+      <div class="dot dot-r"></div><div class="dot dot-y"></div><div class="dot dot-g"></div>
+      <span class="code-filename">firebase.js</span>
+    </div>
+    <div class="code-body">
+<span class="kw">import</span> { initializeApp } <span class="kw">from</span> <span class="st">'firebase/app'</span>;<br>
+<span class="kw">import</span> { getFirestore } <span class="kw">from</span> <span class="st">'firebase/firestore'</span>;<br>
+<span class="imp">import</span> <span class="imp">{ getAuth }</span> <span class="imp">from</span> <span class="imp">'firebase/auth'</span>;&nbsp;&nbsp;&nbsp;&nbsp;<span class="cm">// ← línea nueva</span><br>
+<br>
+<span class="kw">const</span> firebaseConfig = {<br>
+&nbsp;&nbsp;apiKey: <span class="st">"TU_API_KEY"</span>,<br>
+&nbsp;&nbsp;authDomain: <span class="st">"TU_PROYECTO.firebaseapp.com"</span>,<br>
+&nbsp;&nbsp;projectId: <span class="st">"TU_PROYECTO"</span>,<br>
+&nbsp;&nbsp;storageBucket: <span class="st">"TU_PROYECTO.appspot.com"</span>,<br>
+&nbsp;&nbsp;messagingSenderId: <span class="st">"123456789"</span>,<br>
+&nbsp;&nbsp;appId: <span class="st">"1:123:web:abc"</span><br>
+};<br>
+<br>
+<span class="kw">const</span> app = <span class="fn">initializeApp</span>(firebaseConfig);<br>
+<span class="kw">export const</span> db&nbsp;&nbsp;&nbsp;= <span class="fn">getFirestore</span>(app);<br>
+<span class="imp">export const</span> <span class="imp">auth = <span class="fn">getAuth</span>(app);</span>&nbsp;&nbsp;&nbsp;&nbsp;<span class="cm">// ← exportar auth</span>
+    </div>
+  </div>
+
+  <div class="btip"><div class="blbl">💡 Tip</div>El <code>auth</code> que exportas es la instancia de Authentication. La pasarás a todas las funciones de login, registro y logout.</div>
+</div>
+
+<!-- ═══════════════ S5: AUTHCONTEXT ═══════════════ -->
+<div class="section" id="s5">
+  <div class="sec-hdr">
+    <div class="sec-num">5</div>
+    <div>
+      <div class="sec-title">Crear el AuthContext</div>
+      <div class="sec-sub">Para compartir el usuario en toda la app sin pasar props</div>
+    </div>
+  </div>
+
+  <p style="font-size:13px;color:#475569;line-height:1.7;margin-bottom:12px;">
+    El <strong>Context</strong> es una forma de guardar información que cualquier pantalla puede leer sin que se la pasen como prop.
+    Lo usaremos para guardar el usuario actual y saber si hay sesión activa.
+  </p>
+
+  <div class="binfo"><div class="blbl">🧠 ¿Por qué Context y no useState en App.js?</div>
+    Si guardas el usuario solo en App.js, tendrías que pasarlo como prop a todas las pantallas (<code>user={user}</code>).
+    Con Context, cualquier pantalla lo lee directamente con <code>useContext</code>. Más limpio y escalable.
+  </div>
+
+  <div class="code-wrap">
+    <div class="code-titlebar">
+      <div class="dot dot-r"></div><div class="dot dot-y"></div><div class="dot dot-g"></div>
+      <span class="code-filename">src/context/AuthContext.jsx</span>
+    </div>
+    <div class="code-body">
+<span class="kw">import</span> { createContext, useContext, useState, useEffect } <span class="kw">from</span> <span class="st">'react'</span>;<br>
+<span class="kw">import</span> { <span class="fn">onAuthStateChanged</span> } <span class="kw">from</span> <span class="st">'firebase/auth'</span>;<br>
+<span class="kw">import</span> { auth } <span class="kw">from</span> <span class="st">'../firebase'</span>;<br>
+<br>
+<span class="cm">// 1. Crear el contexto (caja vacía que compartiremos)</span><br>
+<span class="kw">const</span> AuthContext = <span class="fn">createContext</span>(null);<br>
+<br>
+<span class="cm">// 2. El Provider envuelve toda la app y provee el usuario</span><br>
+<span class="kw">export function</span> <span class="fn">AuthProvider</span>({ children }) {<br>
+&nbsp;&nbsp;<span class="kw">const</span> [user, setUser] = <span class="fn">useState</span>(undefined); <span class="cm">// undefined = cargando</span><br>
+<br>
+&nbsp;&nbsp;<span class="fn">useEffect</span>(() => {<br>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="cm">// onAuthStateChanged escucha si el usuario abre/cierra sesión</span><br>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="cm">// Firebase lo llama automáticamente al abrir la app también</span><br>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="kw">const</span> unsub = <span class="fn">onAuthStateChanged</span>(auth, (usuario) => {<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="fn">setUser</span>(usuario); <span class="cm">// null si no hay sesión, objeto si sí</span><br>
+&nbsp;&nbsp;&nbsp;&nbsp;});<br>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="kw">return</span> unsub; <span class="cm">// limpia el listener al desmontar</span><br>
+&nbsp;&nbsp;}, []);<br>
+<br>
+&nbsp;&nbsp;<span class="kw">return</span> (<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&lt;<span class="fn">AuthContext.Provider</span> value={{ user }}&gt;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{children}<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&lt;/<span class="fn">AuthContext.Provider</span>&gt;<br>
+&nbsp;&nbsp;);<br>
+}<br>
+<br>
+<span class="cm">// 3. Hook para leer el usuario desde cualquier pantalla</span><br>
+<span class="kw">export function</span> <span class="fn">useAuth</span>() {<br>
+&nbsp;&nbsp;<span class="kw">return</span> <span class="fn">useContext</span>(AuthContext);<br>
+}
+    </div>
+  </div>
+
+  <div class="bwarn"><div class="blbl">⚠️ user = undefined vs null</div>
+    <strong>undefined</strong> = aún no sabemos (Firebase está verificando). Muestra una pantalla de carga.<br>
+    <strong>null</strong> = Firebase confirmó que NO hay sesión. Muestra Login.<br>
+    <strong>objeto</strong> = hay sesión activa. Muestra Home.
+  </div>
+</div>
+
+<!-- ═══════════════ S6: APP.JS ═══════════════ -->
+<div class="section">
+  <div class="sec-hdr">
+    <div class="sec-num">6</div>
+    <div>
+      <div class="sec-title">App.js — Navegación según sesión</div>
+      <div class="sec-sub">Si hay usuario → Home. Si no → Login/Registro</div>
+    </div>
+  </div>
+
+  <div class="code-wrap">
+    <div class="code-titlebar">
+      <div class="dot dot-r"></div><div class="dot dot-y"></div><div class="dot dot-g"></div>
+      <span class="code-filename">App.js</span>
+    </div>
+    <div class="code-body">
+<span class="kw">import</span> { NavigationContainer } <span class="kw">from</span> <span class="st">'@react-navigation/native'</span>;<br>
+<span class="kw">import</span> { createNativeStackNavigator } <span class="kw">from</span> <span class="st">'@react-navigation/native-stack'</span>;<br>
+<span class="kw">import</span> { <span class="fn">AuthProvider</span>, <span class="fn">useAuth</span> } <span class="kw">from</span> <span class="st">'./src/context/AuthContext'</span>;<br>
+<span class="kw">import</span> LoginScreen <span class="kw">from</span> <span class="st">'./src/screens/LoginScreen'</span>;<br>
+<span class="kw">import</span> RegistroScreen <span class="kw">from</span> <span class="st">'./src/screens/RegistroScreen'</span>;<br>
+<span class="kw">import</span> HomeScreen <span class="kw">from</span> <span class="st">'./src/screens/HomeScreen'</span>;<br>
+<span class="kw">import</span> { ActivityIndicator, View } <span class="kw">from</span> <span class="st">'react-native'</span>;<br>
+<br>
+<span class="kw">const</span> Stack = <span class="fn">createNativeStackNavigator</span>();<br>
+<br>
+<span class="kw">function</span> <span class="fn">AppNavigator</span>() {<br>
+&nbsp;&nbsp;<span class="kw">const</span> { user } = <span class="fn">useAuth</span>();<br>
+<br>
+&nbsp;&nbsp;<span class="cm">// Mientras Firebase verifica la sesión, mostramos carga</span><br>
+&nbsp;&nbsp;<span class="kw">if</span> (user === undefined) {<br>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="kw">return</span> (<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;View style={{ flex:1, justifyContent:<span class="st">'center'</span>, alignItems:<span class="st">'center'</span> }}&gt;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;ActivityIndicator size=<span class="st">"large"</span> /&gt;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;/View&gt;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;);<br>
+&nbsp;&nbsp;}<br>
+<br>
+&nbsp;&nbsp;<span class="kw">return</span> (<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&lt;NavigationContainer&gt;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;Stack.Navigator&gt;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{user ? (<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="cm">// Con sesión: solo puede ir al Home</span><br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;Stack.Screen name=<span class="st">"Home"</span> component={HomeScreen} /&gt;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;) : (<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="cm">// Sin sesión: Login y Registro</span><br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;&gt;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;Stack.Screen name=<span class="st">"Login"</span> component={LoginScreen} /&gt;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;Stack.Screen name=<span class="st">"Registro"</span> component={RegistroScreen} /&gt;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;/&gt;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;)}<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;/Stack.Navigator&gt;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&lt;/NavigationContainer&gt;<br>
+&nbsp;&nbsp;);<br>
+}<br>
+<br>
+<span class="kw">export default function</span> <span class="fn">App</span>() {<br>
+&nbsp;&nbsp;<span class="kw">return</span> (<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&lt;<span class="fn">AuthProvider</span>&gt;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;<span class="fn">AppNavigator</span> /&gt;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&lt;/<span class="fn">AuthProvider</span>&gt;<br>
+&nbsp;&nbsp;);<br>
+}
+    </div>
+  </div>
+
+  <div class="btip"><div class="blbl">💡 Patrón importante</div>
+    El Navigator cambia de pantallas automáticamente cuando cambia <code>user</code>.
+    Si el usuario cierra sesión, Firebase llama a <code>onAuthStateChanged</code> con <code>null</code>,
+    el contexto actualiza <code>user</code>, y el Navigator muestra Login instantáneamente.
+    <strong>No necesitas navegar manualmente.</strong>
+  </div>
+</div>
+
+<!-- ═══════════════ S7: REGISTRO ═══════════════ -->
+<div class="section" id="s6">
+  <div class="sec-hdr">
+    <div class="sec-num">7</div>
+    <div>
+      <div class="sec-title">RegistroScreen.jsx</div>
+      <div class="sec-sub">Crear cuenta nueva con correo y contraseña</div>
+    </div>
+  </div>
+
+  <div class="code-wrap">
+    <div class="code-titlebar">
+      <div class="dot dot-r"></div><div class="dot dot-y"></div><div class="dot dot-g"></div>
+      <span class="code-filename">src/screens/RegistroScreen.jsx</span>
+    </div>
+    <div class="code-body">
+<span class="kw">import</span> { useState } <span class="kw">from</span> <span class="st">'react'</span>;<br>
+<span class="kw">import</span> { View, Text, TextInput, TouchableOpacity, StyleSheet, Alert } <span class="kw">from</span> <span class="st">'react-native'</span>;<br>
+<span class="kw">import</span> { <span class="fn">createUserWithEmailAndPassword</span> } <span class="kw">from</span> <span class="st">'firebase/auth'</span>;<br>
+<span class="kw">import</span> { auth } <span class="kw">from</span> <span class="st">'../firebase'</span>;<br>
+<br>
+<span class="kw">export default function</span> <span class="fn">RegistroScreen</span>({ navigation }) {<br>
+&nbsp;&nbsp;<span class="kw">const</span> [email, setEmail] = <span class="fn">useState</span>(<span class="st">''</span>);<br>
+&nbsp;&nbsp;<span class="kw">const</span> [password, setPassword] = <span class="fn">useState</span>(<span class="st">''</span>);<br>
+&nbsp;&nbsp;<span class="kw">const</span> [cargando, setCargando] = <span class="fn">useState</span>(<span class="kw">false</span>);<br>
+<br>
+&nbsp;&nbsp;<span class="kw">async function</span> <span class="fn">registrar</span>() {<br>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="kw">if</span> (!email || !password) {<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="fn">Alert.alert</span>(<span class="st">'Error'</span>, <span class="st">'Ingresa correo y contraseña'</span>);<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="kw">return</span>;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;}<br>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="fn">setCargando</span>(<span class="kw">true</span>);<br>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="kw">try</span> {<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="kw">await</span> <span class="fn">createUserWithEmailAndPassword</span>(auth, email, password);<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="cm">// onAuthStateChanged detecta el nuevo usuario automáticamente</span><br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="cm">// y App.js muestra HomeScreen — no necesitas navegar aquí</span><br>
+&nbsp;&nbsp;&nbsp;&nbsp;} <span class="kw">catch</span> (error) {<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="fn">Alert.alert</span>(<span class="st">'Error al registrar'</span>, <span class="fn">traducirError</span>(error.code));<br>
+&nbsp;&nbsp;&nbsp;&nbsp;} <span class="kw">finally</span> {<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="fn">setCargando</span>(<span class="kw">false</span>);<br>
+&nbsp;&nbsp;&nbsp;&nbsp;}<br>
+&nbsp;&nbsp;}<br>
+<br>
+&nbsp;&nbsp;<span class="kw">return</span> (<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&lt;View style={styles.container}&gt;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;Text style={styles.titulo}&gt;Crear cuenta&lt;/Text&gt;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;TextInput style={styles.input} placeholder=<span class="st">"Correo electrónico"</span><br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;value={email} onChangeText={setEmail}<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;keyboardType=<span class="st">"email-address"</span> autoCapitalize=<span class="st">"none"</span> /&gt;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;TextInput style={styles.input} placeholder=<span class="st">"Contraseña (mín. 6 caracteres)"</span><br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;value={password} onChangeText={setPassword} secureTextEntry /&gt;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;TouchableOpacity style={styles.btn} onPress={registrar} disabled={cargando}&gt;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;Text style={styles.btnTxt}&gt;{cargando ? <span class="st">'Creando cuenta…'</span> : <span class="st">'Registrarse'</span>}&lt;/Text&gt;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;/TouchableOpacity&gt;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;TouchableOpacity onPress={() =&gt; navigation.<span class="fn">navigate</span>(<span class="st">'Login'</span>)}&gt;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;Text style={styles.link}&gt;¿Ya tienes cuenta? Inicia sesión&lt;/Text&gt;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;/TouchableOpacity&gt;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&lt;/View&gt;<br>
+&nbsp;&nbsp;);<br>
+}<br>
+<br>
+<span class="cm">// Traduce los códigos de error de Firebase a mensajes en español</span><br>
+<span class="kw">function</span> <span class="fn">traducirError</span>(code) {<br>
+&nbsp;&nbsp;<span class="kw">const</span> errores = {<br>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="st">'auth/email-already-in-use'</span>: <span class="st">'Este correo ya tiene una cuenta.'</span>,<br>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="st">'auth/invalid-email'</span>: <span class="st">'El correo no es válido.'</span>,<br>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="st">'auth/weak-password'</span>: <span class="st">'La contraseña debe tener al menos 6 caracteres.'</span>,<br>
+&nbsp;&nbsp;};<br>
+&nbsp;&nbsp;<span class="kw">return</span> errores[code] || <span class="st">'Ocurrió un error. Intenta de nuevo.'</span>;<br>
+}<br>
+<br>
+<span class="kw">const</span> styles = <span class="fn">StyleSheet.create</span>({<br>
+&nbsp;&nbsp;container: { flex: <span class="nr">1</span>, justifyContent: <span class="st">'center'</span>, padding: <span class="nr">24</span>, backgroundColor: <span class="st">'#f4f7f8'</span> },<br>
+&nbsp;&nbsp;titulo: { fontSize: <span class="nr">24</span>, fontWeight: <span class="st">'bold'</span>, marginBottom: <span class="nr">24</span>, color: <span class="st">'#263f4d'</span> },<br>
+&nbsp;&nbsp;input: { backgroundColor: <span class="st">'#fff'</span>, borderWidth: <span class="nr">1.5</span>, borderColor: <span class="st">'#e2e8f0'</span>, borderRadius: <span class="nr">10</span>, padding: <span class="nr">12</span>, marginBottom: <span class="nr">12</span>, fontSize: <span class="nr">15</span> },<br>
+&nbsp;&nbsp;btn: { backgroundColor: <span class="st">'#315567'</span>, borderRadius: <span class="nr">10</span>, padding: <span class="nr">14</span>, alignItems: <span class="st">'center'</span>, marginBottom: <span class="nr">12</span> },<br>
+&nbsp;&nbsp;btnTxt: { color: <span class="st">'#fff'</span>, fontWeight: <span class="st">'bold'</span>, fontSize: <span class="nr">15</span> },<br>
+&nbsp;&nbsp;link: { color: <span class="st">'#315567'</span>, textAlign: <span class="st">'center'</span>, textDecorationLine: <span class="st">'underline'</span>, fontSize: <span class="nr">13</span> },<br>
+});
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════ S8: LOGIN ═══════════════ -->
+<div class="section" id="s7">
+  <div class="sec-hdr">
+    <div class="sec-num">8</div>
+    <div>
+      <div class="sec-title">LoginScreen.jsx</div>
+      <div class="sec-sub">Iniciar sesión con cuenta existente</div>
+    </div>
+  </div>
+
+  <div class="binfo"><div class="blbl">📌 Nota</div>La estructura es casi idéntica a RegistroScreen. La única diferencia es la función de Firebase que se llama.</div>
+
+  <div class="code-wrap">
+    <div class="code-titlebar">
+      <div class="dot dot-r"></div><div class="dot dot-y"></div><div class="dot dot-g"></div>
+      <span class="code-filename">src/screens/LoginScreen.jsx</span>
+    </div>
+    <div class="code-body">
+<span class="kw">import</span> { useState } <span class="kw">from</span> <span class="st">'react'</span>;<br>
+<span class="kw">import</span> { View, Text, TextInput, TouchableOpacity, StyleSheet, Alert } <span class="kw">from</span> <span class="st">'react-native'</span>;<br>
+<span class="kw">import</span> { <span class="fn">signInWithEmailAndPassword</span> } <span class="kw">from</span> <span class="st">'firebase/auth'</span>;<br>
+<span class="kw">import</span> { auth } <span class="kw">from</span> <span class="st">'../firebase'</span>;<br>
+<br>
+<span class="kw">export default function</span> <span class="fn">LoginScreen</span>({ navigation }) {<br>
+&nbsp;&nbsp;<span class="kw">const</span> [email, setEmail] = <span class="fn">useState</span>(<span class="st">''</span>);<br>
+&nbsp;&nbsp;<span class="kw">const</span> [password, setPassword] = <span class="fn">useState</span>(<span class="st">''</span>);<br>
+&nbsp;&nbsp;<span class="kw">const</span> [cargando, setCargando] = <span class="fn">useState</span>(<span class="kw">false</span>);<br>
+<br>
+&nbsp;&nbsp;<span class="kw">async function</span> <span class="fn">iniciarSesion</span>() {<br>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="kw">if</span> (!email || !password) {<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="fn">Alert.alert</span>(<span class="st">'Error'</span>, <span class="st">'Ingresa tu correo y contraseña'</span>);<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="kw">return</span>;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;}<br>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="fn">setCargando</span>(<span class="kw">true</span>);<br>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="kw">try</span> {<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="kw">await</span> <span class="fn">signInWithEmailAndPassword</span>(auth, email, password);<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="cm">// App.js detecta el cambio y muestra Home automáticamente</span><br>
+&nbsp;&nbsp;&nbsp;&nbsp;} <span class="kw">catch</span> (error) {<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="fn">Alert.alert</span>(<span class="st">'Error al iniciar sesión'</span>, <span class="fn">traducirError</span>(error.code));<br>
+&nbsp;&nbsp;&nbsp;&nbsp;} <span class="kw">finally</span> {<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="fn">setCargando</span>(<span class="kw">false</span>);<br>
+&nbsp;&nbsp;&nbsp;&nbsp;}<br>
+&nbsp;&nbsp;}<br>
+<br>
+&nbsp;&nbsp;<span class="kw">return</span> (<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&lt;View style={styles.container}&gt;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;Text style={styles.titulo}&gt;Bienvenido&lt;/Text&gt;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;TextInput style={styles.input} placeholder=<span class="st">"Correo electrónico"</span><br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;value={email} onChangeText={setEmail}<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;keyboardType=<span class="st">"email-address"</span> autoCapitalize=<span class="st">"none"</span> /&gt;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;TextInput style={styles.input} placeholder=<span class="st">"Contraseña"</span><br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;value={password} onChangeText={setPassword} secureTextEntry /&gt;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;TouchableOpacity style={styles.btn} onPress={iniciarSesion} disabled={cargando}&gt;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;Text style={styles.btnTxt}&gt;{cargando ? <span class="st">'Verificando…'</span> : <span class="st">'Iniciar sesión'</span>}&lt;/Text&gt;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;/TouchableOpacity&gt;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;TouchableOpacity onPress={() =&gt; navigation.<span class="fn">navigate</span>(<span class="st">'Registro'</span>)}&gt;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;Text style={styles.link}&gt;¿No tienes cuenta? Regístrate&lt;/Text&gt;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;/TouchableOpacity&gt;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&lt;/View&gt;<br>
+&nbsp;&nbsp;);<br>
+}<br>
+<br>
+<span class="kw">function</span> <span class="fn">traducirError</span>(code) {<br>
+&nbsp;&nbsp;<span class="kw">const</span> errores = {<br>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="st">'auth/user-not-found'</span>: <span class="st">'No existe cuenta con este correo.'</span>,<br>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="st">'auth/wrong-password'</span>: <span class="st">'Contraseña incorrecta.'</span>,<br>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="st">'auth/invalid-email'</span>: <span class="st">'El correo no es válido.'</span>,<br>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="st">'auth/too-many-requests'</span>: <span class="st">'Demasiados intentos. Espera un momento.'</span>,<br>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="st">'auth/invalid-credential'</span>: <span class="st">'Correo o contraseña incorrectos.'</span>,<br>
+&nbsp;&nbsp;};<br>
+&nbsp;&nbsp;<span class="kw">return</span> errores[code] || <span class="st">'Ocurrió un error. Intenta de nuevo.'</span>;<br>
+}<br>
+<br>
+<span class="kw">const</span> styles = <span class="fn">StyleSheet.create</span>({<br>
+&nbsp;&nbsp;container: { flex: <span class="nr">1</span>, justifyContent: <span class="st">'center'</span>, padding: <span class="nr">24</span>, backgroundColor: <span class="st">'#f4f7f8'</span> },<br>
+&nbsp;&nbsp;titulo: { fontSize: <span class="nr">24</span>, fontWeight: <span class="st">'bold'</span>, marginBottom: <span class="nr">24</span>, color: <span class="st">'#263f4d'</span> },<br>
+&nbsp;&nbsp;input: { backgroundColor: <span class="st">'#fff'</span>, borderWidth: <span class="nr">1.5</span>, borderColor: <span class="st">'#e2e8f0'</span>, borderRadius: <span class="nr">10</span>, padding: <span class="nr">12</span>, marginBottom: <span class="nr">12</span>, fontSize: <span class="nr">15</span> },<br>
+&nbsp;&nbsp;btn: { backgroundColor: <span class="st">'#315567'</span>, borderRadius: <span class="nr">10</span>, padding: <span class="nr">14</span>, alignItems: <span class="st">'center'</span>, marginBottom: <span class="nr">12</span> },<br>
+&nbsp;&nbsp;btnTxt: { color: <span class="st">'#fff'</span>, fontWeight: <span class="st">'bold'</span>, fontSize: <span class="nr">15</span> },<br>
+&nbsp;&nbsp;link: { color: <span class="st">'#315567'</span>, textAlign: <span class="st">'center'</span>, textDecorationLine: <span class="st">'underline'</span>, fontSize: <span class="nr">13</span> },<br>
+});
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════ S9: HOME + LOGOUT ═══════════════ -->
+<div class="section" id="s8">
+  <div class="sec-hdr">
+    <div class="sec-num">9</div>
+    <div>
+      <div class="sec-title">HomeScreen.jsx — Pantalla protegida + Logout</div>
+      <div class="sec-sub">Solo accesible cuando hay sesión activa</div>
+    </div>
+  </div>
+
+  <div class="code-wrap">
+    <div class="code-titlebar">
+      <div class="dot dot-r"></div><div class="dot dot-y"></div><div class="dot dot-g"></div>
+      <span class="code-filename">src/screens/HomeScreen.jsx</span>
+    </div>
+    <div class="code-body">
+<span class="kw">import</span> { View, Text, TouchableOpacity, StyleSheet } <span class="kw">from</span> <span class="st">'react-native'</span>;<br>
+<span class="kw">import</span> { <span class="fn">signOut</span> } <span class="kw">from</span> <span class="st">'firebase/auth'</span>;<br>
+<span class="kw">import</span> { auth } <span class="kw">from</span> <span class="st">'../firebase'</span>;<br>
+<span class="kw">import</span> { <span class="fn">useAuth</span> } <span class="kw">from</span> <span class="st">'../context/AuthContext'</span>;<br>
+<br>
+<span class="kw">export default function</span> <span class="fn">HomeScreen</span>() {<br>
+&nbsp;&nbsp;<span class="kw">const</span> { user } = <span class="fn">useAuth</span>();&nbsp;&nbsp;<span class="cm">// leemos el usuario del Context</span><br>
+<br>
+&nbsp;&nbsp;<span class="kw">async function</span> <span class="fn">cerrarSesion</span>() {<br>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="kw">await</span> <span class="fn">signOut</span>(auth);<br>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="cm">// onAuthStateChanged se activa → user = null → App.js muestra Login</span><br>
+&nbsp;&nbsp;}<br>
+<br>
+&nbsp;&nbsp;<span class="kw">return</span> (<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&lt;View style={styles.container}&gt;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;Text style={styles.avatar}&gt;👤&lt;/Text&gt;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;Text style={styles.saludo}&gt;¡Hola!&lt;/Text&gt;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;Text style={styles.email}&gt;{user?.email}&lt;/Text&gt;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;Text style={styles.info}&gt;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Esta pantalla solo se muestra{'\n'}a usuarios con sesión activa.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;/Text&gt;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;TouchableOpacity style={styles.btnLogout} onPress={cerrarSesion}&gt;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;Text style={styles.btnLogoutTxt}&gt;Cerrar sesión&lt;/Text&gt;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;/TouchableOpacity&gt;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&lt;/View&gt;<br>
+&nbsp;&nbsp;);<br>
+}<br>
+<br>
+<span class="kw">const</span> styles = <span class="fn">StyleSheet.create</span>({<br>
+&nbsp;&nbsp;container: { flex: <span class="nr">1</span>, alignItems: <span class="st">'center'</span>, justifyContent: <span class="st">'center'</span>, padding: <span class="nr">24</span>, backgroundColor: <span class="st">'#edf5f6'</span> },<br>
+&nbsp;&nbsp;avatar: { fontSize: <span class="nr">64</span>, marginBottom: <span class="nr">12</span> },<br>
+&nbsp;&nbsp;saludo: { fontSize: <span class="nr">22</span>, fontWeight: <span class="st">'bold'</span>, color: <span class="st">'#263f4d'</span>, marginBottom: <span class="nr">4</span> },<br>
+&nbsp;&nbsp;email: { fontSize: <span class="nr">13</span>, color: <span class="st">'#94a3b8'</span>, marginBottom: <span class="nr">20</span> },<br>
+&nbsp;&nbsp;info: { fontSize: <span class="nr">13</span>, color: <span class="st">'#475569'</span>, textAlign: <span class="st">'center'</span>, lineHeight: <span class="nr">22</span>, marginBottom: <span class="nr">32</span> },<br>
+&nbsp;&nbsp;btnLogout: { borderWidth: <span class="nr">2</span>, borderColor: <span class="st">'#dc2626'</span>, borderRadius: <span class="nr">10</span>, padding: <span class="nr">13</span>, width: <span class="st">'100%'</span>, alignItems: <span class="st">'center'</span> },<br>
+&nbsp;&nbsp;btnLogoutTxt: { color: <span class="st">'#dc2626'</span>, fontWeight: <span class="st">'bold'</span>, fontSize: <span class="nr">15</span> },<br>
+});
+    </div>
+  </div>
+
+  <div class="btip"><div class="blbl">✅ Magia de onAuthStateChanged</div>
+    Al llamar <code>signOut(auth)</code>, Firebase notifica al listener en <code>AuthContext</code>,
+    <code>user</code> se vuelve <code>null</code>, y App.js muestra automáticamente el Login.
+    El usuario <strong>nunca puede volver a Home</strong> sin autenticarse de nuevo.
+  </div>
+</div>
+
+<!-- ═══════════════ VERIFICAR EN CONSOLA ═══════════════ -->
+<div class="section">
+  <div class="sec-hdr">
+    <div class="sec-num">10</div>
+    <div>
+      <div class="sec-title">Verificar usuarios en Firebase Console</div>
+      <div class="sec-sub">Confirma que el registro funciona desde la consola</div>
+    </div>
+  </div>
+
+  <p style="font-size:13px;color:#475569;line-height:1.7;margin-bottom:12px;">
+    Cuando un usuario se registra desde tu app, aparece en la pestaña <strong>Usuarios</strong> de Authentication.
+    Aquí puedes ver su UID, correo, cuándo se registró y desactivarlo si es necesario.
+  </p>
+
+  <div class="fb-mockup">
+    <div class="fb-layout">
+      <div class="fb-sidebar">
+        <div class="fb-sidebar-logo"><span>🔥</span><span>MiProyectoApp</span></div>
+        <div class="fb-sidebar-item active"><span class="icon">🔐</span> Authentication</div>
+        <div class="fb-sidebar-item"><span class="icon">📦</span> Firestore Database</div>
+      </div>
+      <div class="fb-content">
+        <div class="auth-section-hdr">Authentication</div>
+        <div class="auth-tabs">
+          <div class="auth-tab active">Usuarios</div>
+          <div class="auth-tab">Sign-in method</div>
+          <div class="auth-tab">Templates</div>
+        </div>
+        <table class="users-table">
+          <thead>
+            <tr><th>Identificador</th><th>Proveedores</th><th>Fecha de creación</th><th>UID</th></tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><span class="user-avatar">P</span>paula@ejemplo.com</td>
+              <td>✉️</td>
+              <td>6 ago 2026</td>
+              <td style="font-family:monospace;font-size:11px;color:#9ca3af;">abc123xyz...</td>
+            </tr>
+            <tr>
+              <td><span class="user-avatar">J</span>juan@ejemplo.com</td>
+              <td>✉️</td>
+              <td>6 ago 2026</td>
+              <td style="font-family:monospace;font-size:11px;color:#9ca3af;">def456uvw...</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <div class="binfo" style="margin-top:16px;"><div class="blbl">🔍 ¿Qué es el UID?</div>
+    El <strong>uid</strong> es el identificador único de cada usuario en Firebase.
+    Si guardas datos en Firestore que pertenecen a un usuario específico,
+    usa <code>user.uid</code> como clave del documento para que solo ese usuario pueda leerlos.
+  </div>
+</div>
+
+<!-- ═══════════════ CHECKLIST ═══════════════ -->
+<div class="section" style="border:2px solid #315567;">
+  <div class="sec-hdr">
+    <div class="sec-num" style="background:#d8a53f;">✓</div>
+    <div>
+      <div class="sec-title">Lista de verificación</div>
+      <div class="sec-sub">Marca cada paso al completarlo</div>
+    </div>
+  </div>
+
+  <div class="chk-item"><div class="chk-box"></div><div>Activé <strong>Correo electrónico/Contraseña</strong> en Firebase Console → Authentication → Sign-in method</div></div>
+  <div class="chk-item"><div class="chk-box"></div><div>Instalé Firebase con <code>npx expo install firebase</code></div></div>
+  <div class="chk-item"><div class="chk-box"></div><div>Agregué <code>export const auth = getAuth(app)</code> en <code>firebase.js</code></div></div>
+  <div class="chk-item"><div class="chk-box"></div><div>Creé <code>src/context/AuthContext.jsx</code> con <code>AuthProvider</code>, <code>useAuth</code> y <code>onAuthStateChanged</code></div></div>
+  <div class="chk-item"><div class="chk-box"></div><div>Envolví la app en <code>&lt;AuthProvider&gt;</code> dentro de <code>App.js</code></div></div>
+  <div class="chk-item"><div class="chk-box"></div><div>El Navigator cambia entre pantallas de Login/Registro y Home según el valor de <code>user</code></div></div>
+  <div class="chk-item"><div class="chk-box"></div><div>Creé <code>RegistroScreen.jsx</code> con <code>createUserWithEmailAndPassword</code> y manejo de errores en español</div></div>
+  <div class="chk-item"><div class="chk-box"></div><div>Creé <code>LoginScreen.jsx</code> con <code>signInWithEmailAndPassword</code> y mensajes de error en español</div></div>
+  <div class="chk-item"><div class="chk-box"></div><div>Creé <code>HomeScreen.jsx</code> que muestra el email del usuario y tiene botón de <code>signOut</code></div></div>
+  <div class="chk-item"><div class="chk-box"></div><div>Probé el flujo completo: Registro → Home → Cerrar sesión → Login → Home</div></div>
+  <div class="chk-item"><div class="chk-box"></div><div>Verifiqué que el usuario aparece en la consola de Firebase → Authentication → Usuarios</div></div>
+  <div class="chk-item"><div class="chk-box"></div><div>Cerré la app y volví a abrirla — la sesión se mantuvo automáticamente</div></div>
+
+  <div style="background:#f0fdf4;border:1.5px solid #059669;border-radius:10px;padding:16px 18px;margin-top:20px;">
+    <div style="font-size:12px;font-weight:800;color:#065f46;text-transform:uppercase;letter-spacing:.06em;margin-bottom:8px;">🏆 Reflexión final</div>
+    <p style="font-size:13px;color:#475569;line-height:1.7;">
+      Explica con tus propias palabras: <strong>¿Por qué no necesitas llamar a <code>navigation.navigate('Home')</code>
+      después de iniciar sesión?</strong> ¿Qué función lo hace automáticamente y cómo se conecta con el Navigator?
+    </p>
+  </div>
+</div>
+
+</div><!-- /wrap -->
+</body>
+</html>
