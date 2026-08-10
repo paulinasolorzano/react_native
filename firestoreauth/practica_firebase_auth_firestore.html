@@ -1,0 +1,1166 @@
+<title>Práctica: Firebase Auth + Firestore en Expo Go</title>
+<style>
+  /* ── Tokens ── */
+  :root {
+    --bg:        #f5f7fa;
+    --surface:   #ffffff;
+    --navy:      #1b2d3e;
+    --text:      #1a2332;
+    --muted:     #5a6e82;
+    --border:    #dde3ea;
+    --accent:    #315567;
+    --accent-lt: #e8f0f4;
+    --warn-bg:   #fff8e6;
+    --warn-bd:   #d97706;
+    --warn-tx:   #7c4800;
+    --ok-bg:     #edfaf3;
+    --ok-bd:     #059669;
+    --ok-tx:     #065f46;
+    --err-bg:    #fff0f0;
+    --err-bd:    #dc2626;
+    --err-tx:    #7f1d1d;
+    --code-bg:   #ffffff;
+    --code-tx:   #1a2332;
+    --num:       #315567;
+    --tag-bg:    #e8f0f4;
+    --tag-tx:    #315567;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg:        #0f1923;
+      --surface:   #1b2d3e;
+      --navy:      #0f1923;
+      --text:      #e2e8f0;
+      --muted:     #8496aa;
+      --border:    #2a3f52;
+      --accent:    #5b9ab5;
+      --accent-lt: #1b2d3e;
+      --warn-bg:   #2a1f00;
+      --warn-bd:   #d97706;
+      --warn-tx:   #fbbf24;
+      --ok-bg:     #022c1a;
+      --ok-bd:     #059669;
+      --ok-tx:     #6ee7b7;
+      --err-bg:    #2a0000;
+      --err-bd:    #dc2626;
+      --err-tx:    #fca5a5;
+      --code-bg:   #ffffff;
+      --code-tx:   #1a2332;
+      --num:       #5b9ab5;
+      --tag-bg:    #1b2d3e;
+      --tag-tx:    #5b9ab5;
+    }
+  }
+  :root[data-theme="dark"] {
+    --bg:#0f1923;--surface:#1b2d3e;--navy:#0f1923;--text:#e2e8f0;--muted:#8496aa;
+    --border:#2a3f52;--accent:#5b9ab5;--accent-lt:#1b2d3e;
+    --warn-bg:#2a1f00;--warn-bd:#d97706;--warn-tx:#fbbf24;
+    --ok-bg:#022c1a;--ok-bd:#059669;--ok-tx:#6ee7b7;
+    --err-bg:#2a0000;--err-bd:#dc2626;--err-tx:#fca5a5;
+    --code-bg:#ffffff;--code-tx:#1a2332;--num:#5b9ab5;--tag-bg:#1b2d3e;--tag-tx:#5b9ab5;
+  }
+  :root[data-theme="light"] {
+    --bg:#f5f7fa;--surface:#ffffff;--navy:#1b2d3e;--text:#1a2332;--muted:#5a6e82;
+    --border:#dde3ea;--accent:#315567;--accent-lt:#e8f0f4;
+    --warn-bg:#fff8e6;--warn-bd:#d97706;--warn-tx:#7c4800;
+    --ok-bg:#edfaf3;--ok-bd:#059669;--ok-tx:#065f46;
+    --err-bg:#fff0f0;--err-bd:#dc2626;--err-tx:#7f1d1d;
+    --code-bg:#ffffff;--code-tx:#1a2332;--num:#315567;--tag-bg:#e8f0f4;--tag-tx:#315567;
+  }
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: system-ui, -apple-system, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    line-height: 1.65;
+    font-size: 15px;
+  }
+
+  /* ── Cover ── */
+  .cover {
+    background: var(--navy);
+    color: #fff;
+    padding: 56px 32px 48px;
+    text-align: center;
+  }
+  .cover-tag {
+    display: inline-block;
+    background: rgba(255,255,255,.12);
+    color: rgba(255,255,255,.85);
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: .12em;
+    text-transform: uppercase;
+    padding: 4px 14px;
+    border-radius: 20px;
+    margin-bottom: 20px;
+  }
+  .cover h1 {
+    font-size: clamp(24px, 5vw, 40px);
+    font-weight: 800;
+    line-height: 1.15;
+    text-wrap: balance;
+    margin-bottom: 14px;
+    color: #fff;
+  }
+  .cover p {
+    color: rgba(255,255,255,.7);
+    max-width: 520px;
+    margin: 0 auto 28px;
+    font-size: 15px;
+  }
+  .cover-chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    justify-content: center;
+    margin-bottom: 28px;
+  }
+  .chip {
+    background: rgba(255,255,255,.1);
+    color: rgba(255,255,255,.85);
+    font-size: 12px;
+    font-weight: 600;
+    padding: 4px 12px;
+    border-radius: 6px;
+    border: 1px solid rgba(255,255,255,.15);
+  }
+  .cover-obj {
+    display: inline-flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 6px;
+    background: rgba(255,255,255,.07);
+    border: 1px solid rgba(255,255,255,.12);
+    border-radius: 12px;
+    padding: 18px 22px;
+    text-align: left;
+    max-width: 480px;
+    width: 100%;
+    margin: 0 auto;
+  }
+  .cover-obj-title {
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: .1em;
+    text-transform: uppercase;
+    color: rgba(255,255,255,.5);
+    margin-bottom: 4px;
+  }
+  .cover-obj li {
+    list-style: none;
+    font-size: 13px;
+    color: rgba(255,255,255,.85);
+    display: flex;
+    gap: 8px;
+    align-items: flex-start;
+  }
+  .cover-obj li::before { content: "→"; color: #5b9ab5; flex-shrink: 0; }
+
+  /* ── Layout ── */
+  .content { max-width: 780px; margin: 0 auto; padding: 0 20px 60px; }
+
+  /* ── Section ── */
+  .section {
+    margin-top: 40px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    overflow: hidden;
+  }
+  .section-header {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    padding: 20px 24px 18px;
+    border-bottom: 1px solid var(--border);
+    background: var(--accent-lt);
+  }
+  .sec-num {
+    font-size: 28px;
+    font-weight: 900;
+    color: var(--num);
+    line-height: 1;
+    min-width: 36px;
+  }
+  .sec-title { font-size: 17px; font-weight: 700; color: var(--text); line-height: 1.2; }
+  .sec-sub   { font-size: 12px; color: var(--muted); margin-top: 2px; }
+  .sec-body  { padding: 20px 24px; display: flex; flex-direction: column; gap: 14px; }
+
+  /* ── Alerts ── */
+  .alert {
+    border-radius: 10px;
+    padding: 14px 16px;
+    font-size: 13.5px;
+    line-height: 1.6;
+    border-left: 4px solid;
+  }
+  .alert strong { display: block; font-size: 12px; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; margin-bottom: 4px; }
+  .alert.warn { background: var(--warn-bg); border-color: var(--warn-bd); color: var(--warn-tx); }
+  .alert.ok   { background: var(--ok-bg);   border-color: var(--ok-bd);   color: var(--ok-tx); }
+  .alert.err  { background: var(--err-bg);  border-color: var(--err-bd);  color: var(--err-tx); }
+  .alert.info { background: var(--accent-lt); border-color: var(--accent); color: var(--accent); }
+
+  /* ── Text ── */
+  .sec-body p { font-size: 14px; color: var(--muted); line-height: 1.7; }
+  .sec-body ul, .sec-body ol { padding-left: 20px; font-size: 14px; color: var(--muted); display: flex; flex-direction: column; gap: 4px; }
+  .sec-body li { line-height: 1.6; }
+
+  /* ── Code ── */
+  .code-wrap { border-radius: 10px; overflow: hidden; border: 1px solid var(--border); }
+  .code-label {
+    background: var(--accent);
+    color: #fff;
+    font-size: 10.5px;
+    font-weight: 700;
+    letter-spacing: .1em;
+    text-transform: uppercase;
+    padding: 5px 14px;
+  }
+  pre {
+    background: var(--code-bg);
+    color: var(--code-tx);
+    font-family: ui-monospace, "Cascadia Code", "Fira Code", monospace;
+    font-size: 12.5px;
+    line-height: 1.7;
+    padding: 16px 18px;
+    overflow-x: auto;
+    user-select: text;
+    -webkit-user-select: text;
+    white-space: pre;
+    border: none;
+    margin: 0;
+  }
+  .cmd-wrap { border-radius: 10px; overflow-x: auto; border: 1px solid var(--border); }
+  .cmd-label {
+    background: #1b2d3e;
+    color: rgba(255,255,255,.5);
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: .1em;
+    text-transform: uppercase;
+    padding: 5px 14px;
+  }
+  pre.cmd {
+    background: #1b2d3e;
+    color: #a8d8ea;
+    white-space: pre;
+    overflow-x: auto;
+  }
+
+  /* ── Steps ── */
+  .steps { display: flex; flex-direction: column; gap: 10px; }
+  .step {
+    display: flex;
+    gap: 12px;
+    align-items: flex-start;
+    font-size: 13.5px;
+    color: var(--text);
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 12px 14px;
+  }
+  .step-n {
+    background: var(--accent);
+    color: #fff;
+    font-size: 11px;
+    font-weight: 700;
+    width: 22px;
+    height: 22px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    margin-top: 1px;
+  }
+
+  /* ── Tag ── */
+  .tag {
+    display: inline-block;
+    background: var(--tag-bg);
+    color: var(--tag-tx);
+    font-size: 11px;
+    font-weight: 700;
+    padding: 2px 8px;
+    border-radius: 4px;
+  }
+
+  /* ── Checklist ── */
+  .check-grid { display: flex; flex-direction: column; gap: 8px; }
+  .check-item {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+    padding: 10px 14px;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    font-size: 13.5px;
+    background: var(--bg);
+    color: var(--text);
+  }
+  .check-box {
+    width: 18px;
+    height: 18px;
+    border: 2px solid var(--border);
+    border-radius: 4px;
+    flex-shrink: 0;
+    background: var(--surface);
+  }
+
+  /* ── Key concept ── */
+  .concept {
+    background: var(--navy);
+    color: #fff;
+    border-radius: 10px;
+    padding: 16px 18px;
+    font-size: 13.5px;
+    line-height: 1.65;
+  }
+  .concept strong { color: #5b9ab5; }
+  .concept .ctitle { font-size: 11px; font-weight: 700; letter-spacing: .1em; text-transform: uppercase; color: rgba(255,255,255,.45); margin-bottom: 6px; }
+
+  /* ── Divider ── */
+  .divider { height: 1px; background: var(--border); margin: 0; }
+
+  h2 { font-size: 13px; font-weight: 700; color: var(--accent); text-transform: uppercase; letter-spacing: .08em; margin-bottom: 6px; }
+
+  /* ── Firebase Mockups ── */
+  .mockup-wrap { border-radius: 10px; overflow: hidden; border: 1px solid var(--border); background: var(--surface); }
+  .mockup-bar  { background: #e8e8e8; padding: 8px 12px; display: flex; align-items: center; gap: 6px; }
+  .mockup-dot  { width: 10px; height: 10px; border-radius: 50%; }
+  .mockup-dot.r { background: #ff5f57; }
+  .mockup-dot.y { background: #febc2e; }
+  .mockup-dot.g { background: #28c840; }
+  .mockup-url  { flex: 1; text-align: center; font-size: 11px; color: #666; background: #fff; border-radius: 4px; padding: 2px 10px; margin: 0 8px; }
+  .mockup-body { display: flex; min-height: 180px; }
+
+  .fb-sidebar  { width: 170px; background: #f8f9fa; border-right: 1px solid #e0e0e0; padding: 14px 0; flex-shrink: 0; }
+  .fb-logo     { font-size: 12px; font-weight: 700; color: #1a2332; padding: 0 14px 10px; border-bottom: 1px solid #e0e0e0; margin-bottom: 6px; }
+  .fb-menu-sep { font-size: 9px; font-weight: 700; letter-spacing: .1em; text-transform: uppercase; color: #999; padding: 8px 14px 4px; }
+  .fb-menu-item { font-size: 12px; color: #444; padding: 6px 14px; cursor: default; }
+  .fb-menu-item.active { background: #e8f0fe; color: #1a73e8; font-weight: 600; border-right: 3px solid #1a73e8; }
+
+  .fb-content  { flex: 1; padding: 14px 16px; }
+  .fb-topbar   { display: flex; gap: 0; border-bottom: 2px solid #e0e0e0; margin-bottom: 12px; }
+  .fb-tab      { font-size: 12px; color: #666; padding: 6px 14px; cursor: default; }
+  .fb-tab.active { color: #1a73e8; border-bottom: 2px solid #1a73e8; margin-bottom: -2px; font-weight: 600; }
+  .fb-section-title { font-size: 11px; font-weight: 700; color: #888; text-transform: uppercase; letter-spacing: .08em; margin-bottom: 8px; }
+  .fb-provider-row { display: flex; justify-content: space-between; align-items: center; padding: 8px 10px; border: 1px solid #e0e0e0; border-radius: 6px; margin-bottom: 6px; font-size: 12px; color: #333; background: #fff; }
+  .fb-badge-off { font-size: 10px; color: #999; background: #f0f0f0; padding: 2px 8px; border-radius: 10px; }
+  .fb-badge-on  { font-size: 10px; color: #059669; background: #d1fae5; padding: 2px 8px; border-radius: 10px; font-weight: 700; }
+
+  .fb-modal { background: #fff; border: 1px solid #ddd; border-radius: 10px; padding: 18px; width: 100%; max-width: 420px; box-shadow: 0 4px 20px rgba(0,0,0,.1); }
+  .fb-modal-title { font-size: 14px; font-weight: 700; color: #1a2332; margin-bottom: 14px; padding-bottom: 10px; border-bottom: 1px solid #eee; }
+  .fb-modal-row { display: flex; justify-content: space-between; align-items: flex-start; gap: 12px; padding: 10px 0; border-bottom: 1px solid #f0f0f0; }
+  .fb-toggle { width: 36px; height: 20px; border-radius: 10px; background: #ccc; flex-shrink: 0; position: relative; margin-top: 2px; }
+  .fb-toggle.on { background: #1a73e8; }
+  .fb-toggle.on::after { content: ''; position: absolute; width: 16px; height: 16px; background: #fff; border-radius: 50%; top: 2px; right: 2px; }
+  .fb-toggle::after { content: ''; position: absolute; width: 16px; height: 16px; background: #fff; border-radius: 50%; top: 2px; left: 2px; }
+  .fb-btn-cancel { font-size: 12px; color: #1a73e8; padding: 7px 14px; cursor: default; border-radius: 4px; }
+  .fb-btn-save   { font-size: 12px; color: #fff; background: #1a73e8; padding: 7px 14px; border-radius: 4px; cursor: default; font-weight: 600; }
+
+  @media (max-width: 600px) {
+    .fb-sidebar { width: 110px; }
+    .fb-menu-item, .fb-tab, .fb-provider-row { font-size: 10px; }
+  }
+
+  @media (max-width: 600px) {
+    .cover { padding: 40px 20px 36px; }
+    .sec-body { padding: 16px 16px; }
+    .section-header { padding: 16px 16px 14px; }
+  }
+</style>
+
+<!-- COVER -->
+<div class="cover">
+  <div class="cover-tag">Práctica Final · Cuatrimestre Mayo–Agosto 2026</div>
+  <h1>Firebase Auth + Firestore<br>en React Native con Expo Go</h1>
+  <p>Construye una app completa de comentarios con registro, inicio de sesión y guardado en tiempo real.</p>
+  <div class="cover-chips">
+    <span class="chip">Expo SDK 54</span>
+    <span class="chip">Firebase 10</span>
+    <span class="chip">Auth REST API</span>
+    <span class="chip">Firestore Modular</span>
+    <span class="chip">React Navigation</span>
+    <span class="chip">DateTimePicker</span>
+  </div>
+  <div class="cover-obj">
+    <div class="cover-obj-title">Lo que aprenderás</div>
+    <ul>
+      <li>Crear y configurar un proyecto Firebase con autenticación y Firestore</li>
+      <li>Autenticar usuarios con la API REST de Firebase (sin SDK nativo)</li>
+      <li>Compartir el estado de sesión con Context API</li>
+      <li>Leer y escribir datos en tiempo real con Firestore modular</li>
+      <li>Usar un selector de fecha nativo con DateTimePicker</li>
+    </ul>
+  </div>
+</div>
+
+<div class="content">
+
+  <!-- 1. Por qué usamos REST y no el SDK -->
+  <div class="section">
+    <div class="section-header">
+      <div class="sec-num">01</div>
+      <div>
+        <div class="sec-title">¿Por qué no usamos el SDK de Firebase Auth?</div>
+        <div class="sec-sub">Problema de arquitectura en Expo Go — léelo antes de empezar</div>
+      </div>
+    </div>
+    <div class="sec-body">
+      <div class="alert err">
+        <strong>⚠️ Error que verías si usaras firebase/auth directamente</strong>
+        Component auth has not been registered yet — este error ocurre porque Expo Go siempre activa la <em>Nueva Arquitectura</em> de React Native, y el SDK de Firebase Auth requiere módulos nativos que no son compatibles con ella dentro de Expo Go.
+      </div>
+      <div class="concept">
+        <div class="ctitle">Solución que usaremos</div>
+        Firebase ofrece una <strong>API REST</strong> para autenticación: en vez de importar el SDK, hacemos una llamada <strong>fetch()</strong> directa a los servidores de Firebase. Funciona en cualquier entorno porque solo usa JavaScript puro. Para Firestore sí usamos el SDK modular — este no tiene el problema de arquitectura porque usa HTTP internamente.
+      </div>
+      <div class="alert warn">
+        <strong>Nota sobre newArchEnabled</strong>
+        Poner <code>newArchEnabled: false</code> en app.json NO soluciona el problema dentro de Expo Go — esa opción solo aplica para builds de producción. En Expo Go siempre estás con la nueva arquitectura.
+      </div>
+    </div>
+  </div>
+
+  <!-- 2. Crear proyecto -->
+  <div class="section">
+    <div class="section-header">
+      <div class="sec-num">02</div>
+      <div>
+        <div class="sec-title">Crear el proyecto con Expo SDK 54</div>
+        <div class="sec-sub">Es importante usar la versión exacta para que coincida con Expo Go</div>
+      </div>
+    </div>
+    <div class="sec-body">
+      <div class="alert warn">
+        <strong>Versión exacta</strong>
+        Siempre crea el proyecto con <code>--template blank@sdk-54</code>. Si usas una versión más nueva, Expo Go te pedirá que actualices la app y puede generar conflictos.
+      </div>
+      <div class="cmd-wrap">
+        <div class="cmd-label">Terminal</div>
+        <pre class="cmd">npx create-expo-app mi-app --template blank@sdk-54</pre>
+      </div>
+      <div class="cmd-wrap">
+        <div class="cmd-label">Entrar a la carpeta</div>
+        <pre class="cmd">cd mi-app</pre>
+      </div>
+    </div>
+  </div>
+
+  <!-- 3. Instalar dependencias -->
+  <div class="section">
+    <div class="section-header">
+      <div class="sec-num">03</div>
+      <div>
+        <div class="sec-title">Instalar dependencias</div>
+        <div class="sec-sub">Usar npx expo install — no npm install directo</div>
+      </div>
+    </div>
+    <div class="sec-body">
+      <div class="alert info">
+        <strong>¿Por qué npx expo install?</strong>
+        Este comando instala la versión de cada paquete que es compatible con tu versión de Expo SDK. Si usas <code>npm install</code> directo puede instalar una versión incompatible.
+      </div>
+      <div class="cmd-wrap">
+        <div class="cmd-label">Firebase y navegación</div>
+        <pre class="cmd">npx expo install firebase @react-navigation/native @react-navigation/native-stack</pre>
+      </div>
+      <div class="cmd-wrap">
+        <div class="cmd-label">Dependencias de navegación y selector de fecha</div>
+        <pre class="cmd">npx expo install react-native-screens react-native-safe-area-context @react-native-community/datetimepicker</pre>
+      </div>
+    </div>
+  </div>
+
+  <!-- 4. Metro config -->
+  <div class="section">
+    <div class="section-header">
+      <div class="sec-num">04</div>
+      <div>
+        <div class="sec-title">Configurar Metro — paso crítico</div>
+        <div class="sec-sub">Sin esto, Firebase no puede cargar sus módulos correctamente</div>
+      </div>
+    </div>
+    <div class="sec-body">
+      <div class="alert err">
+        <strong>¿Por qué es obligatorio?</strong>
+        Firebase distribuye algunos archivos en formato <code>.cjs</code> (CommonJS). Metro, el bundler de Expo, por defecto no sabe cómo resolverlos. Sin esta configuración verás errores extraños al importar Firebase.
+      </div>
+      <p>Crea el archivo <span class="tag">metro.config.js</span> en la raíz del proyecto:</p>
+      <div class="code-wrap">
+        <div class="code-label">metro.config.js</div>
+        <pre>const { getDefaultConfig } = require('expo/metro-config');
+
+const config = getDefaultConfig(__dirname);
+
+config.resolver.sourceExts.push('cjs');
+config.resolver.unstable_enablePackageExports = false;
+
+module.exports = config;</pre>
+      </div>
+    </div>
+  </div>
+
+  <!-- 5. Firebase Console -->
+  <div class="section">
+    <div class="section-header">
+      <div class="sec-num">05</div>
+      <div>
+        <div class="sec-title">Configurar Firebase Console</div>
+        <div class="sec-sub">console.firebase.google.com</div>
+      </div>
+    </div>
+    <div class="sec-body">
+      <h2>Crear proyecto y app web</h2>
+      <!-- Mockup 1: Sidebar Firebase -->
+      <h2>Paso 1 — Activar Authentication</h2>
+      <div class="mockup-wrap">
+        <div class="mockup-bar"><span class="mockup-dot r"></span><span class="mockup-dot y"></span><span class="mockup-dot g"></span><span class="mockup-url">console.firebase.google.com</span></div>
+        <div class="mockup-body">
+          <div class="fb-sidebar">
+            <div class="fb-logo">🔥 Mi Proyecto</div>
+            <div class="fb-menu-item">Descripción general</div>
+            <div class="fb-menu-sep">Build</div>
+            <div class="fb-menu-item active">Authentication</div>
+            <div class="fb-menu-item">Firestore Database</div>
+            <div class="fb-menu-item">Storage</div>
+          </div>
+          <div class="fb-content">
+            <div class="fb-topbar">
+              <span class="fb-tab active">Sign-in method</span>
+              <span class="fb-tab">Users</span>
+              <span class="fb-tab">Templates</span>
+            </div>
+            <div class="fb-section-title">Proveedores de acceso</div>
+            <div class="fb-provider-row" style="cursor:pointer; background:#f0f7ff; border:1.5px solid #4285f4;">
+              <span>✉️ Correo electrónico/contraseña</span>
+              <span class="fb-badge-off">Haz clic aquí</span>
+            </div>
+            <div class="fb-provider-row">
+              <span>📱 Teléfono</span>
+              <span class="fb-badge-off">Desactivado</span>
+            </div>
+            <div class="fb-provider-row">
+              <span>👤 Anónimo</span>
+              <span class="fb-badge-off">Desactivado</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Mockup 2: Modal activar -->
+      <h2>Paso 2 — Activar el switch y guardar</h2>
+      <div class="mockup-wrap">
+        <div class="mockup-bar"><span class="mockup-dot r"></span><span class="mockup-dot y"></span><span class="mockup-dot g"></span><span class="mockup-url">console.firebase.google.com</span></div>
+        <div class="mockup-body" style="justify-content:center; align-items:center; padding: 20px;">
+          <div class="fb-modal">
+            <div class="fb-modal-title">✉️ Correo electrónico/contraseña</div>
+            <div class="fb-modal-row">
+              <div>
+                <div style="font-weight:600; font-size:13px;">Correo electrónico/contraseña</div>
+                <div style="font-size:11px; color:#666; margin-top:2px;">Permite que los usuarios se registren con su correo y contraseña.</div>
+              </div>
+              <div class="fb-toggle on"></div>
+            </div>
+            <div class="fb-modal-row" style="opacity:.4;">
+              <div>
+                <div style="font-weight:600; font-size:13px;">Vínculo del correo (sin contraseña)</div>
+                <div style="font-size:11px; color:#666; margin-top:2px;">El usuario recibe un link por correo para acceder.</div>
+              </div>
+              <div class="fb-toggle"></div>
+            </div>
+            <div style="display:flex; justify-content:flex-end; gap:10px; margin-top:16px;">
+              <div class="fb-btn-cancel">Cancelar</div>
+              <div class="fb-btn-save">Guardar</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Mockup 3: Resultado -->
+      <h2>Paso 3 — Verificar que quedó habilitado</h2>
+      <div class="mockup-wrap">
+        <div class="mockup-bar"><span class="mockup-dot r"></span><span class="mockup-dot y"></span><span class="mockup-dot g"></span><span class="mockup-url">console.firebase.google.com</span></div>
+        <div class="mockup-body">
+          <div class="fb-sidebar">
+            <div class="fb-logo">🔥 Mi Proyecto</div>
+            <div class="fb-menu-item">Descripción general</div>
+            <div class="fb-menu-sep">Build</div>
+            <div class="fb-menu-item active">Authentication</div>
+            <div class="fb-menu-item">Firestore Database</div>
+          </div>
+          <div class="fb-content">
+            <div class="fb-topbar">
+              <span class="fb-tab active">Sign-in method</span>
+              <span class="fb-tab">Users</span>
+            </div>
+            <div class="fb-section-title">Proveedores de acceso</div>
+            <div class="fb-provider-row">
+              <span>✉️ Correo electrónico/contraseña</span>
+              <span class="fb-badge-on">✓ Habilitada</span>
+            </div>
+            <div class="fb-provider-row" style="opacity:.5;">
+              <span>📱 Teléfono</span>
+              <span class="fb-badge-off">Desactivado</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="alert ok">
+        <strong>Verifica</strong>
+        Cuando el estado diga <em>Habilitada</em> en verde ya puedes registrar usuarios desde la app. Si no está habilitado, verás el error <code>CONFIGURATION_NOT_FOUND</code>.
+      </div>
+    </div>
+  </div>
+
+  <!-- 6. firebase.js -->
+  <div class="section">
+    <div class="section-header">
+      <div class="sec-num">06</div>
+      <div>
+        <div class="sec-title">src/firebase.js</div>
+        <div class="sec-sub">Firestore modular + Auth vía REST</div>
+      </div>
+    </div>
+    <div class="sec-body">
+      <div class="concept">
+        <div class="ctitle">Cómo funciona</div>
+        Exportamos <strong>db</strong> (Firestore SDK modular) para leer y escribir datos, y un objeto <strong>auth</strong> que internamente hace llamadas <strong>fetch()</strong> a la API REST de Firebase en vez de usar el SDK de Auth.
+      </div>
+      <div class="code-wrap">
+        <div class="code-label">src/firebase.js</div>
+        <pre>import { initializeApp } from 'firebase/app';
+import { getFirestore } from 'firebase/firestore';
+
+const firebaseConfig = {
+  apiKey:            "TU_API_KEY",
+  authDomain:        "TU_PROYECTO.firebaseapp.com",
+  projectId:         "TU_PROYECTO",
+  storageBucket:     "TU_PROYECTO.firebasestorage.app",
+  messagingSenderId: "TU_SENDER_ID",
+  appId:             "TU_APP_ID",
+};
+
+const app = initializeApp(firebaseConfig);
+export const db = getFirestore(app);
+
+// Auth vía REST (compatible con nueva arquitectura de React Native)
+const AUTH_URL = 'https://identitytoolkit.googleapis.com/v1/accounts';
+const API_KEY  = firebaseConfig.apiKey;
+
+async function authRequest(endpoint, email, password) {
+  const res = await fetch(`${AUTH_URL}:${endpoint}?key=${API_KEY}`, {
+    method:  'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body:    JSON.stringify({ email, password, returnSecureToken: true }),
+  });
+  const data = await res.json();
+  if (!res.ok) throw { code: data.error?.message };
+  return { uid: data.localId, email: data.email, token: data.idToken };
+}
+
+export const auth = {
+  signInWithEmailAndPassword:     (email, pw) =>
+    authRequest('signInWithPassword', email, pw),
+  createUserWithEmailAndPassword: (email, pw) =>
+    authRequest('signUp', email, pw),
+};</pre>
+      </div>
+      <div class="alert warn">
+        <strong>Sustituye los valores</strong>
+        Reemplaza todos los campos de <code>firebaseConfig</code> con los datos reales de tu proyecto Firebase.
+      </div>
+    </div>
+  </div>
+
+  <!-- 7. AuthContext -->
+  <div class="section">
+    <div class="section-header">
+      <div class="sec-num">07</div>
+      <div>
+        <div class="sec-title">src/context/AuthContext.jsx</div>
+        <div class="sec-sub">Compartir el usuario entre todas las pantallas</div>
+      </div>
+    </div>
+    <div class="sec-body">
+      <div class="concept">
+        <div class="ctitle">Context API</div>
+        El <strong>AuthProvider</strong> guarda el usuario en un estado de React. Cualquier pantalla que llame a <strong>useAuth()</strong> puede leer el usuario y cambiar la sesión con <strong>setUser</strong>.
+      </div>
+      <div class="code-wrap">
+        <div class="code-label">src/context/AuthContext.jsx</div>
+        <pre>import { createContext, useContext, useState } from 'react';
+
+const AuthContext = createContext(null);
+
+export function AuthProvider({ children }) {
+  const [user, setUser] = useState(null);
+
+  return (
+    &lt;AuthContext.Provider value={{ user, setUser }}&gt;
+      {children}
+    &lt;/AuthContext.Provider&gt;
+  );
+}
+
+export function useAuth() {
+  return useContext(AuthContext);
+}</pre>
+      </div>
+    </div>
+  </div>
+
+  <!-- 8. App.js -->
+  <div class="section">
+    <div class="section-header">
+      <div class="sec-num">08</div>
+      <div>
+        <div class="sec-title">App.js</div>
+        <div class="sec-sub">Navegación condicional según el estado de sesión</div>
+      </div>
+    </div>
+    <div class="sec-body">
+      <div class="concept">
+        <div class="ctitle">Lógica de navegación</div>
+        Si <strong>user</strong> tiene valor → muestra HomeScreen. Si <strong>user</strong> es <strong>null</strong> → muestra LoginScreen. El cambio ocurre automáticamente cuando el usuario inicia sesión o cierra sesión.
+      </div>
+      <div class="code-wrap">
+        <div class="code-label">App.js</div>
+        <pre>import { NavigationContainer } from '@react-navigation/native';
+import { createNativeStackNavigator } from '@react-navigation/native-stack';
+import { AuthProvider, useAuth } from './src/context/AuthContext';
+import LoginScreen from './src/screens/LoginScreen';
+import HomeScreen  from './src/screens/HomeScreen';
+
+const Stack = createNativeStackNavigator();
+
+function Navigator() {
+  const { user } = useAuth();
+
+  return (
+    &lt;NavigationContainer&gt;
+      &lt;Stack.Navigator screenOptions={{ headerShown: false }}&gt;
+        {user
+          ? &lt;Stack.Screen name="Home"  component={HomeScreen} /&gt;
+          : &lt;Stack.Screen name="Login" component={LoginScreen} /&gt;
+        }
+      &lt;/Stack.Navigator&gt;
+    &lt;/NavigationContainer&gt;
+  );
+}
+
+export default function App() {
+  return (
+    &lt;AuthProvider&gt;
+      &lt;Navigator /&gt;
+    &lt;/AuthProvider&gt;
+  );
+}</pre>
+      </div>
+    </div>
+  </div>
+
+  <!-- 9. LoginScreen -->
+  <div class="section">
+    <div class="section-header">
+      <div class="sec-num">09</div>
+      <div>
+        <div class="sec-title">src/screens/LoginScreen.jsx</div>
+        <div class="sec-sub">Registro e inicio de sesión en una sola pantalla</div>
+      </div>
+    </div>
+    <div class="sec-body">
+      <p>Un solo estado <code>modo</code> controla si el botón registra o inicia sesión. Al completar el proceso, se llama a <code>setUser(usuario)</code> para guardar el usuario y la navegación cambia automáticamente a HomeScreen.</p>
+      <div class="code-wrap">
+        <div class="code-label">src/screens/LoginScreen.jsx</div>
+        <pre>import { useState } from 'react';
+import {
+  View, Text, TextInput, TouchableOpacity,
+  StyleSheet, Alert, KeyboardAvoidingView, Platform,
+} from 'react-native';
+import { auth } from '../firebase';
+import { useAuth } from '../context/AuthContext';
+
+export default function LoginScreen() {
+  const { setUser } = useAuth();
+  const [email,    setEmail]    = useState('');
+  const [password, setPassword] = useState('');
+  const [modo,     setModo]     = useState('login');
+  const [cargando, setCargando] = useState(false);
+
+  async function entrar() {
+    if (!email.trim() || !password) {
+      Alert.alert('Campos requeridos', 'Ingresa correo y contraseña.');
+      return;
+    }
+    setCargando(true);
+    try {
+      let usuario;
+      if (modo === 'login') {
+        usuario = await auth.signInWithEmailAndPassword(
+          email.trim(), password
+        );
+      } else {
+        if (password.length &lt; 6) {
+          Alert.alert('Contraseña corta', 'Mínimo 6 caracteres.');
+          setCargando(false);
+          return;
+        }
+        usuario = await auth.createUserWithEmailAndPassword(
+          email.trim(), password
+        );
+      }
+      setUser(usuario);
+    } catch (e) {
+      Alert.alert('Error', traducir(e.code));
+    } finally {
+      setCargando(false);
+    }
+  }
+
+  return (
+    &lt;KeyboardAvoidingView
+      style={styles.wrap}
+      behavior={Platform.OS === 'ios' ? 'padding' : undefined}
+    &gt;
+      &lt;Text style={styles.titulo}&gt;Reseñas UTM&lt;/Text&gt;
+      &lt;Text style={styles.subtitulo}&gt;
+        {modo === 'login'
+          ? 'Inicia sesión para continuar'
+          : 'Crea tu cuenta'}
+      &lt;/Text&gt;
+
+      &lt;TextInput
+        style={styles.input}
+        placeholder="Correo electrónico"
+        value={email}
+        onChangeText={setEmail}
+        keyboardType="email-address"
+        autoCapitalize="none"
+      /&gt;
+      &lt;TextInput
+        style={styles.input}
+        placeholder="Contraseña"
+        value={password}
+        onChangeText={setPassword}
+        secureTextEntry
+      /&gt;
+
+      &lt;TouchableOpacity
+        style={styles.btn}
+        onPress={entrar}
+        disabled={cargando}
+      &gt;
+        &lt;Text style={styles.btnTxt}&gt;
+          {cargando
+            ? 'Espera…'
+            : modo === 'login'
+              ? 'Iniciar sesión'
+              : 'Crear cuenta'}
+        &lt;/Text&gt;
+      &lt;/TouchableOpacity&gt;
+
+      &lt;TouchableOpacity
+        onPress={() =>
+          setModo(modo === 'login' ? 'registro' : 'login')
+        }
+      &gt;
+        &lt;Text style={styles.link}&gt;
+          {modo === 'login'
+            ? '¿No tienes cuenta? Regístrate'
+            : '¿Ya tienes cuenta? Inicia sesión'}
+        &lt;/Text&gt;
+      &lt;/TouchableOpacity&gt;
+    &lt;/KeyboardAvoidingView&gt;
+  );
+}
+
+function traducir(code) {
+  const m = {
+    'EMAIL_EXISTS':            'Este correo ya tiene una cuenta.',
+    'INVALID_LOGIN_CREDENTIALS': 'Correo o contraseña incorrectos.',
+    'INVALID_EMAIL':           'El correo no es válido.',
+    'WEAK_PASSWORD':           'Contraseña de mínimo 6 caracteres.',
+    'TOO_MANY_ATTEMPTS_TRY_LATER': 'Demasiados intentos. Espera.',
+  };
+  return m[code] ?? `Error: ${code}`;
+}
+
+const C = { azul:'#263f4d', acento:'#315567',
+            fondo:'#f4f7f8', borde:'#e2e8f0' };
+const styles = StyleSheet.create({
+  wrap:      { flex:1, justifyContent:'center',
+               padding:28, backgroundColor:C.fondo },
+  titulo:    { fontSize:26, fontWeight:'800', color:C.azul,
+               textAlign:'center', marginBottom:4 },
+  subtitulo: { fontSize:13, color:'#94a3b8',
+               textAlign:'center', marginBottom:28 },
+  input:     { backgroundColor:'#fff', borderWidth:1.5,
+               borderColor:C.borde, borderRadius:10,
+               padding:13, marginBottom:12, fontSize:15 },
+  btn:       { backgroundColor:C.acento, borderRadius:10,
+               padding:15, alignItems:'center', marginBottom:14 },
+  btnTxt:    { color:'#fff', fontWeight:'700', fontSize:15 },
+  link:      { color:C.acento, textAlign:'center',
+               fontSize:13, textDecorationLine:'underline' },
+});</pre>
+      </div>
+    </div>
+  </div>
+
+  <!-- 10. HomeScreen -->
+  <div class="section">
+    <div class="section-header">
+      <div class="sec-num">10</div>
+      <div>
+        <div class="sec-title">src/screens/HomeScreen.jsx</div>
+        <div class="sec-sub">Formulario con DateTimePicker + lista en tiempo real</div>
+      </div>
+    </div>
+    <div class="sec-body">
+      <div class="concept">
+        <div class="ctitle">Puntos clave de esta pantalla</div>
+        <strong>DateTimePicker</strong> muestra el selector de fecha nativo del sistema. <strong>onSnapshot</strong> mantiene la lista actualizada en tiempo real sin necesidad de recargar. Cada comentario se guarda con el <strong>uid</strong> del usuario para que solo vea los suyos.
+      </div>
+      <div class="code-wrap">
+        <div class="code-label">src/screens/HomeScreen.jsx — imports y estado</div>
+        <pre>import { useState, useEffect } from 'react';
+import {
+  View, Text, TextInput, TouchableOpacity, StyleSheet,
+  Alert, ActivityIndicator, KeyboardAvoidingView,
+  Platform, ScrollView,
+} from 'react-native';
+import DateTimePicker from '@react-native-community/datetimepicker';
+import { db } from '../firebase';
+import {
+  collection, addDoc, query, where,
+  orderBy, onSnapshot, serverTimestamp,
+} from 'firebase/firestore';
+import { useAuth } from '../context/AuthContext';
+
+export default function HomeScreen() {
+  const { user, setUser } = useAuth();
+  const [titulo,      setTitulo]    = useState('');
+  const [fecha,       setFecha]     = useState(new Date());
+  const [mostrarDP,   setMostrarDP] = useState(false);
+  const [estrellas,   setEstrellas] = useState(0);
+  const [comentarios, setComentarios] = useState('');
+  const [guardando,   setGuardando] = useState(false);
+  const [resenas,     setResenas]   = useState([]);
+  const [cargando,    setCargando]  = useState(true);</pre>
+      </div>
+      <div class="code-wrap">
+        <div class="code-label">src/screens/HomeScreen.jsx — lógica</div>
+        <pre>  // Escucha en tiempo real los comentarios del usuario actual
+  useEffect(() => {
+    if (!user) return;
+    const q = query(
+      collection(db, 'resenas'),
+      where('uid', '==', user.uid),
+      orderBy('timestamp', 'desc'),
+    );
+    const unsub = onSnapshot(q, snap => {
+      setResenas(snap.docs.map(d => ({ id: d.id, ...d.data() })));
+      setCargando(false);
+    });
+    return unsub; // limpia el listener al salir
+  }, [user]);
+
+  function formatFecha(d) {
+    return d.toLocaleDateString('es-MX', {
+      day: '2-digit', month: 'long', year: 'numeric',
+    });
+  }
+
+  async function enviar() {
+    if (!titulo.trim() || estrellas === 0) {
+      Alert.alert('Campos requeridos',
+        'Completa el título y la calificación.');
+      return;
+    }
+    setGuardando(true);
+    try {
+      await addDoc(collection(db, 'resenas'), {
+        uid:         user.uid,
+        email:       user.email,
+        titulo:      titulo.trim(),
+        fecha:       formatFecha(fecha),
+        estrellas,
+        comentarios: comentarios.trim(),
+        timestamp:   serverTimestamp(),
+      });
+      setTitulo(''); setFecha(new Date());
+      setEstrellas(0); setComentarios('');
+      Alert.alert('Guardado', 'Comentario enviado.');
+    } catch (e) {
+      Alert.alert('Error', e.message);
+    } finally {
+      setGuardando(false);
+    }
+  }</pre>
+      </div>
+      <div class="code-wrap">
+        <div class="code-label">src/screens/HomeScreen.jsx — render (fragmento)</div>
+        <pre>  return (
+    &lt;KeyboardAvoidingView style={{ flex:1 }}
+      behavior={Platform.OS === 'ios' ? 'padding' : undefined}&gt;
+      &lt;ScrollView keyboardShouldPersistTaps="handled"&gt;
+
+        {/* Encabezado */}
+        &lt;View style={styles.header}&gt;
+          &lt;View&gt;
+            &lt;Text style={styles.saludo}&gt;Hola&lt;/Text&gt;
+            &lt;Text style={styles.email}&gt;{user?.email}&lt;/Text&gt;
+          &lt;/View&gt;
+          &lt;TouchableOpacity onPress={() => setUser(null)}&gt;
+            &lt;Text style={styles.logoutTxt}&gt;Salir&lt;/Text&gt;
+          &lt;/TouchableOpacity&gt;
+        &lt;/View&gt;
+
+        {/* Formulario */}
+        &lt;Text style={styles.lbl}&gt;Tema&lt;/Text&gt;
+        &lt;TextInput style={styles.input} value={titulo}
+          onChangeText={setTitulo}
+          placeholder="Instalaciones, atención, servicios…" /&gt;
+
+        &lt;Text style={styles.lbl}&gt;Fecha&lt;/Text&gt;
+        &lt;TouchableOpacity style={styles.dateBtn}
+          onPress={() => setMostrarDP(true)}&gt;
+          &lt;Text&gt;{formatFecha(fecha)}&lt;/Text&gt;
+        &lt;/TouchableOpacity&gt;
+
+        {mostrarDP &amp;&amp; (
+          &lt;DateTimePicker
+            value={fecha}
+            mode="date"
+            display={Platform.OS === 'ios' ? 'spinner' : 'default'}
+            maximumDate={new Date()}
+            onChange={(_, d) => {
+              setMostrarDP(false);
+              if (d) setFecha(d);
+            }}
+          /&gt;
+        )}
+
+        {/* Estrellas */}
+        &lt;View style={{ flexDirection:'row', gap:6 }}&gt;
+          {[1,2,3,4,5].map(i => (
+            &lt;TouchableOpacity key={i} onPress={() => setEstrellas(i)}&gt;
+              &lt;Text style={{ fontSize:32,
+                color: i &lt;= estrellas ? '#f59e0b' : '#d1d5db' }}&gt;
+                ★
+              &lt;/Text&gt;
+            &lt;/TouchableOpacity&gt;
+          ))}
+        &lt;/View&gt;
+
+        &lt;TextInput style={[styles.input, { minHeight:70 }]}
+          value={comentarios} onChangeText={setComentarios}
+          placeholder="¿Qué opinas de la UTM?"
+          multiline numberOfLines={3} /&gt;
+
+        &lt;TouchableOpacity style={styles.btn}
+          onPress={enviar} disabled={guardando}&gt;
+          &lt;Text style={styles.btnTxt}&gt;
+            {guardando ? 'Guardando…' : 'Enviar comentario'}
+          &lt;/Text&gt;
+        &lt;/TouchableOpacity&gt;
+
+      &lt;/ScrollView&gt;
+    &lt;/KeyboardAvoidingView&gt;
+  );</pre>
+      </div>
+    </div>
+  </div>
+
+  <!-- 11. Reglas Firestore -->
+  <div class="section">
+    <div class="section-header">
+      <div class="sec-num">11</div>
+      <div>
+        <div class="sec-title">Reglas de Firestore</div>
+        <div class="sec-sub">Firestore → Reglas → Publicar</div>
+      </div>
+    </div>
+    <div class="sec-body">
+      <div class="alert warn">
+        <strong>¿Por qué necesitamos cambiar las reglas?</strong>
+        Usamos Auth REST — Firestore no puede verificar automáticamente que el usuario está autenticado. Para una app de práctica configuramos acceso abierto. En una app real se usaría @react-native-firebase con el SDK nativo para tener reglas por usuario.
+      </div>
+      <div class="code-wrap">
+        <div class="code-label">Firestore → Reglas</div>
+        <pre>rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    match /{document=**} {
+      allow read, write: if true;
+    }
+  }
+}</pre>
+      </div>
+      <div class="alert ok">
+        <strong>Después de pegar las reglas</strong>
+        Haz clic en <strong>Publicar</strong>. Las reglas tardan unos segundos en aplicarse.
+      </div>
+    </div>
+  </div>
+
+  <!-- 12. Arrancar -->
+  <div class="section">
+    <div class="section-header">
+      <div class="sec-num">12</div>
+      <div>
+        <div class="sec-title">Ejecutar la app</div>
+        <div class="sec-sub">Mac y celular en la misma red WiFi</div>
+      </div>
+    </div>
+    <div class="sec-body">
+      <div class="cmd-wrap">
+        <div class="cmd-label">Terminal — siempre con --clear la primera vez</div>
+        <pre class="cmd">npx expo start --lan --clear</pre>
+      </div>
+      <div class="alert info">
+        <strong>Si --lan no conecta</strong>
+        Prueba sin flag: <code>npx expo start --clear</code>. Asegúrate de que el iPhone y la Mac estén en la misma red WiFi. El modo --tunnel depende de ngrok y puede fallar; evítalo si puedes usar la misma red.
+      </div>
+      <div class="steps">
+        <div class="step"><div class="step-n">1</div>Escanea el código QR con la cámara del iPhone (iOS) o con Expo Go (Android).</div>
+        <div class="step"><div class="step-n">2</div>La primera carga tarda mientras Metro empaqueta los módulos.</div>
+        <div class="step"><div class="step-n">3</div>Para recargar: agita el teléfono → <strong>Reload</strong>.</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 13. Checklist -->
+  <div class="section">
+    <div class="section-header">
+      <div class="sec-num">13</div>
+      <div>
+        <div class="sec-title">Checklist de entrega</div>
+        <div class="sec-sub">Verifica cada punto antes de mostrar tu práctica</div>
+      </div>
+    </div>
+    <div class="sec-body">
+      <div class="check-grid">
+        <div class="check-item"><div class="check-box"></div>El proyecto fue creado con <code>--template blank@sdk-54</code></div>
+        <div class="check-item"><div class="check-box"></div>Existe el archivo <code>metro.config.js</code> con <code>sourceExts.push('cjs')</code></div>
+        <div class="check-item"><div class="check-box"></div>En Firebase Console: Correo/contraseña habilitado en Authentication</div>
+        <div class="check-item"><div class="check-box"></div>Las reglas de Firestore permiten lectura/escritura y están publicadas</div>
+        <div class="check-item"><div class="check-box"></div>El archivo <code>firebase.js</code> tiene las claves reales del proyecto</div>
+        <div class="check-item"><div class="check-box"></div>Se puede registrar un nuevo usuario con correo y contraseña</div>
+        <div class="check-item"><div class="check-box"></div>Se puede iniciar sesión con una cuenta ya existente</div>
+        <div class="check-item"><div class="check-box"></div>El selector de fecha abre el calendario nativo al tocar la fecha</div>
+        <div class="check-item"><div class="check-box"></div>Los comentarios guardados aparecen en la lista sin recargar</div>
+        <div class="check-item"><div class="check-box"></div>El botón Salir regresa a la pantalla de inicio de sesión</div>
+        <div class="check-item"><div class="check-box"></div>Los datos del usuario se ven en Firebase Console → Firestore</div>
+      </div>
+    </div>
+  </div>
+
+</div>
